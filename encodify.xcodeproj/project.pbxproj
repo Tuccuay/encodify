@@ -12,6 +12,7 @@
 		B325A355209B92ADFA15B690 /* libPods-encodify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EFCA600BBADA1786A6D4A8D5 /* libPods-encodify.a */; };
 		DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */ = {isa = PBXBuildFile; fileRef = DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */; };
 		DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C971D74603300BAD51D /* HashResultTableViewCell.m */; };
+		DF917C9E1D74748B00BAD51D /* EToast.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C9D1D74748B00BAD51D /* EToast.m */; };
 		DFF62F121D72E24A00BBE261 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F111D72E24A00BBE261 /* main.m */; };
 		DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F141D72E24A00BBE261 /* AppDelegate.m */; };
 		DFF62F1B1D72E24A00BBE261 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFF62F191D72E24A00BBE261 /* Main.storyboard */; };
@@ -51,6 +52,9 @@
 		DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CocoaSecurity+HashMothod.m"; sourceTree = "<group>"; };
 		DF917C961D74603300BAD51D /* HashResultTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashResultTableViewCell.h; sourceTree = "<group>"; };
 		DF917C971D74603300BAD51D /* HashResultTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HashResultTableViewCell.m; sourceTree = "<group>"; };
+		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		DF917C9C1D74748B00BAD51D /* EToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EToast.h; sourceTree = "<group>"; };
+		DF917C9D1D74748B00BAD51D /* EToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EToast.m; sourceTree = "<group>"; };
 		DFF62F0D1D72E24A00BBE261 /* encodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = encodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF62F111D72E24A00BBE261 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DFF62F131D72E24A00BBE261 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -118,6 +122,7 @@
 		9497B5A3A4EEB551D81931CB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DF917C991D7473EF00BAD51D /* libz.tbd */,
 				EFCA600BBADA1786A6D4A8D5 /* libPods-encodify.a */,
 				B31A98F5C3E928A1618F5920 /* libPods-encodifyTests.a */,
 				E1573779F0DC2FCC83EC3DA5 /* libPods-encodifyUITests.a */,
@@ -130,6 +135,15 @@
 			children = (
 				DF70A9D31D7321FB007477F5 /* CocoaSecurity+HashMothod.h */,
 				DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */,
+			);
+			path = Module;
+			sourceTree = "<group>";
+		};
+		DF917C9B1D74745400BAD51D /* Module */ = {
+			isa = PBXGroup;
+			children = (
+				DF917C9C1D74748B00BAD51D /* EToast.h */,
+				DF917C9D1D74748B00BAD51D /* EToast.m */,
 			);
 			path = Module;
 			sourceTree = "<group>";
@@ -211,6 +225,7 @@
 		DFF62F441D72E2BA00BBE261 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				DF917C9B1D74745400BAD51D /* Module */,
 				DFF62F451D72E2BA00BBE261 /* Controller */,
 				DFF62F461D72E2BA00BBE261 /* Model */,
 				DFF62F471D72E2BA00BBE261 /* View */,
@@ -601,6 +616,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */,
+				DF917C9E1D74748B00BAD51D /* EToast.m in Sources */,
 				DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */,
 				DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */,
 				DFF62F561D72FD5500BBE261 /* HashViewController.m in Sources */,

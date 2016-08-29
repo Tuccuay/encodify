@@ -10,7 +10,6 @@
 
 #import <CommonCrypto/CommonCrypto.h>
 
-//#import "CocoaSecurity_HashMothod.h"
 #import "CocoaSecurity+HashMothod.h"
 #import "HashResultTableViewCell.h"
 
@@ -97,7 +96,7 @@
 #pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    self.cellSelectedBlock(self.hashResult[indexPath.section]);
 }
 
 #pragma mark - Getter / Setter

@@ -7,6 +7,7 @@ target 'encodify' do
 
   # Pods for encodify
   pod 'CocoaSecurity', '~> 1.2.4'
+  pod 'CWStatusBarNotification', '~> 2.3.4'
 
   target 'encodifyTests' do
     inherit! :search_paths

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-typedef void(^HashCellSelectedBlock)(NSString *hashSteing);
+typedef void(^HashCellSelectedBlock)(NSString *resultString);
 typedef void(^HashReloadDataBlock)();
 
 typedef NS_ENUM(NSUInteger, HashShowType) {

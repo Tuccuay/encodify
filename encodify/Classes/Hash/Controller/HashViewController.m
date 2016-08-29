@@ -9,8 +9,9 @@
 #import "HashViewController.h"
 
 #import "HashDataSource.h"
+#import "EToast.h"
 
-@interface HashViewController ()
+@interface HashViewController ()<UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextView *inputTextView;
 
@@ -30,6 +31,7 @@
     // Do any additional setup after loading the view.
     
     [self prepareTableView];
+    [self prepareGestures];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -40,46 +42,102 @@
 #pragma mark - Initinals
 
 - (void)prepareTableView {
-//    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:self.kHashTableViewCellIdentifier];
-    HashDataSource *dataSource = [[HashDataSource alloc] initWithIdentifier:self.kHashTableViewCellIdentifier
-                                                          cellSelectedBlock:^(NSString *hashSteing) {
-                                                              // TODO didSelectedCell
-                                                          }
-                                                            reloadDataBlock:^{
-                                                                [self.tableView reloadData];
-                                                            }];
-    self.tableView.estimatedRowHeight = 44.0f;
-    self.tableView.rowHeight = UITableViewAutomaticDimension;
+    
+    HashCellSelectedBlock selectedBlock = ^(NSString *resultString) {
+        [self.inputTextView resignFirstResponder];
+        
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        pasteboard.string = resultString;
+        
+        [EToast showStatus:@"Copied"];
+    };
+    
+    __weak typeof(*&self) weakSelf = self;
+    HashReloadDataBlock reloadBlock = ^{
+        [weakSelf.tableView reloadData];
+    };
+    
+    HashDataSource *dataSource = [[HashDataSource alloc] initWithIdentifier:weakSelf.kHashTableViewCellIdentifier
+                                                          cellSelectedBlock:selectedBlock
+                                                            reloadDataBlock:reloadBlock];
+    
+    self.tableView.estimatedRowHeight = 44;
     self.tableView.dataSource = dataSource;
     self.tableView.delegate = dataSource;
     self.dataSource = dataSource;
 }
 
+- (void)prepareGestures {
+    UITapGestureRecognizer *tapViewGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(resignInputTextViewFirstResponder)];
+    tapViewGesture.delegate = self;
+    [self.view addGestureRecognizer:tapViewGesture];
+    
+    UITapGestureRecognizer *tapNavigationGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(resignInputTextViewFirstResponder)];
+    tapNavigationGesture.delegate = self;
+    [self.navigationController.navigationBar addGestureRecognizer:tapNavigationGesture];
+}
+
 #pragma mark - Actions
 
 - (IBAction)copyButtonAction:(id)sender {
+    [self.inputTextView resignFirstResponder];
+    
+    if (self.inputTextView.text == nil || [self.inputTextView.text isEqual: @""]) {
+        [EToast showErrorWithStatus:@"No text in input box."];
+        return;
+    }
+    
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     pasteboard.string = self.inputTextView.text;
+    [EToast showStatus:@"Copied"];
 }
 
 - (IBAction)pasteButtonAction:(id)sender {
+    [self.inputTextView resignFirstResponder];
+    
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    
+    if (pasteboard.string == nil || [pasteboard.string isEqual: @""]) {
+        [EToast showErrorWithStatus:@"No text in pasteboard."];
+        return;
+    }
+    
     self.inputTextView.text = pasteboard.string;
     [self hashButtonAction:nil];
+    [EToast showStatus:@"Pasted"];
 }
 
 - (IBAction)clearButtonAction:(id)sender {
+    [self.inputTextView resignFirstResponder];
+    
     self.inputTextView.text = @"";
+    [EToast showStatus:@"Cleared"];
 }
 
 - (IBAction)hashButtonAction:(id)sender {
-    //    self.dataSource. = [self.inputTextView.text copy];
-
+    [self.inputTextView resignFirstResponder];
+    
+    if (self.inputTextView.text == nil || [self.inputTextView.text isEqual: @""]) {
+        [EToast showErrorWithStatus:@"No text in input box."];
+        return;
+    }
+    
     [self.dataSource hashWithSourceString:[self.inputTextView.text copy] showType:(NSUInteger)self.showTypeSegmentedControl.selectedSegmentIndex];
+    [EToast showStatus:@"Hashed"];
 }
 
 - (IBAction)showTypeSegmentedControlAction:(id)sender {
+    [self.inputTextView resignFirstResponder];
+    
     [self hashButtonAction:nil];
+}
+
+- (void)resignInputTextViewFirstResponder {
+    [self.inputTextView resignFirstResponder];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    NSLog(@"twt");
 }
 
 #pragma mark - Getter / Setter
@@ -90,6 +148,14 @@
     }
     
     return _kHashResultTableViewCellIdentifier;
+}
+
+#pragma mark - UIGestureRecognizerDelegate
+-(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if ([NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"]) {//判断如果点击的是tableView的cell，就把手势给关闭了
+        return NO;//关闭手势
+    }//否则手势存在
+    return YES;
 }
 
 @end
