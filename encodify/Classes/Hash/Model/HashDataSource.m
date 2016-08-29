@@ -12,6 +12,7 @@
 
 //#import "CocoaSecurity_HashMothod.h"
 #import "CocoaSecurity+HashMothod.h"
+#import "HashResultTableViewCell.h"
 
 @interface HashDataSource()
 
@@ -88,8 +89,8 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:self.kHashCellIdentifier];
-    cell.textLabel.text = self.hashResult[indexPath.section];
+    HashResultTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:self.kHashCellIdentifier];
+    cell.resultString = self.hashResult[indexPath.section];
     return cell;
 }
 

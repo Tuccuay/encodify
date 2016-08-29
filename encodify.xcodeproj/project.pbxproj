@@ -11,6 +11,7 @@
 		9280953B6FD65D20FFE47921 /* libPods-encodifyTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B31A98F5C3E928A1618F5920 /* libPods-encodifyTests.a */; };
 		B325A355209B92ADFA15B690 /* libPods-encodify.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EFCA600BBADA1786A6D4A8D5 /* libPods-encodify.a */; };
 		DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */ = {isa = PBXBuildFile; fileRef = DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */; };
+		DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C971D74603300BAD51D /* HashResultTableViewCell.m */; };
 		DFF62F121D72E24A00BBE261 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F111D72E24A00BBE261 /* main.m */; };
 		DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F141D72E24A00BBE261 /* AppDelegate.m */; };
 		DFF62F1B1D72E24A00BBE261 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFF62F191D72E24A00BBE261 /* Main.storyboard */; };
@@ -48,6 +49,8 @@
 		D45923A1D407895AF6C843BF /* Pods-encodifyTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-encodifyTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-encodifyTests/Pods-encodifyTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DF70A9D31D7321FB007477F5 /* CocoaSecurity+HashMothod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CocoaSecurity+HashMothod.h"; sourceTree = "<group>"; };
 		DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CocoaSecurity+HashMothod.m"; sourceTree = "<group>"; };
+		DF917C961D74603300BAD51D /* HashResultTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashResultTableViewCell.h; sourceTree = "<group>"; };
+		DF917C971D74603300BAD51D /* HashResultTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HashResultTableViewCell.m; sourceTree = "<group>"; };
 		DFF62F0D1D72E24A00BBE261 /* encodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = encodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF62F111D72E24A00BBE261 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DFF62F131D72E24A00BBE261 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -330,6 +333,8 @@
 		DFF62F531D72E2BA00BBE261 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				DF917C961D74603300BAD51D /* HashResultTableViewCell.h */,
+				DF917C971D74603300BAD51D /* HashResultTableViewCell.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -595,6 +600,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */,
 				DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */,
 				DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */,
 				DFF62F561D72FD5500BBE261 /* HashViewController.m in Sources */,

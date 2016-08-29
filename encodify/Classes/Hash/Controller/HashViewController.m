@@ -14,7 +14,7 @@
 
 @property (weak, nonatomic) IBOutlet UITextView *inputTextView;
 
-@property (nonatomic, copy) NSString *kHashTableViewCellIdentifier;
+@property (nonatomic, copy) NSString *kHashResultTableViewCellIdentifier;
 @property (nonatomic, strong) HashDataSource *dataSource;
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *showTypeSegmentedControl;
@@ -40,7 +40,7 @@
 #pragma mark - Initinals
 
 - (void)prepareTableView {
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:self.kHashTableViewCellIdentifier];
+//    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:self.kHashTableViewCellIdentifier];
     HashDataSource *dataSource = [[HashDataSource alloc] initWithIdentifier:self.kHashTableViewCellIdentifier
                                                           cellSelectedBlock:^(NSString *hashSteing) {
                                                               // TODO didSelectedCell
@@ -48,6 +48,8 @@
                                                             reloadDataBlock:^{
                                                                 [self.tableView reloadData];
                                                             }];
+    self.tableView.estimatedRowHeight = 44.0f;
+    self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.dataSource = dataSource;
     self.tableView.delegate = dataSource;
     self.dataSource = dataSource;
@@ -83,11 +85,11 @@
 #pragma mark - Getter / Setter
 
 - (NSString *)kHashTableViewCellIdentifier {
-    if (!_kHashTableViewCellIdentifier) {
-        _kHashTableViewCellIdentifier = @"kHashTableViewCellIdentifier";
+    if (!_kHashResultTableViewCellIdentifier) {
+        _kHashResultTableViewCellIdentifier = @"kHashResultTableViewCellIdentifier";
     }
     
-    return _kHashTableViewCellIdentifier;
+    return _kHashResultTableViewCellIdentifier;
 }
 
 @end
