@@ -20,6 +20,17 @@
     
     [self prepareAppearance];
     
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    
+    UINavigationController *hashNavigationController = [[UIStoryboard storyboardWithName:@"Hash" bundle:nil] instantiateInitialViewController];
+    
+    UITabBarController *tabBarController = [[UITabBarController alloc] init];
+    
+    [tabBarController addChildViewController:hashNavigationController];
+    
+    self.window.rootViewController = tabBarController;
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

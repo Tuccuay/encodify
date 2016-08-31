@@ -13,6 +13,7 @@
 		DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */ = {isa = PBXBuildFile; fileRef = DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */; };
 		DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C971D74603300BAD51D /* HashResultTableViewCell.m */; };
 		DF917C9E1D74748B00BAD51D /* EToast.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C9D1D74748B00BAD51D /* EToast.m */; };
+		DFC5EF9F1D76F1A900CD53E3 /* Hash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFC5EF9E1D76F1A900CD53E3 /* Hash.storyboard */; };
 		DFF62F121D72E24A00BBE261 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F111D72E24A00BBE261 /* main.m */; };
 		DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F141D72E24A00BBE261 /* AppDelegate.m */; };
 		DFF62F1B1D72E24A00BBE261 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFF62F191D72E24A00BBE261 /* Main.storyboard */; };
@@ -55,6 +56,7 @@
 		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		DF917C9C1D74748B00BAD51D /* EToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EToast.h; sourceTree = "<group>"; };
 		DF917C9D1D74748B00BAD51D /* EToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EToast.m; sourceTree = "<group>"; };
+		DFC5EF9E1D76F1A900CD53E3 /* Hash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Hash.storyboard; sourceTree = "<group>"; };
 		DFF62F0D1D72E24A00BBE261 /* encodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = encodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF62F111D72E24A00BBE261 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		DFF62F131D72E24A00BBE261 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -319,6 +321,7 @@
 		DFF62F501D72E2BA00BBE261 /* Hash */ = {
 			isa = PBXGroup;
 			children = (
+				DFC5EF9E1D76F1A900CD53E3 /* Hash.storyboard */,
 				DFF62F511D72E2BA00BBE261 /* Controller */,
 				DFF62F521D72E2BA00BBE261 /* Model */,
 				DF70A9D11D731A77007477F5 /* Module */,
@@ -467,6 +470,7 @@
 			files = (
 				DFF62F201D72E24A00BBE261 /* LaunchScreen.storyboard in Resources */,
 				DFF62F1D1D72E24A00BBE261 /* Assets.xcassets in Resources */,
+				DFC5EF9F1D76F1A900CD53E3 /* Hash.storyboard in Resources */,
 				DFF62F1B1D72E24A00BBE261 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

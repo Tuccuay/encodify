@@ -152,9 +152,10 @@
 
 #pragma mark - UIGestureRecognizerDelegate
 -(BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if ([NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"]) {//判断如果点击的是tableView的cell，就把手势给关闭了
-        return NO;//关闭手势
-    }//否则手势存在
+    if ([NSStringFromClass([touch.view class]) isEqualToString:@"UITableViewCellContentView"]) {
+        return NO;
+    }
+    
     return YES;
 }
 
