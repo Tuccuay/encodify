@@ -3,11 +3,12 @@
 
 target 'encodify' do
   # Uncomment this line if you're using Swift or would like to use dynamic frameworks
-  # use_frameworks!
+  use_frameworks!
 
   # Pods for encodify
   pod 'CocoaSecurity', '~> 1.2.4'
   pod 'CWStatusBarNotification', '~> 2.3.4'
+  pod 'XLPagerTabStrip', '~> 3.0'
 
   target 'encodifyTests' do
     inherit! :search_paths

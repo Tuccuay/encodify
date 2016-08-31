@@ -9,6 +9,10 @@
 #import "AppDelegate.h"
 #import <CommonCrypto/CommonCrypto.h>
 
+#import "EncodePagerViewController.h"
+
+#import "UIColor+Helper.h"
+
 @interface AppDelegate ()
 
 @end
@@ -24,9 +28,12 @@
     
     UINavigationController *hashNavigationController = [[UIStoryboard storyboardWithName:@"Hash" bundle:nil] instantiateInitialViewController];
     
+    EncodePagerViewController *encodePagerViewController = [[EncodePagerViewController alloc] init];
+//    UINavigationController *encodeNavigationController = [[UINavigationController alloc] initWithRootViewController:encodePagerViewController];
+    
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     
-    [tabBarController addChildViewController:hashNavigationController];
+    tabBarController.viewControllers = @[encodePagerViewController, hashNavigationController];
     
     self.window.rootViewController = tabBarController;
     [self.window makeKeyAndVisible];
@@ -57,7 +64,7 @@
 }
 
 - (void)prepareAppearance {
-    [UIControl appearance].tintColor = [UIColor colorWithRed:0.82 green:0.01 blue:0.11 alpha:1.0];
+    [UIControl appearance].tintColor = [UIColor encodifyTintColor];
 }
 
 @end
