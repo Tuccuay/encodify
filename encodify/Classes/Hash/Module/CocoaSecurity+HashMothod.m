@@ -30,12 +30,11 @@
 }
 
 #pragma mark - MD4
-+ (CocoaSecurityResult *)md4:(NSString *)hashString
-{
++ (CocoaSecurityResult *)md4:(NSString *)hashString {
     return [self md4WithData:[hashString dataUsingEncoding:NSUTF8StringEncoding]];
 }
-+ (CocoaSecurityResult *)md4WithData:(NSData *)hashData
-{
+
++ (CocoaSecurityResult *)md4WithData:(NSData *)hashData {
     unsigned char *digest;
     digest = malloc(CC_MD4_DIGEST_LENGTH);
 

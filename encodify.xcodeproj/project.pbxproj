@@ -14,6 +14,7 @@
 		DF02D8DE1D7725E500745D61 /* EncodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF02D8DD1D7725E500745D61 /* EncodeViewController.m */; };
 		DF02D8E11D77265100745D61 /* DecodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF02D8E01D77265100745D61 /* DecodeViewController.m */; };
 		DF02D8E51D772CB600745D61 /* UIColor+Helper.m in Sources */ = {isa = PBXBuildFile; fileRef = DF02D8E41D772CB600745D61 /* UIColor+Helper.m */; };
+		DF02D8E81D7732E800745D61 /* EncodeBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF02D8E71D7732E800745D61 /* EncodeBaseViewController.m */; };
 		DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */ = {isa = PBXBuildFile; fileRef = DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */; };
 		DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C971D74603300BAD51D /* HashResultTableViewCell.m */; };
 		DF917C9E1D74748B00BAD51D /* EToast.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C9D1D74748B00BAD51D /* EToast.m */; };
@@ -62,6 +63,8 @@
 		DF02D8E01D77265100745D61 /* DecodeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DecodeViewController.m; sourceTree = "<group>"; };
 		DF02D8E31D772CB600745D61 /* UIColor+Helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Helper.h"; sourceTree = "<group>"; };
 		DF02D8E41D772CB600745D61 /* UIColor+Helper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Helper.m"; sourceTree = "<group>"; };
+		DF02D8E61D7732E800745D61 /* EncodeBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncodeBaseViewController.h; sourceTree = "<group>"; };
+		DF02D8E71D7732E800745D61 /* EncodeBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EncodeBaseViewController.m; sourceTree = "<group>"; };
 		DF70A9D31D7321FB007477F5 /* CocoaSecurity+HashMothod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CocoaSecurity+HashMothod.h"; sourceTree = "<group>"; };
 		DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CocoaSecurity+HashMothod.m"; sourceTree = "<group>"; };
 		DF917C961D74603300BAD51D /* HashResultTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashResultTableViewCell.h; sourceTree = "<group>"; };
@@ -286,6 +289,8 @@
 				DF02D8DD1D7725E500745D61 /* EncodeViewController.m */,
 				DF02D8DF1D77265100745D61 /* DecodeViewController.h */,
 				DF02D8E01D77265100745D61 /* DecodeViewController.m */,
+				DF02D8E61D7732E800745D61 /* EncodeBaseViewController.h */,
+				DF02D8E71D7732E800745D61 /* EncodeBaseViewController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -640,6 +645,7 @@
 				DF917C9E1D74748B00BAD51D /* EToast.m in Sources */,
 				DF02D8DB1D77257F00745D61 /* EncodePagerViewController.m in Sources */,
 				DF02D8E51D772CB600745D61 /* UIColor+Helper.m in Sources */,
+				DF02D8E81D7732E800745D61 /* EncodeBaseViewController.m in Sources */,
 				DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */,
 				DF02D8DE1D7725E500745D61 /* EncodeViewController.m in Sources */,
 				DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */,

@@ -9,6 +9,7 @@ target 'encodify' do
   pod 'CocoaSecurity', '~> 1.2.4'
   pod 'CWStatusBarNotification', '~> 2.3.4'
   pod 'XLPagerTabStrip', '~> 3.0'
+  pod 'Masonry', '~> 1.0.1'
 
   target 'encodifyTests' do
     inherit! :search_paths

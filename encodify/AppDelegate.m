@@ -29,7 +29,7 @@
     UINavigationController *hashNavigationController = [[UIStoryboard storyboardWithName:@"Hash" bundle:nil] instantiateInitialViewController];
     
     EncodePagerViewController *encodePagerViewController = [[EncodePagerViewController alloc] init];
-//    UINavigationController *encodeNavigationController = [[UINavigationController alloc] initWithRootViewController:encodePagerViewController];
+    encodePagerViewController.tabBarItem.title = @"Encode";
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     

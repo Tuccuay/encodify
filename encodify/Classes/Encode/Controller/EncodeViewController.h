@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+#import "EncodeBaseViewController.h"
+
 #import <XLPagerTabStrip/XLPagerTabStripViewController.h>
 
-@interface EncodeViewController : UIViewController<XLPagerTabStripChildItem>
+@interface EncodeViewController : EncodeBaseViewController<XLPagerTabStripChildItem>
 
 @end

@@ -26,7 +26,7 @@
 }
 
 - (void)preparePager {
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
     self.buttonBarView.shouldCellsFillAvailableWidth = YES;
     self.isProgressiveIndicator = YES;
     self.buttonBarView.backgroundColor = [UIColor navigationBarDefaultColor];

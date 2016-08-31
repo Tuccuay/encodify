@@ -136,10 +136,6 @@
     [self.inputTextView resignFirstResponder];
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    NSLog(@"twt");
-}
-
 #pragma mark - Getter / Setter
 
 - (NSString *)kHashTableViewCellIdentifier {
