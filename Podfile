@@ -10,6 +10,7 @@ target 'encodify' do
   pod 'CWStatusBarNotification', '~> 2.3.4'
   pod 'XLPagerTabStrip', '~> 3.0'
   pod 'Masonry', '~> 1.0.1'
+  pod "FDStackView", "1.0"
 
   target 'encodifyTests' do
     inherit! :search_paths

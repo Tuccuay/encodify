@@ -38,27 +38,65 @@
     [self.view addSubview:self.inputTextView];
     [self.view addSubview:storeButtonsView];
     [self.view addSubview:self.outputTextView];
+
+    [self.methodSegmnetedControl addTarget:self action:@selector(methodSegmnetedControlChanged:) forControlEvents:UIControlEventValueChanged];
     [self.methodSegmnetedControl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.left.right.equalTo(self.view).mas_offset(UIEdgeInsetsMake(8, 8, 0, 8));
     }];
-    
+
     [self.inputTextView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.methodSegmnetedControl.mas_bottom).offset(8);
         make.left.right.equalTo(self.view);
     }];
-    
+
     [storeButtonsView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self.inputTextView.mas_bottom).offset(8);
-        make.left.right.equalTo(self.view).offset(8);
+        make.left.equalTo(self.view).offset(8);
+        make.right.equalTo(self.view).offset(-8);
         make.height.equalTo(@30);
     }];
-    
+
     [self.outputTextView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(storeButtonsView.mas_bottom).offset(8);
         make.left.right.equalTo(self.view);
         make.bottom.equalTo(self.view);
         make.height.equalTo(self.inputTextView);
     }];
+
+    UIStackView *storeButtonsStackView = [[UIStackView alloc] init];
+    storeButtonsStackView.axis = UILayoutConstraintAxisHorizontal;
+    storeButtonsStackView.distribution = UIStackViewDistributionFillEqually;
+    storeButtonsStackView.alignment = UIStackViewAlignmentCenter;
+    
+    [storeButtonsView addSubview:storeButtonsStackView];
+    [storeButtonsStackView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(storeButtonsView);
+    }];
+    
+    UIButton *copyUpButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *copyDownButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *pasteButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *clearButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButton *encodeButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    
+    [copyUpButton addTarget:self action:@selector(copyUpButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [copyDownButton addTarget:self action:@selector(copyDownButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [pasteButton addTarget:self action:@selector(pasteButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [clearButton addTarget:self action:@selector(clearButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    [encodeButton addTarget:self action:@selector(encodeButtonAction:) forControlEvents:UIControlEventTouchUpInside];
+    
+    [copyUpButton setTitle:@"Copy↑" forState:UIControlStateNormal];
+    [copyDownButton setTitle:@"Copy↓" forState:UIControlStateNormal];
+    [pasteButton setTitle:@"Paste" forState:UIControlStateNormal];
+    [clearButton setTitle:@"Clean" forState:UIControlStateNormal];
+    // Needed override in subclass
+    [encodeButton setTitle:@"Encode" forState:UIControlStateNormal];
+    
+    [storeButtonsStackView addArrangedSubview:copyUpButton];
+    [storeButtonsStackView addArrangedSubview:copyDownButton];
+    [storeButtonsStackView addArrangedSubview:pasteButton];
+    [storeButtonsStackView addArrangedSubview:clearButton];
+    [storeButtonsStackView addArrangedSubview:encodeButton];
 }
 
 - (void)prepareGesture {
@@ -76,7 +114,7 @@
     [self encode];
 }
 
-- (void)copyButtonAction:(id)sender {
+- (void)copyUpButtonAction:(id)sender {
     [self.inputTextView resignFirstResponder];
     
     if (self.inputTextView.text == nil || [self.inputTextView.text isEqual: @""]) {
@@ -86,6 +124,19 @@
     
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     pasteboard.string = self.inputTextView.text;
+    [EToast showStatus:@"Copied"];
+}
+
+- (void)copyDownButtonAction:(id)sender {
+    [self.inputTextView resignFirstResponder];
+
+    if (self.outputTextView.text == nil || [self.outputTextView.text isEqualToString:@""]) {
+        [EToast showErrorWithStatus:@"No text in input box."];
+        return;
+    }
+
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = self.outputTextView.text;
     [EToast showStatus:@"Copied"];
 }
 
@@ -111,7 +162,7 @@
     [EToast showStatus:@"Cleared"];
 }
 
-- (void)hashButtonAction:(id)sender {
+- (void)encodeButtonAction:(id)sender {
     [self encode];
 }
 
@@ -134,6 +185,8 @@
             
         case 3:
             [self encodeWithURI];
+            break;
+        default:
             break;
     }
 }
