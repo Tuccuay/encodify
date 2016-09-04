@@ -1,0 +1,16 @@
+//
+//  EncodifyURI.h
+//  encoder
+//
+//  Created by 朔 洪 on 16/1/12.
+//  Copyright © 2016年 Tuccuay. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@interface EncodifyURI : NSObject
+
++ (NSString *)encodeByURIWithString:(NSString *)string;
++ (NSString *)decodeByURIWithString:(NSString *)string;
+
+@end

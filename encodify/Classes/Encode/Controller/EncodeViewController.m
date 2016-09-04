@@ -8,25 +8,38 @@
 
 #import "EncodeViewController.h"
 
+#import "EncodifyBase64.h"
+#import "EncodifyUnicode.h"
+#import "EncodifyMorse.h"
+#import "EncodifyURI.h"
+
 @interface EncodeViewController ()
 
 @end
 
 @implementation EncodeViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-    
-    
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 - (NSString *)titleForPagerTabStripViewController:(XLPagerTabStripViewController *)pagerTabStripViewController {
+    return @"Encode";
+}
+
+- (NSString *)encodeWithBase64:(NSString *)inputString {
+    return [EncodifyBase64 encodeByBase64WithString:inputString];
+}
+
+- (NSString *)encodeWithUnicode:(NSString *)inputString {
+    return [EncodifyUnicode encodeToUnicodeStringWithString:inputString];
+}
+
+- (NSString *)encodeWithMorse:(NSString *)inputString {
+    return [EncodifyMorse encodeByMorseWithString:inputString];
+}
+
+- (NSString *)encodeWithURI:(NSString *)inputString {
+    return [EncodifyURI encodeByURIWithString:inputString];
+}
+
+- (NSString *)encodeButtonTitle {
     return @"Encode";
 }
 

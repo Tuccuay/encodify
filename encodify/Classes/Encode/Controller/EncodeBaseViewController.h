@@ -10,4 +10,10 @@
 
 @interface EncodeBaseViewController : UIViewController
 
+- (NSString *)encodeWithBase64:(NSString *)inputString;
+- (NSString *)encodeWithUnicode:(NSString *)inputString;
+- (NSString *)encodeWithMorse:(NSString *)inputString;
+- (NSString *)encodeWithURI:(NSString *)inputString;
+
+- (NSString *)encodeButtonTitle;
 @end

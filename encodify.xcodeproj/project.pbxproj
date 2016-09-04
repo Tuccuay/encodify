@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		28D4419A34126A3582EC0454 /* MCGMorseCodeConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D44102DC8941802F826C06 /* MCGMorseCodeConverter.m */; };
+		28D445378C3BF6399B96F9E3 /* EncodifyUnicode.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D44D8973D4C9388145283A /* EncodifyUnicode.m */; };
+		28D448607DC497E6103ED61B /* EncodifyMorse.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D44C6AA5364CA1BE1F6CCE /* EncodifyMorse.m */; };
+		28D44C06589F115F6F1AA3D1 /* EncodifyBase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D449093125825B511F1C53 /* EncodifyBase64.m */; };
+		28D44D6A09687E341C574D89 /* EncodifyURI.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D444D5FC5D343F7F5B6D33 /* EncodifyURI.m */; };
+		28D44EB2BFAAEFF696E49631 /* MorseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 28D44FCBAD33DE8FABDE58BB /* MorseParser.m */; };
 		2A7EAEE094E2ED9D6C858EBE /* Pods_encodifyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FCE60DD8341B9AD55D3D7C4 /* Pods_encodifyTests.framework */; };
 		32B8E530C68EED8245C05230 /* Pods_encodifyUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10E949E92270E72142E672AE /* Pods_encodifyUITests.framework */; };
 		8B30FB547650FC850A62CBFA /* Pods_encodify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9ADBD32A4CE9E5C4C7D85F3 /* Pods_encodify.framework */; };
@@ -48,6 +54,18 @@
 
 /* Begin PBXFileReference section */
 		10E949E92270E72142E672AE /* Pods_encodifyUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_encodifyUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		28D44102DC8941802F826C06 /* MCGMorseCodeConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MCGMorseCodeConverter.m; sourceTree = "<group>"; };
+		28D444D5FC5D343F7F5B6D33 /* EncodifyURI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EncodifyURI.m; sourceTree = "<group>"; };
+		28D446A6F09977EA1BA263B1 /* EncodifyURI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncodifyURI.h; sourceTree = "<group>"; };
+		28D4477AAA6190591D6469FF /* EncodifyUnicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncodifyUnicode.h; sourceTree = "<group>"; };
+		28D4480011B2B0A6B8D45450 /* MCGMorseCodeConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCGMorseCodeConverter.h; sourceTree = "<group>"; };
+		28D449093125825B511F1C53 /* EncodifyBase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EncodifyBase64.m; sourceTree = "<group>"; };
+		28D44C6AA5364CA1BE1F6CCE /* EncodifyMorse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EncodifyMorse.m; sourceTree = "<group>"; };
+		28D44CF8335F5D3040F12E78 /* EncodifyMorse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncodifyMorse.h; sourceTree = "<group>"; };
+		28D44D8973D4C9388145283A /* EncodifyUnicode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EncodifyUnicode.m; sourceTree = "<group>"; };
+		28D44E6818C1F853774E0093 /* EncodifyBase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncodifyBase64.h; sourceTree = "<group>"; };
+		28D44F99F1BEDEE066B311F7 /* MorseParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MorseParser.h; sourceTree = "<group>"; };
+		28D44FCBAD33DE8FABDE58BB /* MorseParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MorseParser.m; sourceTree = "<group>"; };
 		4F7D42F0AF9F7DADF9C034F5 /* Pods-encodify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-encodify.release.xcconfig"; path = "Pods/Target Support Files/Pods-encodify/Pods-encodify.release.xcconfig"; sourceTree = "<group>"; };
 		4FCE60DD8341B9AD55D3D7C4 /* Pods_encodifyTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_encodifyTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F41BA23A305C9001C9378E7 /* Pods-encodify.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-encodify.debug.xcconfig"; path = "Pods/Target Support Files/Pods-encodify/Pods-encodify.debug.xcconfig"; sourceTree = "<group>"; };
@@ -121,6 +139,57 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		28D4416A81A0D2B4FC44A832 /* Module */ = {
+			isa = PBXGroup;
+			children = (
+				28D443792E5FB13220CD949C /* Base64 */,
+				28D442524114B48E6B023E5F /* Morse */,
+				28D44D3DC087335AAE3E834F /* Unicode */,
+				28D44DBBF85F09D92CA56C0E /* URL */,
+			);
+			path = Module;
+			sourceTree = "<group>";
+		};
+		28D442524114B48E6B023E5F /* Morse */ = {
+			isa = PBXGroup;
+			children = (
+				28D44F99F1BEDEE066B311F7 /* MorseParser.h */,
+				28D44FCBAD33DE8FABDE58BB /* MorseParser.m */,
+				28D44CF8335F5D3040F12E78 /* EncodifyMorse.h */,
+				28D44C6AA5364CA1BE1F6CCE /* EncodifyMorse.m */,
+				28D4480011B2B0A6B8D45450 /* MCGMorseCodeConverter.h */,
+				28D44102DC8941802F826C06 /* MCGMorseCodeConverter.m */,
+			);
+			path = Morse;
+			sourceTree = "<group>";
+		};
+		28D443792E5FB13220CD949C /* Base64 */ = {
+			isa = PBXGroup;
+			children = (
+				28D44E6818C1F853774E0093 /* EncodifyBase64.h */,
+				28D449093125825B511F1C53 /* EncodifyBase64.m */,
+			);
+			path = Base64;
+			sourceTree = "<group>";
+		};
+		28D44D3DC087335AAE3E834F /* Unicode */ = {
+			isa = PBXGroup;
+			children = (
+				28D4477AAA6190591D6469FF /* EncodifyUnicode.h */,
+				28D44D8973D4C9388145283A /* EncodifyUnicode.m */,
+			);
+			path = Unicode;
+			sourceTree = "<group>";
+		};
+		28D44DBBF85F09D92CA56C0E /* URL */ = {
+			isa = PBXGroup;
+			children = (
+				28D446A6F09977EA1BA263B1 /* EncodifyURI.h */,
+				28D444D5FC5D343F7F5B6D33 /* EncodifyURI.m */,
+			);
+			path = URL;
+			sourceTree = "<group>";
+		};
 		743B5F1BCEF1FFF3A263C952 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -276,6 +345,7 @@
 				DFF62F491D72E2BA00BBE261 /* Controller */,
 				DFF62F4A1D72E2BA00BBE261 /* Model */,
 				DFF62F4B1D72E2BA00BBE261 /* View */,
+				28D4416A81A0D2B4FC44A832 /* Module */,
 			);
 			path = Encode;
 			sourceTree = "<group>";
@@ -652,6 +722,12 @@
 				DFF62F561D72FD5500BBE261 /* HashViewController.m in Sources */,
 				DFF62F591D73000800BBE261 /* HashDataSource.m in Sources */,
 				DFF62F121D72E24A00BBE261 /* main.m in Sources */,
+				28D44C06589F115F6F1AA3D1 /* EncodifyBase64.m in Sources */,
+				28D44EB2BFAAEFF696E49631 /* MorseParser.m in Sources */,
+				28D448607DC497E6103ED61B /* EncodifyMorse.m in Sources */,
+				28D4419A34126A3582EC0454 /* MCGMorseCodeConverter.m in Sources */,
+				28D445378C3BF6399B96F9E3 /* EncodifyUnicode.m in Sources */,
+				28D44D6A09687E341C574D89 /* EncodifyURI.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

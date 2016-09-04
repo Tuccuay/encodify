@@ -14,7 +14,7 @@
 
 @interface EncodeBaseViewController ()
 
-@property (nonatomic, strong) UISegmentedControl *methodSegmnetedControl;
+@property (nonatomic, strong) UISegmentedControl *methodSegmentedControl;
 @property (nonatomic, strong) UITextView *inputTextView;
 @property (nonatomic, strong) UITextView *outputTextView;
 
@@ -34,18 +34,18 @@
 - (void)prepareUserInterface {
     UIView *storeButtonsView = [[UIView alloc] init];
 
-    [self.view addSubview:self.methodSegmnetedControl];
+    [self.view addSubview:self.methodSegmentedControl];
     [self.view addSubview:self.inputTextView];
     [self.view addSubview:storeButtonsView];
     [self.view addSubview:self.outputTextView];
 
-    [self.methodSegmnetedControl addTarget:self action:@selector(methodSegmnetedControlChanged:) forControlEvents:UIControlEventValueChanged];
-    [self.methodSegmnetedControl mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.methodSegmentedControl addTarget:self action:@selector(methodSegmentedControlChanged:) forControlEvents:UIControlEventValueChanged];
+    [self.methodSegmentedControl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.left.right.equalTo(self.view).mas_offset(UIEdgeInsetsMake(8, 8, 0, 8));
     }];
 
     [self.inputTextView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.methodSegmnetedControl.mas_bottom).offset(8);
+        make.top.equalTo(self.methodSegmentedControl.mas_bottom).offset(8);
         make.left.right.equalTo(self.view);
     }];
 
@@ -110,7 +110,7 @@
 }
 
 #pragma mark - Action
-- (void)methodSegmnetedControlChanged:(UISegmentedControl *)sender {
+- (void)methodSegmentedControlChanged:(UISegmentedControl *)sender {
     [self encode];
 }
 
@@ -169,45 +169,58 @@
 #pragma mark - Encode
 - (void)encode {
     [self.inputTextView resignFirstResponder];
-    
-    switch (self.methodSegmnetedControl.selectedSegmentIndex) {
+
+    NSString *inputString = self.inputTextView.text;
+    NSString *result;
+    switch (self.methodSegmentedControl.selectedSegmentIndex) {
         case 0:
-            [self encodeWithBase64];
+            result = [self encodeWithBase64:inputString];
             break;
             
         case 1:
-            [self encodeWithUnicode];
+            result = [self encodeWithUnicode:inputString];
             break;
             
         case 2:
-            [self encodeWithMorse];
+            result = [self encodeWithMorse:inputString];
             break;
             
         case 3:
-            [self encodeWithURI];
+            result = [self encodeWithURI:inputString];
             break;
+
         default:
             break;
     }
+
+    self.outputTextView.text = result;
 }
 
 #pragma mark - Override in subclass
-- (void)encodeWithBase64 { }
+- (NSString *)encodeWithBase64:(NSString *)inputString {
+    return @"";
+}
 
-- (void)encodeWithUnicode { }
+- (NSString *)encodeWithUnicode:(NSString *)inputString {
+    return @"";
+}
 
-- (void)encodeWithMorse { }
+- (NSString *)encodeWithMorse:(NSString *)inputString {
+    return @"";
+}
 
-- (void)encodeWithURI { }
+- (NSString *)encodeWithURI:(NSString *)inputString {
+    return @"";
+}
 
 #pragma mark - Lazy load
-- (UISegmentedControl *)methodSegmnetedControl {
-    if (!_methodSegmnetedControl) {
-        _methodSegmnetedControl = [[UISegmentedControl alloc] initWithItems:@[@"Base64", @"Unicode", @"Morse", @"URI"]];
-        _methodSegmnetedControl.selectedSegmentIndex = 0;
+- (UISegmentedControl *)methodSegmentedControl {
+    if (!_methodSegmentedControl) {
+        _methodSegmentedControl = [[UISegmentedControl alloc] initWithItems:@[@"Base64", @"Unicode", @"Morse", @"URI"]];
+        _methodSegmentedControl.selectedSegmentIndex = 0;
     }
     
-    return _methodSegmnetedControl;
+    return _methodSegmentedControl;
 }
 
 - (UITextView *)inputTextView {
@@ -226,6 +239,11 @@
     }
     
     return _outputTextView;
+}
+
+#pragma mark - custem values
+- (NSString *)encodeButtonTitle {
+    return @"";
 }
 
 @end

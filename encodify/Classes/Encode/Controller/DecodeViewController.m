@@ -8,23 +8,38 @@
 
 #import "DecodeViewController.h"
 
+#import "EncodifyBase64.h"
+#import "EncodifyUnicode.h"
+#import "EncodifyMorse.h"
+#import "EncodifyURI.h"
+
 @interface DecodeViewController ()
 
 @end
 
 @implementation DecodeViewController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
 - (NSString *)titleForPagerTabStripViewController:(XLPagerTabStripViewController *)pagerTabStripViewController {
+    return @"Decode";
+}
+
+- (NSString *)encodeWithBase64:(NSString *)inputString {
+    return [EncodifyBase64 decodeByBase64WithString:inputString];
+}
+
+- (NSString *)encodeWithUnicode:(NSString *)inputString {
+    return [EncodifyUnicode decodeByUnicodeStringWIthString:inputString];
+}
+
+- (NSString *)encodeWithMorse:(NSString *)inputString {
+    return [EncodifyMorse decodeByMorseWithString:inputString];
+}
+
+- (NSString *)encodeWithURI:(NSString *)inputString {
+    return [EncodifyURI decodeByURIWithString:inputString];
+}
+
+- (NSString *)encodeButtonTitle {
     return @"Decode";
 }
 
