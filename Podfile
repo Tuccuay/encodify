@@ -7,9 +7,9 @@ target 'encodify' do
 
   # Pods for encodify
   pod 'CocoaSecurity', '~> 1.2.4'
-  pod 'CWStatusBarNotification', '~> 2.3.4'
+  pod 'CWStatusBarNotification', '~> 2.3.5'
   pod 'XLPagerTabStrip', '~> 3.0'
-  pod 'Masonry', '~> 1.0.1'
+  pod 'Masonry', '~> 1.0.2'
   pod "FDStackView", "1.0"
 
   target 'encodifyTests' do

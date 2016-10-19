@@ -12,6 +12,6 @@
 
 #import <XLPagerTabStrip/XLPagerTabStripViewController.h>
 
-@interface EncodeViewController : EncodeBaseViewController<XLPagerTabStripChildItem>
+@interface EncodeViewController : EncodeBaseViewController
 
 @end

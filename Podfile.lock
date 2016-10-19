@@ -1,24 +1,24 @@
 PODS:
   - CocoaSecurity (1.2.4)
-  - CWStatusBarNotification (2.3.4)
+  - CWStatusBarNotification (2.3.5)
   - FDStackView (1.0)
-  - Masonry (1.0.1)
+  - Masonry (1.0.2)
   - XLPagerTabStrip (3.0.0)
 
 DEPENDENCIES:
   - CocoaSecurity (~> 1.2.4)
-  - CWStatusBarNotification (~> 2.3.4)
+  - CWStatusBarNotification (~> 2.3.5)
   - FDStackView (= 1.0)
-  - Masonry (~> 1.0.1)
+  - Masonry (~> 1.0.2)
   - XLPagerTabStrip (~> 3.0)
 
 SPEC CHECKSUMS:
   CocoaSecurity: d288a6f87e0f363823d2cb83e753814a6944f71a
-  CWStatusBarNotification: 3fec41edcb0ae3677d9febfcb9632d8bdf52294c
+  CWStatusBarNotification: 3d2738b25c3207f60cc50201388d3c96182545ff
   FDStackView: 3a4bbe0ce9c35e974246a585168b9da8c32213f1
-  Masonry: a1a931a0d08870ed8ae415a2ea5ea68ebcac77df
+  Masonry: 7c429b56da9d4ee0bbb3ed77a5ea710d6a5df39e
   XLPagerTabStrip: 0f9f94246c84e7cb60a06ca435da68ac75c8b56e
 
-PODFILE CHECKSUM: 587b04a76f3c3a967e9a2f8d4aabda171bf06cb7
+PODFILE CHECKSUM: 3ad929d9342016251e2dc76e276da5b9ba4093f9
 
-COCOAPODS: 1.0.1
+COCOAPODS: 1.1.0.rc.3
