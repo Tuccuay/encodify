@@ -26,10 +26,12 @@
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     
-    UINavigationController *hashNavigationController = [[UIStoryboard storyboardWithName:@"Hash" bundle:nil] instantiateInitialViewController];
-    
     EncodePagerViewController *encodePagerViewController = [[EncodePagerViewController alloc] init];
     encodePagerViewController.tabBarItem.title = @"Encode";
+    encodePagerViewController.tabBarItem.image = [UIImage imageNamed:@"encode"];
+    
+    UINavigationController *hashNavigationController = [[UIStoryboard storyboardWithName:@"Hash" bundle:nil] instantiateInitialViewController];
+    hashNavigationController.tabBarItem.image = [UIImage imageNamed:@"hash"];
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     
@@ -65,6 +67,7 @@
 
 - (void)prepareAppearance {
     [UIControl appearance].tintColor = [UIColor encodifyTintColor];
+    [UITabBar appearance].tintColor = [UIColor encodifyTintColor];
 }
 
 @end

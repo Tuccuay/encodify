@@ -525,6 +525,7 @@
 				TargetAttributes = {
 					DFF62F0C1D72E24A00BBE261 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = VFKGMESA99;
 					};
 					DFF62F251D72E24B00BBE261 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -883,6 +884,7 @@
 			baseConfigurationReference = 6F41BA23A305C9001C9378E7 /* Pods-encodify.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = VFKGMESA99;
 				INFOPLIST_FILE = encodify/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tuccuay.encodify;
@@ -895,6 +897,7 @@
 			baseConfigurationReference = 4F7D42F0AF9F7DADF9C034F5 /* Pods-encodify.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = VFKGMESA99;
 				INFOPLIST_FILE = encodify/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tuccuay.encodify;
