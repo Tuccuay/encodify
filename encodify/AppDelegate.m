@@ -10,6 +10,7 @@
 #import <CommonCrypto/CommonCrypto.h>
 
 #import "EncodePagerViewController.h"
+#import "UtilitiesViewController.h"
 
 #import "UIColor+Helper.h"
 
@@ -33,9 +34,11 @@
     UINavigationController *hashNavigationController = [[UIStoryboard storyboardWithName:@"Hash" bundle:nil] instantiateInitialViewController];
     hashNavigationController.tabBarItem.image = [UIImage imageNamed:@"hash"];
     
+    UtilitiesViewController *utilitiesViewController = [[UtilitiesViewController alloc] init];
+    
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     
-    tabBarController.viewControllers = @[encodePagerViewController, hashNavigationController];
+    tabBarController.viewControllers = @[encodePagerViewController, hashNavigationController, utilitiesViewController];
     
     self.window.rootViewController = tabBarController;
     [self.window makeKeyAndVisible];
