@@ -9,6 +9,8 @@
 #import "UtilitiesViewController.h"
 
 #import "UtilitiesProvider.h"
+#import "ImageEncodeViewController.h"
+#import "ImageDecodeViewController.h"
 
 #import <Masonry/Masonry.h>
 
@@ -37,14 +39,14 @@
     
     self.provider = @[
                       @[
-                          [UtilitiesProvider title:@"Encode image to base64" className:@""],
-                          [UtilitiesProvider title:@"Decode base64 to image" className:@""],
+                          [UtilitiesProvider title:@"Pick image & encode to base64" className:NSStringFromClass([ImageEncodeViewController class])],
+                          [UtilitiesProvider title:@"Decode base64 to image" className:NSStringFromClass([ImageDecodeViewController class])],
                           ],
                       ];
     [self.tableView reloadData];
 }
 
-#pragma mark - UITableViewDataSource
+#pragma mark - UITableViewDataSource/Delegate
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return self.provider.count;
@@ -67,5 +69,20 @@
     return cell;
 }
 
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    switch (section) {
+        case 0: return @"Image Encoding"; break;
+        default: return @""; break;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSString *className = self.provider[indexPath.section][indexPath.row].className;
+    UIViewController *viewController = (UIViewController *)[[NSClassFromString(className) alloc] init];
+    viewController.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:viewController animated:true];
+    
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+}
 
 @end

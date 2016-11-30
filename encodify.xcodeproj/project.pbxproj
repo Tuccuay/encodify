@@ -23,6 +23,9 @@
 		DF02D8E81D7732E800745D61 /* EncodeBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF02D8E71D7732E800745D61 /* EncodeBaseViewController.m */; };
 		DF5C74831DEDF05200CFDCFC /* UtilitiesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5C74821DEDF05200CFDCFC /* UtilitiesViewController.m */; };
 		DF5C74861DEDF68400CFDCFC /* UtilitiesProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5C74851DEDF68400CFDCFC /* UtilitiesProvider.m */; };
+		DF5C74891DEE604800CFDCFC /* ImageEncodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5C74881DEE604800CFDCFC /* ImageEncodeViewController.m */; };
+		DF5C748C1DEE6EB300CFDCFC /* ImageDecodeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5C748B1DEE6EB300CFDCFC /* ImageDecodeViewController.m */; };
+		DF5C748F1DEE721A00CFDCFC /* ImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = DF5C748E1DEE721A00CFDCFC /* ImageViewController.m */; };
 		DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */ = {isa = PBXBuildFile; fileRef = DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */; };
 		DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C971D74603300BAD51D /* HashResultTableViewCell.m */; };
 		DF917C9E1D74748B00BAD51D /* EToast.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C9D1D74748B00BAD51D /* EToast.m */; };
@@ -89,6 +92,12 @@
 		DF5C74821DEDF05200CFDCFC /* UtilitiesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilitiesViewController.m; sourceTree = "<group>"; };
 		DF5C74841DEDF68400CFDCFC /* UtilitiesProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UtilitiesProvider.h; sourceTree = "<group>"; };
 		DF5C74851DEDF68400CFDCFC /* UtilitiesProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UtilitiesProvider.m; sourceTree = "<group>"; };
+		DF5C74871DEE604800CFDCFC /* ImageEncodeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageEncodeViewController.h; sourceTree = "<group>"; };
+		DF5C74881DEE604800CFDCFC /* ImageEncodeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageEncodeViewController.m; sourceTree = "<group>"; };
+		DF5C748A1DEE6EB300CFDCFC /* ImageDecodeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageDecodeViewController.h; sourceTree = "<group>"; };
+		DF5C748B1DEE6EB300CFDCFC /* ImageDecodeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageDecodeViewController.m; sourceTree = "<group>"; };
+		DF5C748D1DEE721A00CFDCFC /* ImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewController.h; sourceTree = "<group>"; };
+		DF5C748E1DEE721A00CFDCFC /* ImageViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageViewController.m; sourceTree = "<group>"; };
 		DF70A9D31D7321FB007477F5 /* CocoaSecurity+HashMothod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CocoaSecurity+HashMothod.h"; sourceTree = "<group>"; };
 		DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CocoaSecurity+HashMothod.m"; sourceTree = "<group>"; };
 		DF917C961D74603300BAD51D /* HashResultTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashResultTableViewCell.h; sourceTree = "<group>"; };
@@ -235,6 +244,12 @@
 			children = (
 				DF5C74811DEDF05200CFDCFC /* UtilitiesViewController.h */,
 				DF5C74821DEDF05200CFDCFC /* UtilitiesViewController.m */,
+				DF5C74871DEE604800CFDCFC /* ImageEncodeViewController.h */,
+				DF5C74881DEE604800CFDCFC /* ImageEncodeViewController.m */,
+				DF5C748A1DEE6EB300CFDCFC /* ImageDecodeViewController.h */,
+				DF5C748B1DEE6EB300CFDCFC /* ImageDecodeViewController.m */,
+				DF5C748D1DEE721A00CFDCFC /* ImageViewController.h */,
+				DF5C748E1DEE721A00CFDCFC /* ImageViewController.m */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -769,9 +784,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF5C74891DEE604800CFDCFC /* ImageEncodeViewController.m in Sources */,
 				DF02D8E11D77265100745D61 /* DecodeViewController.m in Sources */,
 				DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */,
 				DF917C9E1D74748B00BAD51D /* EToast.m in Sources */,
+				DF5C748C1DEE6EB300CFDCFC /* ImageDecodeViewController.m in Sources */,
+				DF5C748F1DEE721A00CFDCFC /* ImageViewController.m in Sources */,
 				DF02D8DB1D77257F00745D61 /* EncodePagerViewController.m in Sources */,
 				DF02D8E51D772CB600745D61 /* UIColor+Helper.m in Sources */,
 				DF5C74861DEDF68400CFDCFC /* UtilitiesProvider.m in Sources */,

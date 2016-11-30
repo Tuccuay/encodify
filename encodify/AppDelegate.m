@@ -35,10 +35,14 @@
     hashNavigationController.tabBarItem.image = [UIImage imageNamed:@"hash"];
     
     UtilitiesViewController *utilitiesViewController = [[UtilitiesViewController alloc] init];
+    utilitiesViewController.title = @"Utilities";
+    UINavigationController *utilitiesNavigationController = [[UINavigationController alloc] initWithRootViewController:utilitiesViewController];
+    utilitiesNavigationController.tabBarItem.title = @"Utilities";
+    utilitiesNavigationController.tabBarItem.image = [UIImage imageNamed:@"Utilities"];
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
     
-    tabBarController.viewControllers = @[encodePagerViewController, hashNavigationController, utilitiesViewController];
+    tabBarController.viewControllers = @[encodePagerViewController, hashNavigationController, utilitiesNavigationController];
     
     self.window.rootViewController = tabBarController;
     [self.window makeKeyAndVisible];
