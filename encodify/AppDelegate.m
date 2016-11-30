@@ -47,6 +47,9 @@
     self.window.rootViewController = tabBarController;
     [self.window makeKeyAndVisible];
     
+    [UINavigationBar appearance].tintColor = [UIColor encodifyTintColor];
+    [UIControl appearance].tintColor = [UIColor encodifyTintColor];
+    
     return YES;
 }
 
