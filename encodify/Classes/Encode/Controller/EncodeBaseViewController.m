@@ -172,6 +172,8 @@
 
     NSString *inputString = self.inputTextView.text;
     NSString *result;
+    BOOL isCallback = NO;
+    
     switch (self.methodSegmentedControl.selectedSegmentIndex) {
         case 0:
             result = [self encodeWithBase64:inputString];
@@ -181,9 +183,12 @@
             result = [self encodeWithUnicode:inputString];
             break;
             
-        case 2:
-            result = [self encodeWithMorse:inputString];
+        case 2: {
+            // result = [self encodeWithMorse:inputString];
+            isCallback = YES;
+            [self encodeWithMorse:inputString textView:self.outputTextView];
             break;
+        }
             
         case 3:
             result = [self encodeWithURI:inputString];
@@ -193,6 +198,8 @@
             break;
     }
 
+    if (isCallback) { return; }
+    
     self.outputTextView.text = result;
 }
 
@@ -207,6 +214,10 @@
 
 - (NSString *)encodeWithMorse:(NSString *)inputString {
     return @"";
+}
+
+- (void)encodeWithMorse:(NSString *)inputString textView:(UITextView *)textView {
+    
 }
 
 - (NSString *)encodeWithURI:(NSString *)inputString {

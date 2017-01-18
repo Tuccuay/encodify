@@ -35,6 +35,12 @@
     return [EncodifyMorse decodeByMorseWithString:inputString];
 }
 
+- (void)encodeWithMorse:(NSString *)inputString textView:(UITextView *)textView {
+    [EncodifyXmorseBridge decode:inputString complection:^(NSString *string) {
+        textView.text = string;
+    }];
+}
+
 - (NSString *)encodeWithURI:(NSString *)inputString {
     return [EncodifyURI decodeByURIWithString:inputString];
 }
