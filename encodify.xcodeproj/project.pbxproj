@@ -29,6 +29,7 @@
 		DF70A9D51D7321FB007477F5 /* CocoaSecurity+HashMothod.m in Sources */ = {isa = PBXBuildFile; fileRef = DF70A9D41D7321FB007477F5 /* CocoaSecurity+HashMothod.m */; };
 		DF917C981D74603300BAD51D /* HashResultTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C971D74603300BAD51D /* HashResultTableViewCell.m */; };
 		DF917C9E1D74748B00BAD51D /* EToast.m in Sources */ = {isa = PBXBuildFile; fileRef = DF917C9D1D74748B00BAD51D /* EToast.m */; };
+		DFA120D61E2F3F3800DF5282 /* xmorse.min.js in Resources */ = {isa = PBXBuildFile; fileRef = DFA120D51E2F3F3800DF5282 /* xmorse.min.js */; };
 		DFC5EF9F1D76F1A900CD53E3 /* Hash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFC5EF9E1D76F1A900CD53E3 /* Hash.storyboard */; };
 		DFF62F121D72E24A00BBE261 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F111D72E24A00BBE261 /* main.m */; };
 		DFF62F151D72E24A00BBE261 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F141D72E24A00BBE261 /* AppDelegate.m */; };
@@ -105,6 +106,7 @@
 		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		DF917C9C1D74748B00BAD51D /* EToast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EToast.h; sourceTree = "<group>"; };
 		DF917C9D1D74748B00BAD51D /* EToast.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EToast.m; sourceTree = "<group>"; };
+		DFA120D51E2F3F3800DF5282 /* xmorse.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = xmorse.min.js; path = node_modules/xmorse/dist/xmorse.min.js; sourceTree = SOURCE_ROOT; };
 		DFC5EF9E1D76F1A900CD53E3 /* Hash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Hash.storyboard; sourceTree = "<group>"; };
 		DFF62F0D1D72E24A00BBE261 /* encodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = encodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF62F111D72E24A00BBE261 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -290,6 +292,14 @@
 			path = Module;
 			sourceTree = "<group>";
 		};
+		DFA120D41E2F3F2700DF5282 /* node_modules */ = {
+			isa = PBXGroup;
+			children = (
+				DFA120D51E2F3F3800DF5282 /* xmorse.min.js */,
+			);
+			name = node_modules;
+			sourceTree = "<group>";
+		};
 		DFF62F041D72E24A00BBE261 = {
 			isa = PBXGroup;
 			children = (
@@ -355,6 +365,7 @@
 		DFF62F431D72E2BA00BBE261 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				DFA120D41E2F3F2700DF5282 /* node_modules */,
 				DFF62F441D72E2BA00BBE261 /* Base */,
 				DFF62F481D72E2BA00BBE261 /* Encode */,
 				DFF62F4C1D72E2BA00BBE261 /* Encrypt */,
@@ -619,6 +630,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DFA120D61E2F3F3800DF5282 /* xmorse.min.js in Resources */,
 				DFF62F201D72E24A00BBE261 /* LaunchScreen.storyboard in Resources */,
 				DFF62F1D1D72E24A00BBE261 /* Assets.xcassets in Resources */,
 				DFC5EF9F1D76F1A900CD53E3 /* Hash.storyboard in Resources */,
