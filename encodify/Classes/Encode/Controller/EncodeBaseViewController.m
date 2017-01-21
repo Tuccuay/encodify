@@ -41,7 +41,7 @@
 
     [self.methodSegmentedControl addTarget:self action:@selector(methodSegmentedControlChanged:) forControlEvents:UIControlEventValueChanged];
     [self.methodSegmentedControl mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.left.right.equalTo(self.view).mas_offset(UIEdgeInsetsMake(8, 8, 0, 8));
+        make.top.left.right.equalTo(self.view).mas_offset(UIEdgeInsetsMake(28, 8, 0, 8));
     }];
 
     [self.inputTextView mas_makeConstraints:^(MASConstraintMaker *make) {

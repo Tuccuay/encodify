@@ -26,6 +26,12 @@
 }
 
 - (void)preparePager {
+    CGRect oldFrame = self.buttonBarView.frame;
+    CGRect newFrame = CGRectMake(oldFrame.origin.x,
+                                 oldFrame.origin.y + 20,
+                                 oldFrame.size.width,
+                                 oldFrame.size.height);
+    self.buttonBarView.frame = newFrame;
     self.view.backgroundColor = [UIColor groupTableViewBackgroundColor];
     self.buttonBarView.shouldCellsFillAvailableWidth = YES;
     self.isProgressiveIndicator = YES;
