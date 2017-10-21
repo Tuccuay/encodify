@@ -10,7 +10,7 @@
 #import <UIKit/UIKit.h>
 
 typedef void(^HashCellSelectedBlock)(NSString *resultString);
-typedef void(^HashReloadDataBlock)();
+typedef void(^HashReloadDataBlock)(void);
 
 typedef NS_ENUM(NSUInteger, HashShowType) {
     HashShowTypeUpperString = 0,

@@ -131,7 +131,7 @@
         insetTop = (self.scrollView.bounds.size.height - self.imageView.frame.size.height) / 2 + navigationBarMaxY;
     }
     
-    CGFloat insetLeft;
+    CGFloat insetLeft = 0.0;
     if (self.imageView.frame.size.width > self.scrollView.bounds.size.width) {
         insetTop = 0;
     } else {
