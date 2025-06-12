@@ -133,7 +133,7 @@
     
     CGFloat insetLeft = 0.0;
     if (self.imageView.frame.size.width > self.scrollView.bounds.size.width) {
-        insetTop = 0;
+        insetLeft = 0;
     } else {
         insetLeft = (self.scrollView.bounds.size.width - self.imageView.frame.size.width) / 2;
     }
