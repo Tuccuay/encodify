@@ -36,7 +36,7 @@
 }
 
 - (void)encodeWithMorse:(NSString *)inputString textView:(UITextView *)textView {
-    [EncodifyXmorseBridge encode:inputString complection:^(NSString *string) {
+    [EncodifyXmorseBridge encode:inputString completion:^(NSString *string) {
         textView.text = string;
     }];
 }
