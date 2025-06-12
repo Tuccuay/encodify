@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Install CocoaPods
+        run: |
+          gem install cocoapods
+          pod install
+
+      - name: Build and Test
+        run: |
+          xcodebuild clean test \
+            -workspace encodify.xcworkspace \
+            -scheme encodify \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 11,OS=latest' \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
