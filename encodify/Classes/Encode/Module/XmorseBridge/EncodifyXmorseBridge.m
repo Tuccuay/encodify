@@ -12,20 +12,20 @@
 @implementation EncodifyXmorseBridge
 
 + (void)encode:(NSString *)string
-   complection:(xmorseBridge)complection {
-    
-    [self morseMethod:@"encode" string:string complection:complection];
+   completion:(xmorseBridge)completion {
+
+    [self morseMethod:@"encode" string:string completion:completion];
 }
 
 + (void)decode:(NSString *)string
-   complection:(xmorseBridge)complection {
-    
-    [self morseMethod:@"decode" string:string complection:complection];
+   completion:(xmorseBridge)completion {
+
+    [self morseMethod:@"decode" string:string completion:completion];
 }
 
 + (void)morseMethod:(NSString *)method
              string:(NSString *)string
-        complection:(xmorseBridge)complection {
+        completion:(xmorseBridge)completion {
     
     NSString *xmorseMinPath = [[NSBundle mainBundle]
                                pathForResource:@"xmorse.min" ofType:@"js"];
@@ -46,7 +46,7 @@
     [context evaluateScript:encodifyXmorseBridgeString];
     
     context[@"callback"] = ^(NSString *text) {
-        complection(text);
+        completion(text);
     };
     
     JSValue *morse = context[method];

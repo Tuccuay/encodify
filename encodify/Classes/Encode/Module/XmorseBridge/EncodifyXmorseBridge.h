@@ -12,7 +12,7 @@ typedef void(^xmorseBridge)(NSString *string);
 
 @interface EncodifyXmorseBridge : NSObject
 
-+ (void)encode:(NSString *)string complection:(xmorseBridge)complection;
-+ (void)decode:(NSString *)string complection:(xmorseBridge)complection;
++ (void)encode:(NSString *)string completion:(xmorseBridge)completion;
++ (void)decode:(NSString *)string completion:(xmorseBridge)completion;
 
 @end

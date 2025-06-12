@@ -55,7 +55,7 @@
     NSString *string = self.textView.text;
     
     
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:string options:NSDataBase64DecodingIgnoreUnknownCharacters];;
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:string options:NSDataBase64DecodingIgnoreUnknownCharacters];
     if (data == nil) {
         [EToast showStatus:@"Decode failure."];
         return;
