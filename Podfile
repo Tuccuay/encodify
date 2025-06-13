@@ -1,16 +1,16 @@
 # Uncomment this line to define a global platform for your project
- platform :ios, '8.0'
+platform :ios, '15.6'
 
 target 'encodify' do
-  # Uncomment this line if you're using Swift or would like to use dynamic frameworks
+  # Using Swift and dynamic frameworks
   use_frameworks!
 
   # Pods for encodify
-  pod 'CocoaSecurity'
-  pod 'CWStatusBarNotification'
-  pod 'XLPagerTabStrip', '~> 3.0'
-  pod 'Masonry'
-  pod 'FDStackView'
+  pod 'CryptoSwift'  # Replace CocoaSecurity
+  pod 'NotificationBannerSwift'  # Replace CWStatusBarNotification
+  pod 'XLPagerTabStrip', '~> 9.0'  # Latest Swift version
+  pod 'SnapKit'  # Replace Masonry for Swift
+  # FDStackView is not needed in modern iOS
 
   target 'encodifyTests' do
     inherit! :search_paths
@@ -22,4 +22,12 @@ target 'encodify' do
     # Pods for testing
   end
 
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = "15.6"
+    end
+  end
 end

@@ -1,7 +1,0 @@
-language: objective-c
-cache: cocoapods
-osx_image: xcode9
-xcode_workspace: encodify.xcworkspace
-xcode_scheme: encodify
-script:
-    - xcodebuild clean build -sdk iphonesimulator -workspace encodify.xcworkspace -scheme encodify CODE_SIGNING_REQUIRED=NO
