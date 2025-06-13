@@ -31,20 +31,26 @@ class ImageDecodeViewController: UIViewController {
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(title: "Decode", style: .plain, target: self, action: #selector(decodeString)),
-            UIBarButtonItem(title: "Paste", style: .plain, target: self, action: #selector(pasteString))
-        ]
+        let decodeButton = UIBarButtonItem(title: "Decode", style: .plain, target: self, action: #selector(decodeString))
+        decodeButton.tintColor = UIColor.encodifyTintColor
+        
+        // 创建 UIPasteControl
+        let pasteControl = createPasteControl()
+        let pasteBarButtonItem = UIBarButtonItem(customView: pasteControl)
+        
+        navigationItem.rightBarButtonItems = [decodeButton, pasteBarButtonItem]
     }
     
-    @objc private func pasteString() {
-        guard let text = UIPasteboard.general.string, !text.isEmpty else {
-            Toast.showStatus("Pasteboard is empty.")
-            return
-        }
+    private func createPasteControl() -> UIPasteControl {
+        let configuration = UIPasteControl.Configuration()
+        configuration.displayMode = .labelOnly
+        configuration.baseBackgroundColor = UIColor.encodifyTintColor
+        configuration.baseForegroundColor = .white
         
-        Toast.showStatus("Pasted")
-        textView.text = text
+        let pasteControl = UIPasteControl(configuration: configuration)
+        pasteControl.target = textView
+        
+        return pasteControl
     }
     
     @objc private func decodeString() {

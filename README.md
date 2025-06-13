@@ -4,7 +4,9 @@
 
 ## 📲 立即下载
 
-[**在 App Store 下载 Encodify**](https://apps.apple.com/app/id1074602693)
+[![Download on the App Store](Assets/Download_on_the_App_Store_Badge_US-UK_135x40.svg)](https://apps.apple.com/app/id1074602693)
+
+或者直接访问：[**在 App Store 下载 Encodify**](https://apps.apple.com/app/id1074602693)
 
 ## 🎉 Swift迁移完成
 
@@ -61,7 +63,10 @@
 ## 🚀 快速开始
 
 ### 📱 用户
-直接从 [App Store 下载](https://apps.apple.com/app/id1074602693) 即可使用。
+
+[![Download on the App Store](Assets/Download_on_the_App_Store_Badge_US-UK_135x40.svg)](https://apps.apple.com/app/id1074602693)
+
+或者直接从 [App Store 下载](https://apps.apple.com/app/id1074602693) 即可使用。
 
 ### 👨‍💻 开发者
 ```bash

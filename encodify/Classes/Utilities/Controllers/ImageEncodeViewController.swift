@@ -33,12 +33,14 @@ class ImageEncodeViewController: UIViewController {
             make.edges.equalTo(view.safeAreaLayoutGuide)
         }
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        let copyButton = UIBarButtonItem(
             title: "Copy",
             style: .plain,
             target: self,
             action: #selector(copyResult)
         )
+        copyButton.tintColor = UIColor.encodifyTintColor
+        navigationItem.rightBarButtonItem = copyButton
     }
     
     private func presentImagePicker() {

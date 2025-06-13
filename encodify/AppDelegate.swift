@@ -19,14 +19,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         prepareAppearance()
         
-        // 只有在不支持 Scene 的系统上才需要设置窗口
-        if #available(iOS 13.0, *) {
-            // Scene 支持，窗口管理由 SceneDelegate 处理
-        } else {
-            // iOS 12 及以下，使用传统方式
-            setupWindowForLegacyiOS()
-        }
-        
         return true
     }
     
@@ -42,13 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - UISceneSession Lifecycle (iOS 13+)
     
-    @available(iOS 13.0, *)
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
-    @available(iOS 13.0, *)
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
         // Called when the user discards a scene session.
     }

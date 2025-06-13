@@ -25,6 +25,7 @@ class EncodeBaseViewController: UIViewController {
         textView.layer.borderColor = UIColor.lightGray.cgColor
         textView.layer.borderWidth = 0.5
         textView.layer.cornerRadius = 4
+        textView.delegate = self
         return textView
     }()
     
@@ -96,11 +97,11 @@ class EncodeBaseViewController: UIViewController {
         
         let copyUpButton = createButton(title: "Copy↑", action: #selector(copyUpButtonAction))
         let copyDownButton = createButton(title: "Copy↓", action: #selector(copyDownButtonAction))
-        let pasteButton = createButton(title: "Paste", action: #selector(pasteButtonAction))
+        let pasteControl = createPasteControl()
         let clearButton = createButton(title: "Clear", action: #selector(clearButtonAction))
         let encodeButton = createButton(title: encodeButtonTitle, action: #selector(encodeButtonAction))
         
-        [copyUpButton, copyDownButton, pasteButton, clearButton, encodeButton].forEach {
+        [copyUpButton, copyDownButton, pasteControl, clearButton, encodeButton].forEach {
             stackView.addArrangedSubview($0)
         }
     }
@@ -112,6 +113,18 @@ class EncodeBaseViewController: UIViewController {
         return button
     }
     
+    private func createPasteControl() -> UIPasteControl {
+        let configuration = UIPasteControl.Configuration()
+        configuration.displayMode = .labelOnly
+        configuration.baseBackgroundColor = UIColor.encodifyTintColor
+        configuration.baseForegroundColor = .white
+        
+        let pasteControl = UIPasteControl(configuration: configuration)
+        pasteControl.target = inputTextView
+        
+        return pasteControl
+    }
+    
     private func setupGestures() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapToResign))
         view.addGestureRecognizer(tapGesture)
@@ -119,7 +132,7 @@ class EncodeBaseViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func methodSegmentedControlChanged() {
-        encode()
+        performEncode()
     }
     
     @objc private func copyUpButtonAction() {
@@ -146,19 +159,6 @@ class EncodeBaseViewController: UIViewController {
         Toast.showStatus("Copied")
     }
     
-    @objc private func pasteButtonAction() {
-        inputTextView.resignFirstResponder()
-        
-        guard let text = UIPasteboard.general.string, !text.isEmpty else {
-            Toast.showError("No text in pasteboard.")
-            return
-        }
-        
-        inputTextView.text = text
-        encode()
-        Toast.showStatus("Pasted")
-    }
-    
     @objc private func clearButtonAction() {
         inputTextView.resignFirstResponder()
         inputTextView.text = ""
@@ -167,7 +167,7 @@ class EncodeBaseViewController: UIViewController {
     }
     
     @objc private func encodeButtonAction() {
-        encode()
+        performEncode()
     }
     
     @objc private func tapToResign() {
@@ -175,7 +175,7 @@ class EncodeBaseViewController: UIViewController {
     }
     
     // MARK: - Encoding
-    private func encode() {
+    @objc private func performEncode() {
         inputTextView.resignFirstResponder()
         
         guard let inputString = inputTextView.text, !inputString.isEmpty else {
@@ -220,5 +220,16 @@ class EncodeBaseViewController: UIViewController {
     
     var encodeButtonTitle: String {
         return "Encode"
+    }
+}
+
+// MARK: - UITextViewDelegate
+extension EncodeBaseViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        if textView == inputTextView {
+            // 延迟触发编码，避免频繁调用
+            NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(performEncode), object: nil)
+            perform(#selector(performEncode), with: nil, afterDelay: 0.3)
+        }
     }
 }

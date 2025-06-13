@@ -22,45 +22,28 @@ class MainTabBarController: UITabBarController {
     private func setupTabBarAppearance() {
         // 配置 TabBar 外观
         tabBar.tintColor = UIColor.encodifyTintColor
+
     }
     
     private func setupViewControllers() {
         print("🔄 开始创建视图控制器...")
         
-        // 先创建一个简单的测试视图控制器
-        let testViewController = UIViewController()
-        testViewController.view.backgroundColor = .systemBlue
-        testViewController.title = "Test"
+        let encodeViewController = createEncodeModule()
+        print("✅ Encode 模块创建成功")
         
-        let testNavController = UINavigationController(rootViewController: testViewController)
-        testNavController.tabBarItem.title = "Test"
-        testNavController.tabBarItem.image = UIImage(systemName: "gear")
+        let hashViewController = createHashModule()
+        print("✅ Hash 模块创建成功")
         
-        print("✅ 测试视图控制器创建成功")
+        let utilitiesViewController = createUtilitiesModule()
+        print("✅ Utilities 模块创建成功")
         
-        // 尝试创建真实的视图控制器
-        do {
-            let encodeViewController = createEncodeModule()
-            print("✅ Encode 模块创建成功")
-            
-            let hashViewController = createHashModule()
-            print("✅ Hash 模块创建成功")
-            
-            let utilitiesViewController = createUtilitiesModule()
-            print("✅ Utilities 模块创建成功")
-            
-            // 设置所有视图控制器
-            viewControllers = [
-                encodeViewController,
-                hashViewController,
-                utilitiesViewController
-            ]
-            print("✅ 所有视图控制器设置完成")
-        } catch {
-            print("❌ 创建视图控制器时出错: \(error)")
-            // 如果出错，使用测试视图控制器
-            viewControllers = [testNavController]
-        }
+        // 设置所有视图控制器
+        viewControllers = [
+            encodeViewController,
+            hashViewController,
+            utilitiesViewController
+        ]
+        print("✅ 所有视图控制器设置完成")
     }
     
     // MARK: - Module Creation Methods
@@ -71,7 +54,19 @@ class MainTabBarController: UITabBarController {
         
         let navigationController = UINavigationController(rootViewController: encodePagerViewController)
         navigationController.tabBarItem.title = "Encode"
-        navigationController.tabBarItem.image = UIImage(named: "encode")
+        
+        // 使用 SF Symbol: 编码转换图标，更有活力 - 备选方案
+        // 选项1: arrow.triangle.2.circlepath.circle - 双向循环转换
+        // 选项2: function - 函数符号，代表转换处理
+        // 选项3: chevron.left.forwardslash.chevron.right - 代码标签样式
+        // 选项4: abc.dexia - 字母转换效果
+        if let encodeImage = UIImage(systemName: "chevron.left.forwardslash.chevron.right") {
+            // 配置适合 TabBar 的图标尺寸和样式
+            let configuredImage = encodeImage.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 17, weight: .regular, scale: .medium)
+            )
+            navigationController.tabBarItem.image = configuredImage
+        }
         
         return navigationController
     }
@@ -82,7 +77,20 @@ class MainTabBarController: UITabBarController {
         
         let navigationController = UINavigationController(rootViewController: hashViewController)
         navigationController.tabBarItem.title = "Hash"
-        navigationController.tabBarItem.image = UIImage(named: "hash")
+        
+        // 使用 SF Symbol: 哈希/加密相关的图标 - 多种选择
+        // 选项1: checksum - 校验和图标，直接相关哈希计算 ⭐ 推荐
+        // 选项2: lock.shield - 安全盾牌，体现加密安全性
+        // 选项3: key.fill - 密钥图标，经典的加密象征  
+        // 选项4: function - 数学函数符号 ƒ，体现算法处理
+        // 选项5: seal.fill - 印章图标，体现验证和签名
+        if let hashImage = UIImage(systemName: "number") {
+            // 配置适合 TabBar 的图标尺寸和样式
+            let configuredImage = hashImage.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 17, weight: .regular, scale: .medium)
+            )
+            navigationController.tabBarItem.image = configuredImage
+        }
         
         return navigationController
     }
@@ -93,7 +101,15 @@ class MainTabBarController: UITabBarController {
         
         let navigationController = UINavigationController(rootViewController: utilitiesViewController)
         navigationController.tabBarItem.title = "Utilities"
-        navigationController.tabBarItem.image = UIImage(named: "Utilities")
+        
+        // 使用 SF Symbol: 工具图标
+        if let utilitiesImage = UIImage(systemName: "wrench.and.screwdriver") {
+            // 配置适合 TabBar 的图标尺寸和样式
+            let configuredImage = utilitiesImage.withConfiguration(
+                UIImage.SymbolConfiguration(pointSize: 17, weight: .regular, scale: .medium)
+            )
+            navigationController.tabBarItem.image = configuredImage
+        }
         
         return navigationController
     }

@@ -18,6 +18,8 @@ class UtilitiesViewController: UIViewController {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         // 设置内容间距以适应透明TabBar
         tableView.contentInsetAdjustmentBehavior = .automatic
+        // 设置背景色为系统默认背景色
+        tableView.backgroundColor = .systemBackground
         return tableView
     }()
     

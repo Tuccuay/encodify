@@ -36,10 +36,50 @@ class HashViewController: UIViewController {
     }()
     
     private lazy var showTypeSegmentedControl: UISegmentedControl = {
-        let control = UISegmentedControl(items: ["Lowercase", "Uppercase"])
+        let control = UISegmentedControl(items: ["Lowercase", "Uppercase", "Base64"])
         control.selectedSegmentIndex = 0
         control.addTarget(self, action: #selector(showTypeChanged), for: .valueChanged)
         return control
+    }()
+    
+    private lazy var buttonStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.alignment = .center
+        stackView.spacing = 8
+        return stackView
+    }()
+    
+    private lazy var copyButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Copy", for: .normal)
+        button.addTarget(self, action: #selector(copyButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var pasteControl: UIPasteControl = {
+        let configuration = UIPasteControl.Configuration()
+        configuration.displayMode = .labelOnly
+        configuration.baseBackgroundColor = UIColor.encodifyTintColor
+        configuration.baseForegroundColor = .white
+        let control = UIPasteControl(configuration: configuration)
+        control.target = inputTextView
+        return control
+    }()
+    
+    private lazy var clearButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Clear", for: .normal)
+        button.addTarget(self, action: #selector(clearButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var hashButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Hash", for: .normal)
+        button.addTarget(self, action: #selector(hashButtonTapped), for: .touchUpInside)
+        return button
     }()
     
     private var hashResults: [HashResult] = []
@@ -47,33 +87,51 @@ class HashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-
+        setupGestures()
+    }
+    
+    private func setupGestures() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapToResign))
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupUI() {
         title = "Hash"
         view.backgroundColor = .systemBackground
         
-        view.addSubview(inputTextView)
         view.addSubview(showTypeSegmentedControl)
+        view.addSubview(inputTextView)
+        view.addSubview(buttonStackView)
         view.addSubview(tableView)
+        
+        // 设置按钮堆栈
+        buttonStackView.addArrangedSubview(copyButton)
+        buttonStackView.addArrangedSubview(pasteControl)
+        buttonStackView.addArrangedSubview(clearButton)
+        buttonStackView.addArrangedSubview(hashButton)
         
         setContentScrollView(tableView)
         
-        inputTextView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
-            make.left.right.equalToSuperview().inset(8)
-            make.height.equalTo(120)
-        }
-        
         showTypeSegmentedControl.snp.makeConstraints { make in
-            make.top.equalTo(inputTextView.snp.bottom).offset(8)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
             make.left.right.equalToSuperview().inset(8)
             make.height.equalTo(32)
         }
         
-        tableView.snp.makeConstraints { make in
+        inputTextView.snp.makeConstraints { make in
             make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(8)
+            make.left.right.equalToSuperview().inset(8)
+            make.height.equalTo(120)
+        }
+        
+        buttonStackView.snp.makeConstraints { make in
+            make.top.equalTo(inputTextView.snp.bottom).offset(8)
+            make.left.right.equalToSuperview().inset(8)
+            make.height.equalTo(44)
+        }
+        
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(buttonStackView.snp.bottom).offset(8)
             make.left.right.equalTo(view.safeAreaLayoutGuide)
             make.bottom.equalToSuperview()
         }
@@ -83,7 +141,38 @@ class HashViewController: UIViewController {
         tableView.reloadData()
     }
     
+    @objc private func copyButtonTapped() {
+        inputTextView.resignFirstResponder()
+        
+        guard let text = inputTextView.text, !text.isEmpty else {
+            Toast.showError("No text to copy")
+            return
+        }
+        
+        UIPasteboard.general.string = text
+        Toast.showStatus("Copied")
+    }
+    
+    @objc private func clearButtonTapped() {
+        inputTextView.resignFirstResponder()
+        inputTextView.text = ""
+        calculateHashes()
+        Toast.showStatus("Cleared")
+    }
+    
+    @objc private func hashButtonTapped() {
+        inputTextView.resignFirstResponder()
+        calculateHashes()
+        if !hashResults.isEmpty {
+            Toast.showStatus("Hashed")
+        }
+    }
+    
     @objc private func resignTextView() {
+        inputTextView.resignFirstResponder()
+    }
+    
+    @objc private func tapToResign() {
         inputTextView.resignFirstResponder()
     }
     
@@ -99,7 +188,42 @@ class HashViewController: UIViewController {
     }
     
     private func formattedHash(_ hash: String) -> String {
-        return showTypeSegmentedControl.selectedSegmentIndex == 0 ? hash.lowercased() : hash.uppercased()
+        switch showTypeSegmentedControl.selectedSegmentIndex {
+        case 0:
+            return hash.lowercased()
+        case 1:
+            return hash.uppercased()
+        case 2:
+            // 将十六进制字符串转换为 base64
+            return hexStringToBase64(hash) ?? hash.lowercased()
+        default:
+            return hash.lowercased()
+        }
+    }
+    
+    private func hexStringToBase64(_ hexString: String) -> String? {
+        // 移除可能存在的空格和换行符
+        let cleanHex = hexString.replacingOccurrences(of: " ", with: "").replacingOccurrences(of: "\n", with: "")
+        
+        // 确保十六进制字符串长度是偶数
+        guard cleanHex.count % 2 == 0 else { return nil }
+        
+        var data = Data()
+        var index = cleanHex.startIndex
+        
+        // 将十六进制字符串转换为 Data
+        while index < cleanHex.endIndex {
+            let nextIndex = cleanHex.index(index, offsetBy: 2)
+            let byteString = String(cleanHex[index..<nextIndex])
+            
+            guard let byte = UInt8(byteString, radix: 16) else { return nil }
+            data.append(byte)
+            
+            index = nextIndex
+        }
+        
+        // 转换为 base64
+        return data.base64EncodedString()
     }
 }
 
@@ -136,12 +260,5 @@ extension HashViewController: UITableViewDelegate {
         
         // Toast 方法已经标记为 @MainActor，可以直接调用
         Toast.showStatus("Copied")
-    }
-}
-
-// MARK: - UIGestureRecognizerDelegate
-extension HashViewController: UIGestureRecognizerDelegate {
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        return !touch.view!.isKind(of: UITableViewCell.self)
     }
 }
