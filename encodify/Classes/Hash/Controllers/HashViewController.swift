@@ -83,6 +83,7 @@ class HashViewController: UIViewController {
     }()
     
     private var hashResults: [HashResult] = []
+    private var currentHashTask: Task<Void, Never>?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -138,6 +139,7 @@ class HashViewController: UIViewController {
     }
     
     @objc private func showTypeChanged() {
+        // 格式类型改变时立即重新加载表格，无需重新计算哈希
         tableView.reloadData()
     }
     
@@ -156,13 +158,18 @@ class HashViewController: UIViewController {
     @objc private func clearButtonTapped() {
         inputTextView.resignFirstResponder()
         inputTextView.text = ""
-        calculateHashes()
+        
+        // 取消正在进行的哈希计算
+        currentHashTask?.cancel()
+        hashResults = []
+        tableView.reloadData()
+        
         Toast.showStatus("Cleared")
     }
     
     @objc private func hashButtonTapped() {
         inputTextView.resignFirstResponder()
-        calculateHashes()
+        calculateHashesImmediately()
         if !hashResults.isEmpty {
             Toast.showStatus("Hashed")
         }
@@ -183,8 +190,59 @@ class HashViewController: UIViewController {
             return
         }
         
-        hashResults = HashCalculator.calculateHashes(for: text)
-        tableView.reloadData()
+        // 取消之前的计算任务
+        currentHashTask?.cancel()
+        
+        // 使用 Task 来处理异步计算
+        currentHashTask = Task {
+            // 添加防抖延迟
+            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
+            
+            // 检查是否被取消
+            guard !Task.isCancelled else { return }
+            
+            // 在后台计算哈希
+            let results = await Task.detached {
+                return HashCalculator.calculateHashes(for: text)
+            }.value
+            
+            // 检查是否被取消
+            guard !Task.isCancelled else { return }
+            
+            // 回到主线程更新UI
+            await MainActor.run {
+                self.hashResults = results
+                self.tableView.reloadData()
+            }
+        }
+    }
+    
+    private func calculateHashesImmediately() {
+        guard let text = inputTextView.text, !text.isEmpty else {
+            hashResults = []
+            tableView.reloadData()
+            return
+        }
+        
+        // 取消之前的计算任务
+        currentHashTask?.cancel()
+        
+        // 立即计算，不延迟
+        currentHashTask = Task {
+            // 在后台计算哈希
+            let results = await Task.detached {
+                return HashCalculator.calculateHashes(for: text)
+            }.value
+            
+            // 检查是否被取消
+            guard !Task.isCancelled else { return }
+            
+            // 回到主线程更新UI
+            await MainActor.run {
+                self.hashResults = results
+                self.tableView.reloadData()
+            }
+        }
     }
     
     private func formattedHash(_ hash: String) -> String {

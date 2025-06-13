@@ -30,8 +30,8 @@ class EncodePagerViewController: ButtonBarPagerTabStripViewController {
         settings.style.buttonBarBackgroundColor = .clear
         settings.style.buttonBarItemBackgroundColor = .clear
         settings.style.selectedBarBackgroundColor = UIColor.encodifyTintColor
-        settings.style.buttonBarItemFont = UIFont.systemFont(ofSize: 16)
-        settings.style.selectedBarHeight = 2.0
+        settings.style.buttonBarItemFont = UIFont.preferredFont(forTextStyle: .headline)
+        settings.style.selectedBarHeight = 4.0
         settings.style.buttonBarMinimumLineSpacing = 0
         settings.style.buttonBarItemTitleColor = .label
         settings.style.buttonBarItemsShouldFillAvailableWidth = true
