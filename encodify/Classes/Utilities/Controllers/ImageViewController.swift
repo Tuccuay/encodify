@@ -51,7 +51,7 @@ class ImageViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        
         title = "Image Preview"
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(

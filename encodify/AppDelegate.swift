@@ -12,14 +12,20 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    private var appCoordinator: AppCoordinator?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
         prepareAppearance()
         
-        // 修复：添加括号来调用方法
-        setupWindowForLegacyiOS()
+        // 只有在不支持 Scene 的系统上才需要设置窗口
+        if #available(iOS 13.0, *) {
+            // Scene 支持，窗口管理由 SceneDelegate 处理
+        } else {
+            // iOS 12 及以下，使用传统方式
+            setupWindowForLegacyiOS()
+        }
         
         return true
     }
@@ -27,33 +33,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupWindowForLegacyiOS() {
         window = UIWindow(frame: UIScreen.main.bounds)
         
-        let encodePagerViewController = EncodePagerViewController()
-        encodePagerViewController.tabBarItem.title = "Encode"
-        encodePagerViewController.tabBarItem.image = UIImage(named: "encode")
-        
-        let hashViewController = HashViewController()
-        hashViewController.title = "Hash"
-        let hashNavigationController = UINavigationController(rootViewController: hashViewController)
-        hashNavigationController.tabBarItem.title = "Hash"
-        hashNavigationController.tabBarItem.image = UIImage(named: "hash")
-        
-        let utilitiesViewController = UtilitiesViewController()
-        utilitiesViewController.title = "Utilities"
-        let utilitiesNavigationController = UINavigationController(rootViewController: utilitiesViewController)
-        utilitiesNavigationController.tabBarItem.title = "Utilities"
-        utilitiesNavigationController.tabBarItem.image = UIImage(named: "Utilities")
-        
-        let tabBarController = UITabBarController()
-        tabBarController.viewControllers = [encodePagerViewController, hashNavigationController, utilitiesNavigationController]
-        
-        window?.rootViewController = tabBarController
-        window?.makeKeyAndVisible()
-        
-        UINavigationBar.appearance().tintColor = UIColor.encodifyTintColor
-        UIControl.appearance().tintColor = UIColor.encodifyTintColor
+        // 使用 AppCoordinator 管理界面 (启动时已经在主线程)
+        if let window = window {
+            appCoordinator = AppCoordinator(window: window)
+            appCoordinator?.start()
+        }
     }
 
-    // 移除 Scene 相关方法
+    // MARK: - UISceneSession Lifecycle (iOS 13+)
+    
+    @available(iOS 13.0, *)
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        // Called when a new scene session is being created.
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+
+    @available(iOS 13.0, *)
+    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
+        // Called when the user discards a scene session.
+    }
+
+    // MARK: - Application Lifecycle (iOS 12 and below)
     
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state.
@@ -78,7 +78,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Private Methods
     
     private func prepareAppearance() {
+        // Configure navigation bar appearance
+        UINavigationBar.appearance().tintColor = UIColor.encodifyTintColor
+        
+        // Configure general control appearance
         UIControl.appearance().tintColor = UIColor.encodifyTintColor
-        UITabBar.appearance().tintColor = UIColor.encodifyTintColor
     }
 }

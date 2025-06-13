@@ -22,12 +22,16 @@ class HashViewController: UIViewController {
     }()
     
     private lazy var tableView: UITableView = {
-        let tableView = UITableView()
+        let tableView = UITableView(frame: .zero, style: .plain)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(HashResultTableViewCell.self, forCellReuseIdentifier: "HashResultCell")
         tableView.estimatedRowHeight = 44
         tableView.rowHeight = UITableView.automaticDimension
+        // 设置内容间距以适应透明TabBar
+        tableView.contentInsetAdjustmentBehavior = .automatic
+        // 添加滑动收起键盘功能
+        tableView.keyboardDismissMode = .onDrag
         return tableView
     }()
     
@@ -43,16 +47,18 @@ class HashViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupGestures()
+
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
         title = "Hash"
+        view.backgroundColor = .systemBackground
         
         view.addSubview(inputTextView)
         view.addSubview(showTypeSegmentedControl)
         view.addSubview(tableView)
+        
+        setContentScrollView(tableView)
         
         inputTextView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
@@ -68,14 +74,9 @@ class HashViewController: UIViewController {
         
         tableView.snp.makeConstraints { make in
             make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(8)
-            make.left.right.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.left.right.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview()
         }
-    }
-    
-    private func setupGestures() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(resignTextView))
-        tapGesture.delegate = self
-        view.addGestureRecognizer(tapGesture)
     }
     
     @objc private func showTypeChanged() {
@@ -130,7 +131,10 @@ extension HashViewController: UITableViewDelegate {
         inputTextView.resignFirstResponder()
         
         let result = hashResults[indexPath.row]
-        UIPasteboard.general.string = formattedHash(result.hash)
+        let hashToCopy = formattedHash(result.hash)
+        UIPasteboard.general.string = hashToCopy
+        
+        // Toast 方法已经标记为 @MainActor，可以直接调用
         Toast.showStatus("Copied")
     }
 }

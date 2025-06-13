@@ -25,7 +25,7 @@ class ImageEncodeViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        
         title = "Image Encode"
         
         view.addSubview(textView)

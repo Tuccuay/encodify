@@ -16,13 +16,15 @@ class UtilitiesViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        // 设置内容间距以适应透明TabBar
+        tableView.contentInsetAdjustmentBehavior = .automatic
         return tableView
     }()
     
     private let utilities: [[UtilityItem]] = [
         [
             UtilityItem(title: "Pick image & encode to base64", viewControllerType: ImageEncodeViewController.self),
-            UtilityItem(title: "Decode base64 to image", viewControllerType: ImageDecodeViewController.self)
+            UtilityItem(title: "Decode base64 to image", viewControllerType: ImageDecodeViewController.self),
         ]
     ]
     
@@ -32,12 +34,15 @@ class UtilitiesViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemGroupedBackground
+
         title = "Utilities"
+        navigationController?.navigationBar.prefersLargeTitles = true
+//        navigationItem.largeTitleDisplayMode = .always
         
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.left.right.equalTo(view.safeAreaLayoutGuide)
+            make.top.bottom.equalToSuperview()
         }
     }
 }

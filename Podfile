@@ -11,6 +11,9 @@ target 'encodify' do
   pod 'XLPagerTabStrip', '~> 9.0'  # Latest Swift version
   pod 'SnapKit'  # Replace Masonry for Swift
   # FDStackView is not needed in modern iOS
+  
+#  pod 'LookinServer', :subspecs => ['Swift'], :configurations => ['Debug']
+
 
   target 'encodifyTests' do
     inherit! :search_paths

@@ -24,7 +24,6 @@ class ImageDecodeViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
         title = "Image Decode"
         
         view.addSubview(textView)

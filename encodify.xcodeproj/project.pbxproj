@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		23469BCD43F45D646CE6881C /* Pods_encodify.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 36B97F218ABA7C8CF4FAC419 /* Pods_encodify.framework */; };
 		8938115FDBBD4E68E49CF863 /* Pods_encodifyTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 72870FCAFF746CB7407724C7 /* Pods_encodifyTests.framework */; };
+		DF5D980C2DFC01F50048A2E8 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980B2DFC01F40048A2E8 /* AppCoordinator.swift */; };
+		DF5D980E2DFC02000048A2E8 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */; };
+		DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */; };
 		DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2982DFAC589005558F4 /* AppDelegate.swift */; };
 		DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2A42DFAC665005558F4 /* Toast.swift */; };
 		DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2EC2DFAC665005558F4 /* ImageDecodeViewController.swift */; };
@@ -62,6 +65,9 @@
 		85C9B1826E9C5635FC9CF4F6 /* Pods-encodifyUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-encodifyUITests.release.xcconfig"; path = "Target Support Files/Pods-encodifyUITests/Pods-encodifyUITests.release.xcconfig"; sourceTree = "<group>"; };
 		951C929FFC7930952F827D7E /* Pods-encodify.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-encodify.release.xcconfig"; path = "Target Support Files/Pods-encodify/Pods-encodify.release.xcconfig"; sourceTree = "<group>"; };
 		BBAFF01DD2E644132C0A4E6C /* Pods-encodifyTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-encodifyTests.release.xcconfig"; path = "Target Support Files/Pods-encodifyTests/Pods-encodifyTests.release.xcconfig"; sourceTree = "<group>"; };
+		DF5D980B2DFC01F40048A2E8 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
+		DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
+		DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		DFA9A2982DFAC589005558F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helper.swift"; sourceTree = "<group>"; };
@@ -165,6 +171,9 @@
 		DFA9A2A62DFAC665005558F4 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */,
+				DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */,
+				DF5D980B2DFC01F40048A2E8 /* AppCoordinator.swift */,
 				DFA9A29E2DFAC665005558F4 /* Extensions */,
 				DFA9A2A52DFAC665005558F4 /* Utils */,
 			);
@@ -581,15 +590,18 @@
 				DFA9A2FD2DFAC665005558F4 /* EncodePagerViewController.swift in Sources */,
 				DFA9A3012DFAC665005558F4 /* HashResultTableViewCell.swift in Sources */,
 				DFA9A3042DFAC665005558F4 /* ImageEncodeViewController.swift in Sources */,
+				DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */,
 				DFA9A3062DFAC665005558F4 /* UtilitiesViewController.swift in Sources */,
 				DFA9A3092DFAC665005558F4 /* UtilityItem.swift in Sources */,
 				DFA9A30A2DFAC665005558F4 /* Base64Encoder.swift in Sources */,
 				DFA9A30C2DFAC665005558F4 /* ImageViewController.swift in Sources */,
 				DFA9A30F2DFAC665005558F4 /* EncodeBaseViewController.swift in Sources */,
+				DF5D980C2DFC01F50048A2E8 /* AppCoordinator.swift in Sources */,
 				DFA9A3102DFAC665005558F4 /* UnicodeEncoder.swift in Sources */,
 				DFA9A3112DFAC665005558F4 /* MorseEncoder.swift in Sources */,
 				DFA9A3132DFAC665005558F4 /* HashCalculator.swift in Sources */,
 				DFA9A3142DFAC665005558F4 /* HashViewController.swift in Sources */,
+				DF5D980E2DFC02000048A2E8 /* MainTabBarController.swift in Sources */,
 				DFA9A3182DFAC665005558F4 /* DecodeViewController.swift in Sources */,
 				DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */,
 				DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */,

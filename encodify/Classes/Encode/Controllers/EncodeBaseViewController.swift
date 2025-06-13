@@ -47,7 +47,6 @@ class EncodeBaseViewController: UIViewController {
     
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = .systemBackground
         
         let storeButtonsView = UIView()
         
@@ -57,7 +56,7 @@ class EncodeBaseViewController: UIViewController {
         view.addSubview(outputTextView)
         
         methodSegmentedControl.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
+            make.top.equalToSuperview().offset(8)
             make.left.right.equalToSuperview().inset(8)
             make.height.equalTo(32)
         }
@@ -76,7 +75,7 @@ class EncodeBaseViewController: UIViewController {
         outputTextView.snp.makeConstraints { make in
             make.top.equalTo(storeButtonsView.snp.bottom).offset(8)
             make.left.right.equalToSuperview().inset(8)
-            make.bottom.equalTo(view.safeAreaLayoutGuide)
+            make.bottom.equalToSuperview().inset(8)
             make.height.equalTo(inputTextView)
         }
         
@@ -110,9 +109,6 @@ class EncodeBaseViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.addTarget(self, action: action, for: .touchUpInside)
-        button.layer.borderColor = UIColor.systemBlue.cgColor
-        button.layer.borderWidth = 1
-        button.layer.cornerRadius = 4
         return button
     }
     
