@@ -95,13 +95,11 @@ class EncodeBaseViewController: UIViewController {
             make.edges.equalToSuperview()
         }
         
-        let copyUpButton = createButton(title: "Copy↑", action: #selector(copyUpButtonAction))
-        let copyDownButton = createButton(title: "Copy↓", action: #selector(copyDownButtonAction))
         let pasteButton = createButton(title: "Paste", action: #selector(pasteButtonAction))
+        let copyButton = createButton(title: "Copy", action: #selector(copyDownButtonAction))
         let clearButton = createButton(title: "Clear", action: #selector(clearButtonAction))
-        let encodeButton = createButton(title: encodeButtonTitle, action: #selector(encodeButtonAction))
         
-        [copyUpButton, copyDownButton, pasteButton, clearButton, encodeButton].forEach {
+        [pasteButton, copyButton, clearButton].forEach {
             stackView.addArrangedSubview($0)
         }
     }
@@ -121,18 +119,6 @@ class EncodeBaseViewController: UIViewController {
     // MARK: - Actions
     @objc private func methodSegmentedControlChanged() {
         performEncode()
-    }
-    
-    @objc private func copyUpButtonAction() {
-        inputTextView.resignFirstResponder()
-        
-        guard let text = inputTextView.text, !text.isEmpty else {
-            Toast.showError("No text in input box.")
-            return
-        }
-        
-        UIPasteboard.general.string = text
-        Toast.showStatus("Copied")
     }
     
     @objc private func copyDownButtonAction() {
@@ -165,10 +151,6 @@ class EncodeBaseViewController: UIViewController {
         inputTextView.text = ""
         outputTextView.text = ""
         Toast.showStatus("Cleared")
-    }
-    
-    @objc private func encodeButtonAction() {
-        performEncode()
     }
     
     @objc private func tapToResign() {
