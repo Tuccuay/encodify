@@ -9,17 +9,22 @@
 import UIKit
 import SnapKit
 
-class UtilitiesViewController: UIViewController {
+class UtilitiesViewController: ThemeAwareViewController {
     
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
-        // 设置内容间距以适应透明TabBar
         tableView.contentInsetAdjustmentBehavior = .automatic
-        // 设置背景色为系统默认背景色
-        tableView.backgroundColor = .systemBackground
+        tableView.backgroundColor = UIColor.systemBackground
+        tableView.separatorStyle = .none
+        
+        // Modern appearance configuration
+        if #available(iOS 15.0, *) {
+            tableView.sectionHeaderTopPadding = 0
+        }
+        
         return tableView
     }()
     
@@ -36,15 +41,16 @@ class UtilitiesViewController: UIViewController {
     }
     
     private func setupUI() {
-
         title = "Utilities"
+        view.backgroundColor = UIColor.systemBackground
+        
+        // Modern navigation bar setup
         navigationController?.navigationBar.prefersLargeTitles = true
-//        navigationItem.largeTitleDisplayMode = .always
+        navigationItem.largeTitleDisplayMode = .always
         
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.left.right.equalTo(view.safeAreaLayoutGuide)
-            make.top.bottom.equalToSuperview()
+            make.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }
@@ -62,8 +68,20 @@ extension UtilitiesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let utility = utilities[indexPath.section][indexPath.row]
+        
+        // Configure cell with modern styling
         cell.textLabel?.text = utility.title
+        cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        cell.textLabel?.adjustsFontForContentSizeCategory = true
+        cell.textLabel?.textColor = UIColor.encodifyPrimaryText
         cell.accessoryType = .disclosureIndicator
+        cell.backgroundColor = UIColor.encodifyCardBackground
+        cell.selectionStyle = .none
+        
+        // Add subtle shadow and rounded corners
+        cell.layer.cornerRadius = 12
+        cell.applyThemeAwareShadow(radius: 4, opacity: 0.08, offset: CGSize(width: 0, height: 1))
+        
         return cell
     }
 }
@@ -71,10 +89,27 @@ extension UtilitiesViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 extension UtilitiesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        // Add haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
         
         let utility = utilities[indexPath.section][indexPath.row]
         let viewController = utility.viewControllerType.init()
         navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        // Add subtle entrance animation
+        cell.transform = CGAffineTransform(translationX: 0, y: 20)
+        cell.alpha = 0.8
+        
+        UIView.animate(withDuration: 0.5, delay: 0.1 * Double(indexPath.row), usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .allowUserInteraction) {
+            cell.transform = CGAffineTransform.identity
+            cell.alpha = 1.0
+        }
     }
 }

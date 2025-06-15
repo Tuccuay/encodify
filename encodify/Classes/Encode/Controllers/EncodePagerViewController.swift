@@ -12,29 +12,55 @@ import XLPagerTabStrip
 class EncodePagerViewController: ButtonBarPagerTabStripViewController {
     
     override func viewDidLoad() {
-        
         configurePagerTabStrip()
-        
         super.viewDidLoad()
         
         setupNavigationBar()
         setupButtonBarConstraints()
+        setupModernStyling()
     }
     
     private func setupNavigationBar() {
         // Hide navigation bar since we have our own tab strip
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        // Set background
+        view.backgroundColor = UIColor.systemBackground
+    }
+    
+    private func setupModernStyling() {
+        // Add subtle blur effect to button bar
+        if let buttonBarView = buttonBarView {
+            // Add shadow
+            buttonBarView.applyThemeAwareShadow(radius: 3, opacity: 0.1, offset: CGSize(width: 0, height: 1))
+            
+            // Add border at bottom
+            let borderLayer = CALayer()
+            borderLayer.backgroundColor = UIColor.encodifyBorderColor.cgColor
+            borderLayer.frame = CGRect(x: 0, y: buttonBarView.frame.height - 0.5, width: buttonBarView.frame.width, height: 0.5)
+            buttonBarView.layer.addSublayer(borderLayer)
+        }
     }
     
     private func configurePagerTabStrip() {
-        settings.style.buttonBarBackgroundColor = .clear
+        // Modern styling
+        settings.style.buttonBarBackgroundColor = UIColor.systemBackground
         settings.style.buttonBarItemBackgroundColor = .clear
         settings.style.selectedBarBackgroundColor = UIColor.encodifyTintColor
-        settings.style.buttonBarItemFont = UIFont.preferredFont(forTextStyle: .headline)
-        settings.style.selectedBarHeight = 4.0
+        settings.style.buttonBarItemFont = UIFont.preferredFont(forTextStyle: .body)
+        settings.style.selectedBarHeight = 3.0
         settings.style.buttonBarMinimumLineSpacing = 0
-        settings.style.buttonBarItemTitleColor = .label
+        settings.style.buttonBarMinimumInteritemSpacing = 0
+        settings.style.buttonBarLeftContentInset = 20
+        settings.style.buttonBarRightContentInset = 20
+        
+        // Text colors
+        settings.style.buttonBarItemTitleColor = UIColor.encodifyPrimaryText
+        
         settings.style.buttonBarItemsShouldFillAvailableWidth = true
+        
+        // Add modern background
+        settings.style.buttonBarBackgroundColor = UIColor.systemBackground.withAlphaComponent(0.95)
     }
     
     private func setupButtonBarConstraints() {

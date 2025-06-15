@@ -10,29 +10,48 @@ import UIKit
 import SnapKit
 import UniformTypeIdentifiers
 
-class HashViewController: UIViewController {
+class HashViewController: ThemeAwareViewController {
+    
+    private let placeholderText = "Enter text to calculate hash values..."
     
     private lazy var inputTextView: UITextView = {
         let textView = UITextView()
-        textView.font = UIFont.systemFont(ofSize: 16)
-        textView.layer.borderColor = UIColor.lightGray.cgColor
-        textView.layer.borderWidth = 0.5
-        textView.layer.cornerRadius = 4
+        textView.font = UIFont.preferredFont(forTextStyle: .body)
+        textView.adjustsFontForContentSizeCategory = true
+        textView.backgroundColor = UIColor.encodifyCardBackground
+        textView.textColor = UIColor.encodifyPrimaryText
+        textView.layer.cornerRadius = 12
+        textView.layer.masksToBounds = false
+        textView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         textView.delegate = self
+        
+        // Use theme-aware shadow instead of hardcoded black
+        textView.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
+        
+        // Accessibility improvements
+        textView.accessibilityLabel = "Input text for hashing"
+        textView.accessibilityHint = "Enter text here to generate hash values"
+        
         return textView
     }()
     
     private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .plain)
+        let tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(HashResultTableViewCell.self, forCellReuseIdentifier: "HashResultCell")
-        tableView.estimatedRowHeight = 44
+        tableView.estimatedRowHeight = 60
         tableView.rowHeight = UITableView.automaticDimension
-        // 设置内容间距以适应透明TabBar
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor.systemBackground
         tableView.contentInsetAdjustmentBehavior = .automatic
-        // 添加滑动收起键盘功能
         tableView.keyboardDismissMode = .onDrag
+        
+        // Modern appearance
+        if #available(iOS 15.0, *) {
+            tableView.sectionHeaderTopPadding = 0
+        }
+        
         return tableView
     }()
     
@@ -40,6 +59,22 @@ class HashViewController: UIViewController {
         let control = UISegmentedControl(items: ["Lowercase", "Uppercase", "Base64"])
         control.selectedSegmentIndex = 0
         control.addTarget(self, action: #selector(showTypeChanged), for: .valueChanged)
+        
+        // Modern styling with updated appearance
+        control.backgroundColor = UIColor.encodifyCardBackground
+        control.selectedSegmentTintColor = UIColor.encodifyTintColor
+        control.setTitleTextAttributes([
+            .foregroundColor: UIColor.encodifyPrimaryText,
+            .font: UIFont.preferredFont(forTextStyle: .callout)
+        ], for: .normal)
+        control.setTitleTextAttributes([
+            .foregroundColor: UIColor.white,
+            .font: UIFont.preferredFont(forTextStyle: .callout)
+        ], for: .selected)
+        
+        control.layer.cornerRadius = 10
+        control.applyThemeAwareShadow(radius: 4, opacity: 0.08, offset: CGSize(width: 0, height: 1))
+        
         return control
     }()
     
@@ -52,17 +87,28 @@ class HashViewController: UIViewController {
         return stackView
     }()
     
-    private lazy var copyButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Copy", for: .normal)
-        button.addTarget(self, action: #selector(copyButtonTapped), for: .touchUpInside)
-        return button
-    }()
-    
     private lazy var pasteButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Paste", for: .normal)
         button.addTarget(self, action: #selector(pasteButtonTapped), for: .touchUpInside)
+        
+        // Modern button styling
+        button.backgroundColor = UIColor.encodifySecondaryColor
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.layer.cornerRadius = 12
+        button.layer.masksToBounds = false
+        
+        // Add subtle shadow and depth
+        button.layer.shadowColor = UIColor.encodifySecondaryColor.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 3)
+        button.layer.shadowRadius = 6
+        button.layer.shadowOpacity = 0.3
+        
+        // Haptic feedback
+        button.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+        
         return button
     }()
     
@@ -70,15 +116,37 @@ class HashViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Clear", for: .normal)
         button.addTarget(self, action: #selector(clearButtonTapped), for: .touchUpInside)
+        
+        // Destructive button styling
+        button.backgroundColor = UIColor.encodifyDestructiveBackground
+        button.setTitleColor(UIColor.encodifyErrorColor, for: .normal)
+        button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.layer.cornerRadius = 12
+        button.applyThemeAwareShadow(radius: 4, opacity: 0.1, offset: CGSize(width: 0, height: 2))
+        button.layer.shadowRadius = 4
+        button.layer.shadowOpacity = 0.1
+        
+        // Haptic feedback
+        button.addTarget(self, action: #selector(buttonTouchDown(_:)), for: .touchDown)
+        
         return button
     }()
     
-    private lazy var hashButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Hash", for: .normal)
-        button.addTarget(self, action: #selector(hashButtonTapped), for: .touchUpInside)
-        return button
-    }()
+    @objc private func buttonTouchDown(_ sender: UIButton) {
+        // Add haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+        
+        // Add visual feedback with spring animation
+        UIView.animate(withDuration: 0.1, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .allowUserInteraction, animations: {
+            sender.transform = CGAffineTransform(scaleX: 0.95, y: 0.95)
+        }) { _ in
+            UIView.animate(withDuration: 0.1, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .allowUserInteraction) {
+                sender.transform = CGAffineTransform.identity
+            }
+        }
+    }
     
     private var hashResults: [HashResult] = []
     private var currentHashTask: Task<Void, Never>?
@@ -87,6 +155,11 @@ class HashViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupGestures()
+        setupPlaceholder()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
     
     private func setupGestures() {
@@ -96,61 +169,66 @@ class HashViewController: UIViewController {
     
     private func setupUI() {
         title = "Hash"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = UIColor.systemBackground
         
         view.addSubview(showTypeSegmentedControl)
         view.addSubview(inputTextView)
         view.addSubview(buttonStackView)
         view.addSubview(tableView)
-        
-        // 设置按钮堆栈
-        buttonStackView.addArrangedSubview(copyButton)
-        buttonStackView.addArrangedSubview(pasteButton)
-        buttonStackView.addArrangedSubview(clearButton)
-        buttonStackView.addArrangedSubview(hashButton)
-        
         setContentScrollView(tableView)
         
+        // 设置按钮堆栈
+        buttonStackView.addArrangedSubview(pasteButton)
+        buttonStackView.addArrangedSubview(clearButton)
+        
+        // 设置约束
+        
         showTypeSegmentedControl.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
-            make.left.right.equalToSuperview().inset(8)
-            make.height.equalTo(32)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(36)
         }
         
         inputTextView.snp.makeConstraints { make in
-            make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(8)
-            make.left.right.equalToSuperview().inset(8)
-            make.height.equalTo(120)
+            make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(20)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(120) // 固定高度而不是最小高度
         }
         
         buttonStackView.snp.makeConstraints { make in
-            make.top.equalTo(inputTextView.snp.bottom).offset(8)
-            make.left.right.equalToSuperview().inset(8)
-            make.height.equalTo(44)
+            make.top.equalTo(inputTextView.snp.bottom).offset(20)
+            make.left.right.equalToSuperview().inset(20)
+            make.height.equalTo(50)
         }
         
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(buttonStackView.snp.bottom).offset(8)
+            make.top.equalTo(buttonStackView.snp.bottom).offset(20)
             make.left.right.equalTo(view.safeAreaLayoutGuide)
             make.bottom.equalToSuperview()
         }
+        
+        // 添加入场动画
+        let allViews = [showTypeSegmentedControl, inputTextView, buttonStackView, tableView]
+        allViews.forEach { view in
+            view.alpha = 0
+            view.transform = CGAffineTransform(translationX: 0, y: 20)
+        }
+        
+        UIView.animate(withDuration: 0.6, delay: 0.1, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            allViews.forEach { view in
+                view.alpha = 1
+                view.transform = .identity
+            }
+        }
+    }
+    
+    private func setupPlaceholder() {
+        inputTextView.setPlaceholder(placeholderText, style: .inputPlaceholder)
     }
     
     @objc private func showTypeChanged() {
         // 格式类型改变时立即重新加载表格，无需重新计算哈希
         tableView.reloadData()
-    }
-    
-    @objc private func copyButtonTapped() {
-        inputTextView.resignFirstResponder()
-        
-        guard let text = inputTextView.text, !text.isEmpty else {
-            Toast.showError("No text to copy")
-            return
-        }
-        
-        UIPasteboard.general.string = text
-        Toast.showStatus("Copied")
     }
     
     @objc private func pasteButtonTapped() {
@@ -176,14 +254,6 @@ class HashViewController: UIViewController {
         tableView.reloadData()
         
         Toast.showStatus("Cleared")
-    }
-    
-    @objc private func hashButtonTapped() {
-        inputTextView.resignFirstResponder()
-        calculateHashesImmediately()
-        if !hashResults.isEmpty {
-            Toast.showStatus("Hashed")
-        }
     }
     
     @objc private func resignTextView() {
@@ -294,12 +364,53 @@ class HashViewController: UIViewController {
         // 转换为 base64
         return data.base64EncodedString()
     }
+    
+    // MARK: - Theme Support
+    
+    override func applyTheme() {
+        super.applyTheme()
+        
+        // Update theme-aware components
+        updateThemeAwareComponents()
+    }
+    
+    private func updateThemeAwareComponents() {
+        let colors = ThemeManager.shared.getCurrentThemeColors()
+        
+        // Update input text view
+        inputTextView.backgroundColor = colors.cardBackground
+        inputTextView.textColor = colors.primaryText
+        inputTextView.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
+        
+        // Update table view
+        tableView.backgroundColor = colors.primaryBackground
+        
+        // Update placeholder appearance
+        inputTextView.applyThemeToPlaceholder()
+        
+        // Reload table view to update cells
+        tableView.reloadData()
+    }
 }
 
 // MARK: - UITextViewDelegate
 extension HashViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         calculateHashes()
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        // Add subtle scale animation when focused
+        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            textView.transform = CGAffineTransform(scaleX: 1.02, y: 1.02)
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        // Reset scale when unfocused
+        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            textView.transform = .identity
+        }
     }
 }
 

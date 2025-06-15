@@ -20,22 +20,17 @@ class MainTabBarController: UITabBarController {
     // MARK: - Setup Methods
     
     private func setupTabBarAppearance() {
-        // 配置 TabBar 外观
+        // Modern TabBar configuration with enhanced styling
         tabBar.tintColor = UIColor.encodifyTintColor
-
     }
     
     private func setupViewControllers() {
-        print("🔄 开始创建视图控制器...")
         
         let encodeViewController = createEncodeModule()
-        print("✅ Encode 模块创建成功")
         
         let hashViewController = createHashModule()
-        print("✅ Hash 模块创建成功")
         
         let utilitiesViewController = createUtilitiesModule()
-        print("✅ Utilities 模块创建成功")
         
         // 设置所有视图控制器
         viewControllers = [
@@ -43,7 +38,6 @@ class MainTabBarController: UITabBarController {
             hashViewController,
             utilitiesViewController
         ]
-        print("✅ 所有视图控制器设置完成")
     }
     
     // MARK: - Module Creation Methods

@@ -17,7 +17,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
-        prepareAppearance()
+        // 初始化系统主题管理器
+        _ = ThemeManager.shared
+        
+        // 配置应用外观
+        Task { @MainActor in
+            AppearanceManager.shared.configureAppearance()
+            AppearanceManager.shared.configureDynamicTypeSupport()
+            AppearanceManager.shared.configureAccessibilitySupport()
+        }
         
         return true
     }
@@ -66,12 +74,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Private Methods
-    
-    private func prepareAppearance() {
-        // Configure navigation bar appearance
-        UINavigationBar.appearance().tintColor = UIColor.encodifyTintColor
-        
-        // Configure general control appearance
-        UIControl.appearance().tintColor = UIColor.encodifyTintColor
-    }
 }

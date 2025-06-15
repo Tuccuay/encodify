@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import Photos
 
-class ImageViewController: UIViewController {
+class ImageViewController: ThemeAwareViewController {
     
     private let image: UIImage
     

@@ -32,6 +32,17 @@
 		DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2B82DFAC665005558F4 /* URLEncoder.swift */; };
 		DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */; };
 		DFC350C22DFBBC0300CAE299 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFC350C12DFBBC0300CAE299 /* Launch Screen.storyboard */; };
+		DFF122702DFE9FB300EAAA23 /* AppearanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF1226F2DFE9FB300EAAA23 /* AppearanceManager.swift */; };
+		DFF122782DFE9FBC00EAAA23 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122772DFE9FBC00EAAA23 /* ThemeManager.swift */; };
+		DFF122792DFE9FBC00EAAA23 /* TextStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122762DFE9FBC00EAAA23 /* TextStyler.swift */; };
+		DFF1227A2DFE9FBC00EAAA23 /* ResponsiveDesignHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122752DFE9FBC00EAAA23 /* ResponsiveDesignHelper.swift */; };
+		DFF1227B2DFE9FBC00EAAA23 /* ButtonStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122722DFE9FBC00EAAA23 /* ButtonStyler.swift */; };
+		DFF1227C2DFE9FBC00EAAA23 /* AnimationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122712DFE9FBC00EAAA23 /* AnimationHelper.swift */; };
+		DFF1227D2DFE9FBC00EAAA23 /* CardStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122732DFE9FBC00EAAA23 /* CardStyler.swift */; };
+		DFF1227E2DFE9FBC00EAAA23 /* LayoutHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122742DFE9FBC00EAAA23 /* LayoutHelper.swift */; };
+		DFF122802DFEBE6C00EAAA23 /* UITextView+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF1227F2DFEBE6C00EAAA23 /* UITextView+Placeholder.swift */; };
+		DFF122822DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122812DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift */; };
+		DFF122842DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122832DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift */; };
 		DFF62F1D1D72E24A00BBE261 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFF62F1C1D72E24A00BBE261 /* Assets.xcassets */; };
 		DFF62F2B1D72E24B00BBE261 /* encodifyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F2A1D72E24B00BBE261 /* encodifyTests.m */; };
 		DFF62F361D72E24B00BBE261 /* encodifyUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F351D72E24B00BBE261 /* encodifyUITests.m */; };
@@ -89,6 +100,17 @@
 		DFA9A2EF2DFAC665005558F4 /* UtilitiesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilitiesViewController.swift; sourceTree = "<group>"; };
 		DFA9A2F42DFAC665005558F4 /* UtilityItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UtilityItem.swift; sourceTree = "<group>"; };
 		DFC350C12DFBBC0300CAE299 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		DFF1226F2DFE9FB300EAAA23 /* AppearanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceManager.swift; sourceTree = "<group>"; };
+		DFF122712DFE9FBC00EAAA23 /* AnimationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationHelper.swift; sourceTree = "<group>"; };
+		DFF122722DFE9FBC00EAAA23 /* ButtonStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyler.swift; sourceTree = "<group>"; };
+		DFF122732DFE9FBC00EAAA23 /* CardStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardStyler.swift; sourceTree = "<group>"; };
+		DFF122742DFE9FBC00EAAA23 /* LayoutHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutHelper.swift; sourceTree = "<group>"; };
+		DFF122752DFE9FBC00EAAA23 /* ResponsiveDesignHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponsiveDesignHelper.swift; sourceTree = "<group>"; };
+		DFF122762DFE9FBC00EAAA23 /* TextStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextStyler.swift; sourceTree = "<group>"; };
+		DFF122772DFE9FBC00EAAA23 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		DFF1227F2DFEBE6C00EAAA23 /* UITextView+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Placeholder.swift"; sourceTree = "<group>"; };
+		DFF122812DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+PlaceholderDemo.swift"; sourceTree = "<group>"; };
+		DFF122832DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+IvarHelper.swift"; sourceTree = "<group>"; };
 		DFF62F0D1D72E24A00BBE261 /* encodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = encodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF62F1C1D72E24A00BBE261 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFF62F211D72E24A00BBE261 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -155,7 +177,10 @@
 		DFA9A29E2DFAC665005558F4 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				DFF122832DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift */,
 				DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */,
+				DFF1227F2DFEBE6C00EAAA23 /* UITextView+Placeholder.swift */,
+				DFF122812DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -163,6 +188,13 @@
 		DFA9A2A52DFAC665005558F4 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				DFF122712DFE9FBC00EAAA23 /* AnimationHelper.swift */,
+				DFF122722DFE9FBC00EAAA23 /* ButtonStyler.swift */,
+				DFF122732DFE9FBC00EAAA23 /* CardStyler.swift */,
+				DFF122742DFE9FBC00EAAA23 /* LayoutHelper.swift */,
+				DFF122752DFE9FBC00EAAA23 /* ResponsiveDesignHelper.swift */,
+				DFF122762DFE9FBC00EAAA23 /* TextStyler.swift */,
+				DFF122772DFE9FBC00EAAA23 /* ThemeManager.swift */,
 				DFA9A2A42DFAC665005558F4 /* Toast.swift */,
 			);
 			path = Utils;
@@ -171,6 +203,7 @@
 		DFA9A2A62DFAC665005558F4 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				DFF1226F2DFE9FB300EAAA23 /* AppearanceManager.swift */,
 				DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */,
 				DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */,
 				DF5D980B2DFC01F40048A2E8 /* AppCoordinator.swift */,
@@ -599,9 +632,20 @@
 				DF5D980C2DFC01F50048A2E8 /* AppCoordinator.swift in Sources */,
 				DFA9A3102DFAC665005558F4 /* UnicodeEncoder.swift in Sources */,
 				DFA9A3112DFAC665005558F4 /* MorseEncoder.swift in Sources */,
+				DFF122842DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift in Sources */,
 				DFA9A3132DFAC665005558F4 /* HashCalculator.swift in Sources */,
+				DFF122702DFE9FB300EAAA23 /* AppearanceManager.swift in Sources */,
+				DFF122802DFEBE6C00EAAA23 /* UITextView+Placeholder.swift in Sources */,
 				DFA9A3142DFAC665005558F4 /* HashViewController.swift in Sources */,
 				DF5D980E2DFC02000048A2E8 /* MainTabBarController.swift in Sources */,
+				DFF122782DFE9FBC00EAAA23 /* ThemeManager.swift in Sources */,
+				DFF122792DFE9FBC00EAAA23 /* TextStyler.swift in Sources */,
+				DFF1227A2DFE9FBC00EAAA23 /* ResponsiveDesignHelper.swift in Sources */,
+				DFF122822DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift in Sources */,
+				DFF1227B2DFE9FBC00EAAA23 /* ButtonStyler.swift in Sources */,
+				DFF1227C2DFE9FBC00EAAA23 /* AnimationHelper.swift in Sources */,
+				DFF1227D2DFE9FBC00EAAA23 /* CardStyler.swift in Sources */,
+				DFF1227E2DFE9FBC00EAAA23 /* LayoutHelper.swift in Sources */,
 				DFA9A3182DFAC665005558F4 /* DecodeViewController.swift in Sources */,
 				DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */,
 				DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */,

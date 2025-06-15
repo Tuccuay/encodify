@@ -27,16 +27,16 @@ class AppCoordinator {
     // MARK: - Private Methods
     
     private func setupMainInterface() {
-        print("🔄 AppCoordinator: 开始设置主界面")
+
         mainTabBarController = MainTabBarController.create()
-        print("✅ AppCoordinator: MainTabBarController 创建完成")
+
         
         window?.rootViewController = mainTabBarController
-        print("✅ AppCoordinator: rootViewController 设置完成")
+
         
         window?.makeKeyAndVisible()
-        print("✅ AppCoordinator: window makeKeyAndVisible 完成")
-        print("✅ AppCoordinator: window bounds = \(window?.bounds ?? .zero)")
+
+
     }
     
     // MARK: - Public Interface
