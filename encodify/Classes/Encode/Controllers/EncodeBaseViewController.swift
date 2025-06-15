@@ -97,11 +97,11 @@ class EncodeBaseViewController: UIViewController {
         
         let copyUpButton = createButton(title: "Copy↑", action: #selector(copyUpButtonAction))
         let copyDownButton = createButton(title: "Copy↓", action: #selector(copyDownButtonAction))
-        let pasteControl = createPasteControl()
+        let pasteButton = createButton(title: "Paste", action: #selector(pasteButtonAction))
         let clearButton = createButton(title: "Clear", action: #selector(clearButtonAction))
         let encodeButton = createButton(title: encodeButtonTitle, action: #selector(encodeButtonAction))
         
-        [copyUpButton, copyDownButton, pasteControl, clearButton, encodeButton].forEach {
+        [copyUpButton, copyDownButton, pasteButton, clearButton, encodeButton].forEach {
             stackView.addArrangedSubview($0)
         }
     }
@@ -111,18 +111,6 @@ class EncodeBaseViewController: UIViewController {
         button.setTitle(title, for: .normal)
         button.addTarget(self, action: action, for: .touchUpInside)
         return button
-    }
-    
-    private func createPasteControl() -> UIPasteControl {
-        let configuration = UIPasteControl.Configuration()
-        configuration.displayMode = .labelOnly
-        configuration.baseBackgroundColor = UIColor.encodifyTintColor
-        configuration.baseForegroundColor = .white
-        
-        let pasteControl = UIPasteControl(configuration: configuration)
-        pasteControl.target = inputTextView
-        
-        return pasteControl
     }
     
     private func setupGestures() {
@@ -157,6 +145,19 @@ class EncodeBaseViewController: UIViewController {
         
         UIPasteboard.general.string = text
         Toast.showStatus("Copied")
+    }
+    
+    @objc private func pasteButtonAction() {
+        inputTextView.resignFirstResponder()
+        
+        guard let pasteText = UIPasteboard.general.string else {
+            Toast.showError("No text in clipboard.")
+            return
+        }
+        
+        inputTextView.text = pasteText
+        Toast.showStatus("Pasted")
+        performEncode()
     }
     
     @objc private func clearButtonAction() {

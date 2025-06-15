@@ -8,6 +8,7 @@
 
 import UIKit
 import SnapKit
+import UniformTypeIdentifiers
 
 class HashViewController: UIViewController {
     
@@ -58,14 +59,11 @@ class HashViewController: UIViewController {
         return button
     }()
     
-    private lazy var pasteControl: UIPasteControl = {
-        let configuration = UIPasteControl.Configuration()
-        configuration.displayMode = .labelOnly
-        configuration.baseBackgroundColor = UIColor.encodifyTintColor
-        configuration.baseForegroundColor = .white
-        let control = UIPasteControl(configuration: configuration)
-        control.target = inputTextView
-        return control
+    private lazy var pasteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Paste", for: .normal)
+        button.addTarget(self, action: #selector(pasteButtonTapped), for: .touchUpInside)
+        return button
     }()
     
     private lazy var clearButton: UIButton = {
@@ -107,7 +105,7 @@ class HashViewController: UIViewController {
         
         // 设置按钮堆栈
         buttonStackView.addArrangedSubview(copyButton)
-        buttonStackView.addArrangedSubview(pasteControl)
+        buttonStackView.addArrangedSubview(pasteButton)
         buttonStackView.addArrangedSubview(clearButton)
         buttonStackView.addArrangedSubview(hashButton)
         
@@ -153,6 +151,19 @@ class HashViewController: UIViewController {
         
         UIPasteboard.general.string = text
         Toast.showStatus("Copied")
+    }
+    
+    @objc private func pasteButtonTapped() {
+        inputTextView.resignFirstResponder()
+        
+        guard let text = UIPasteboard.general.string else {
+            Toast.showError("No text in clipboard")
+            return
+        }
+        
+        inputTextView.text = text
+        calculateHashesImmediately()
+        Toast.showStatus("Pasted")
     }
     
     @objc private func clearButtonTapped() {
