@@ -44,6 +44,10 @@
 		DFF122802DFEBE6C00EAAA23 /* UITextView+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF1227F2DFEBE6C00EAAA23 /* UITextView+Placeholder.swift */; };
 		DFF122822DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122812DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift */; };
 		DFF122842DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122832DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift */; };
+		DFF122862E006BE600EAAA23 /* EncodeDecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122852E006BE600EAAA23 /* EncodeDecodeViewController.swift */; };
+		DFF1228A2E00709200EAAA23 /* HexEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122882E00709200EAAA23 /* HexEncoder.swift */; };
+		DFF1228B2E00709200EAAA23 /* BinaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122872E00709200EAAA23 /* BinaryEncoder.swift */; };
+		DFF1228C2E00709200EAAA23 /* ROT13Encoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFF122892E00709200EAAA23 /* ROT13Encoder.swift */; };
 		DFF62F1D1D72E24A00BBE261 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DFF62F1C1D72E24A00BBE261 /* Assets.xcassets */; };
 		DFF62F2B1D72E24B00BBE261 /* encodifyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F2A1D72E24B00BBE261 /* encodifyTests.m */; };
 		DFF62F361D72E24B00BBE261 /* encodifyUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = DFF62F351D72E24B00BBE261 /* encodifyUITests.m */; };
@@ -113,6 +117,10 @@
 		DFF1227F2DFEBE6C00EAAA23 /* UITextView+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+Placeholder.swift"; sourceTree = "<group>"; };
 		DFF122812DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITextView+PlaceholderDemo.swift"; sourceTree = "<group>"; };
 		DFF122832DFEC4EB00EAAA23 /* NSObject+IvarHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+IvarHelper.swift"; sourceTree = "<group>"; };
+		DFF122852E006BE600EAAA23 /* EncodeDecodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeDecodeViewController.swift; sourceTree = "<group>"; };
+		DFF122872E00709200EAAA23 /* BinaryEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinaryEncoder.swift; sourceTree = "<group>"; };
+		DFF122882E00709200EAAA23 /* HexEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexEncoder.swift; sourceTree = "<group>"; };
+		DFF122892E00709200EAAA23 /* ROT13Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ROT13Encoder.swift; sourceTree = "<group>"; };
 		DFF62F0D1D72E24A00BBE261 /* encodify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = encodify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFF62F1C1D72E24A00BBE261 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DFF62F211D72E24A00BBE261 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -227,6 +235,7 @@
 		DFA9A2B42DFAC665005558F4 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				DFF122852E006BE600EAAA23 /* EncodeDecodeViewController.swift */,
 				DFA9A2B02DFAC665005558F4 /* DecodeViewController.swift */,
 				DFA9A2B12DFAC665005558F4 /* EncodeBaseViewController.swift */,
 				DFA9A2B22DFAC665005558F4 /* EncodePagerViewController.swift */,
@@ -239,6 +248,9 @@
 			isa = PBXGroup;
 			children = (
 				DFA9A2B52DFAC665005558F4 /* Base64Encoder.swift */,
+				DFF122872E00709200EAAA23 /* BinaryEncoder.swift */,
+				DFF122882E00709200EAAA23 /* HexEncoder.swift */,
+				DFF122892E00709200EAAA23 /* ROT13Encoder.swift */,
 				DFA9A2B62DFAC665005558F4 /* MorseEncoder.swift */,
 				DFA9A2B72DFAC665005558F4 /* UnicodeEncoder.swift */,
 				DFA9A2B82DFAC665005558F4 /* URLEncoder.swift */,
@@ -629,12 +641,16 @@
 			files = (
 				DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */,
 				DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */,
+				DFF122862E006BE600EAAA23 /* EncodeDecodeViewController.swift in Sources */,
 				DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */,
 				DFA9A2FB2DFAC665005558F4 /* EncodeViewController.swift in Sources */,
 				DFA9A2FD2DFAC665005558F4 /* EncodePagerViewController.swift in Sources */,
 				DFA9A3012DFAC665005558F4 /* HashResultTableViewCell.swift in Sources */,
 				DFA9A3042DFAC665005558F4 /* ImageEncodeViewController.swift in Sources */,
 				DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */,
+				DFF1228A2E00709200EAAA23 /* HexEncoder.swift in Sources */,
+				DFF1228B2E00709200EAAA23 /* BinaryEncoder.swift in Sources */,
+				DFF1228C2E00709200EAAA23 /* ROT13Encoder.swift in Sources */,
 				DFA9A3062DFAC665005558F4 /* UtilitiesViewController.swift in Sources */,
 				DFA9A3092DFAC665005558F4 /* UtilityItem.swift in Sources */,
 				DFA9A30A2DFAC665005558F4 /* Base64Encoder.swift in Sources */,
