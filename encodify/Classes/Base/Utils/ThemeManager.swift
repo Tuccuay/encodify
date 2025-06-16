@@ -8,8 +8,8 @@
 
 import UIKit
 
-/// 主题管理器
-/// 负责跟随系统的主题设置和动态字体配置
+/// 简化的主题管理器
+/// 完全跟随系统设置，无需手动管理主题切换
 @MainActor
 final class ThemeManager {
     
@@ -17,69 +17,24 @@ final class ThemeManager {
     
     static let shared = ThemeManager()
     
-    private init() {
-        setupSystemObservers()
-    }
+    private init() {}
     
     // MARK: - System Integration
     
-    /// 系统主题变更通知
-    static let systemThemeDidChangeNotification = Notification.Name("SystemThemeDidChange")
-    
-    /// 当前是否为深色模式（跟随系统）
+    /// 当前是否为深色模式（直接读取系统）
     var isDarkMode: Bool {
         return UITraitCollection.current.userInterfaceStyle == .dark
     }
     
-    /// 当前动态字体类别（跟随系统）
+    /// 当前动态字体类别（直接读取系统）
     var contentSizeCategory: UIContentSizeCategory {
         return UITraitCollection.current.preferredContentSizeCategory
     }
-    
-    // MARK: - Public Methods
     
     /// 获取当前系统主题的颜色配置
     /// - Returns: 主题颜色配置
     func getCurrentThemeColors() -> ThemeColors {
         return ThemeColors(isDarkMode: isDarkMode)
-    }
-    
-    // MARK: - Private Methods
-    
-    private func setupSystemObservers() {
-        // 监听系统主题变化
-        NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.notifySystemThemeChange()
-            }
-        }
-        
-        // 监听动态字体变化
-        NotificationCenter.default.addObserver(
-            forName: UIContentSizeCategory.didChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.handleContentSizeCategoryChange()
-            }
-        }
-    }
-    
-    @MainActor
-    private func notifySystemThemeChange() {
-        NotificationCenter.default.post(name: Self.systemThemeDidChangeNotification, object: self)
-    }
-    
-    @MainActor
-    private func handleContentSizeCategoryChange() {
-        // 字体大小变化时重新配置外观
-        AppearanceManager.shared.configureAppearance()
-        notifySystemThemeChange()
     }
 }
 
@@ -178,106 +133,10 @@ struct ThemeColors {
     }
 }
 
-// MARK: - Theme-Aware UI Components
+// MARK: - Theme-Aware UI Components (移除复杂的基类)
 
-/// 主题感知的视图基类（跟随系统主题）
-@MainActor
-class ThemeAwareView: UIView {
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupSystemObserver()
-        applyTheme()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        setupSystemObserver()
-        applyTheme()
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    private func setupSystemObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(systemThemeDidChange),
-            name: ThemeManager.systemThemeDidChangeNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func systemThemeDidChange() {
-        applyTheme()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) ||
-           traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
-            applyTheme()
-        }
-    }
-    
-    /// 子类重写此方法来应用主题
-    func applyTheme() {
-        let colors = ThemeManager.shared.getCurrentThemeColors()
-        backgroundColor = colors.primaryBackground
-    }
-}
-
-/// 主题感知的视图控制器基类（跟随系统主题）
-@MainActor
-class ThemeAwareViewController: UIViewController {
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupSystemObserver()
-        applyTheme()
-    }
-    
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-    
-    private func setupSystemObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(systemThemeDidChange),
-            name: ThemeManager.systemThemeDidChangeNotification,
-            object: nil
-        )
-    }
-    
-    @objc private func systemThemeDidChange() {
-        applyTheme()
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) ||
-           traitCollection.preferredContentSizeCategory != previousTraitCollection?.preferredContentSizeCategory {
-            applyTheme()
-        }
-    }
-    
-    /// 子类重写此方法来应用主题
-    func applyTheme() {
-        let colors = ThemeManager.shared.getCurrentThemeColors()
-        view.backgroundColor = colors.primaryBackground
-        
-        // 更新状态栏样式
-        setNeedsStatusBarAppearanceUpdate()
-    }
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return ThemeManager.shared.isDarkMode ? .lightContent : .darkContent
-    }
-}
+// iOS 系统会自动处理深色模式和动态字体变化
+// 如果需要响应主题变化，在具体的 ViewController 中重写 traitCollectionDidChange 方法即可
 
 // MARK: - Theme Utilities
 

@@ -9,7 +9,7 @@
 import UIKit
 import SnapKit
 
-class ImageEncodeViewController: ThemeAwareViewController {
+class ImageEncodeViewController: UIViewController {
     
     private lazy var textView: UITextView = {
         let textView = UITextView()

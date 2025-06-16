@@ -9,7 +9,7 @@
 import UIKit
 import SnapKit
 
-class UtilitiesViewController: ThemeAwareViewController {
+class UtilitiesViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -46,7 +46,6 @@ class UtilitiesViewController: ThemeAwareViewController {
         
         // Modern navigation bar setup
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.largeTitleDisplayMode = .always
         
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in

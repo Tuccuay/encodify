@@ -9,7 +9,7 @@
 import UIKit
 import SnapKit
 
-class EncodeBaseViewController: ThemeAwareViewController {
+class EncodeBaseViewController: UIViewController {
     
     // MARK: - Properties
     private let placeholderText = "Enter text to encode..."
@@ -56,6 +56,8 @@ class EncodeBaseViewController: ThemeAwareViewController {
         
         // Add placeholder functionality
         textView.setPlaceholder(placeholderText, style: .inputPlaceholder)
+        // 手动设置与 UITextView contentInset 一致的 padding
+        textView.setPlaceholderPadding(16)
         
         // Accessibility improvements
         textView.accessibilityLabel = "Input text for encoding"
@@ -323,11 +325,17 @@ class EncodeBaseViewController: ThemeAwareViewController {
 // MARK: - UITextViewDelegate
 extension EncodeBaseViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
-        // 不需要手动处理 placeholder，扩展会自动处理
+        // Add subtle scale animation when focused
+        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            textView.transform = CGAffineTransform(scaleX: 1.02, y: 1.02)
+        }
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        // 不需要手动处理 placeholder，扩展会自动处理
+        // Reset scale when unfocused
+        UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            textView.transform = .identity
+        }
     }
     
     func textViewDidChange(_ textView: UITextView) {

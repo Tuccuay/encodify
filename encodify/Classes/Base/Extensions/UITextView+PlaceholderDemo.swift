@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 
 /// 演示统一 UITextView Placeholder 功能的视图控制器
-class UITextViewPlaceholderDemoViewController: ThemeAwareViewController {
+class UITextViewPlaceholderDemoViewController: UIViewController {
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()

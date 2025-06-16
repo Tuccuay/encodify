@@ -183,22 +183,8 @@ final class AppearanceManager {
     // MARK: - System Integration
     
     private func configureSystemIntegration() {
-        // 监听系统主题变化并重新配置外观
-        NotificationCenter.default.addObserver(
-            forName: ThemeManager.systemThemeDidChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            Task { @MainActor in
-                self?.handleSystemThemeChange()
-            }
-        }
-    }
-    
-    @MainActor
-    private func handleSystemThemeChange() {
-        // 系统主题变化时重新配置外观
-        configureAppearance()
+        // 使用标准的动态字体监听，系统会自动处理深色模式
+        configureDynamicTypeSupport()
     }
     
     // MARK: - Text Field Configuration

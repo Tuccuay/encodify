@@ -9,7 +9,7 @@
 import UIKit
 import SnapKit
 
-class ImageDecodeViewController: ThemeAwareViewController {
+class ImageDecodeViewController: UIViewController {
     
     private lazy var textView: UITextView = {
         let textView = UITextView()
@@ -49,11 +49,13 @@ class ImageDecodeViewController: ThemeAwareViewController {
     
     private func setupPlaceholder() {
         textView.setPlaceholder(placeholderText, style: .inputPlaceholder)
+        // 手动设置与 UITextView contentInset 一致的 padding
+        textView.setPlaceholderPadding(16)
     }
     
     private func setupUI() {
         title = "Image Decode"
-        view.backgroundColor = UIColor.encodifySecondaryBackground
+        view.backgroundColor = UIColor.systemBackground
         
         view.addSubview(textView)
         textView.snp.makeConstraints { make in

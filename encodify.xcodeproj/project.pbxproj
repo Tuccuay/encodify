@@ -12,6 +12,7 @@
 		DF5D980C2DFC01F50048A2E8 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980B2DFC01F40048A2E8 /* AppCoordinator.swift */; };
 		DF5D980E2DFC02000048A2E8 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */; };
 		DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */; };
+		DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */; };
 		DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2982DFAC589005558F4 /* AppDelegate.swift */; };
 		DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2A42DFAC665005558F4 /* Toast.swift */; };
 		DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2EC2DFAC665005558F4 /* ImageDecodeViewController.swift */; };
@@ -79,6 +80,7 @@
 		DF5D980B2DFC01F40048A2E8 /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedLabel.swift; sourceTree = "<group>"; };
 		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		DFA9A2982DFAC589005558F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helper.swift"; sourceTree = "<group>"; };
@@ -174,6 +176,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DF5F498A2DFFEF7500D9462E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		DFA9A29E2DFAC665005558F4 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -203,6 +213,7 @@
 		DFA9A2A62DFAC665005558F4 /* Base */ = {
 			isa = PBXGroup;
 			children = (
+				DF5F498A2DFFEF7500D9462E /* Views */,
 				DFF1226F2DFE9FB300EAAA23 /* AppearanceManager.swift */,
 				DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */,
 				DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */,
@@ -646,6 +657,7 @@
 				DFF1227C2DFE9FBC00EAAA23 /* AnimationHelper.swift in Sources */,
 				DFF1227D2DFE9FBC00EAAA23 /* CardStyler.swift in Sources */,
 				DFF1227E2DFE9FBC00EAAA23 /* LayoutHelper.swift in Sources */,
+				DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */,
 				DFA9A3182DFAC665005558F4 /* DecodeViewController.swift in Sources */,
 				DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */,
 				DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */,

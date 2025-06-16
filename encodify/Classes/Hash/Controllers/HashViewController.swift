@@ -10,7 +10,7 @@ import UIKit
 import SnapKit
 import UniformTypeIdentifiers
 
-class HashViewController: ThemeAwareViewController {
+class HashViewController: UIViewController {
     
     private let placeholderText = "Enter text to calculate hash values..."
     
@@ -156,10 +156,16 @@ class HashViewController: ThemeAwareViewController {
         setupUI()
         setupGestures()
         setupPlaceholder()
+        
+        print("viewDidLoad")
+        inputTextView.debugPlaceholderAlignment()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        print("viewDidAppear")
+        inputTextView.debugPlaceholderAlignment()
     }
     
     private func setupGestures() {
@@ -224,6 +230,8 @@ class HashViewController: ThemeAwareViewController {
     
     private func setupPlaceholder() {
         inputTextView.setPlaceholder(placeholderText, style: .inputPlaceholder)
+        // 手动设置与 UITextView contentInset 一致的 padding
+        inputTextView.setPlaceholderPadding(16)
     }
     
     @objc private func showTypeChanged() {
@@ -365,13 +373,15 @@ class HashViewController: ThemeAwareViewController {
         return data.base64EncodedString()
     }
     
-    // MARK: - Theme Support
+    // MARK: - Theme Support (系统自动处理主题变化)
     
-    override func applyTheme() {
-        super.applyTheme()
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
         
-        // Update theme-aware components
-        updateThemeAwareComponents()
+        // 仅在必要时手动更新主题相关组件
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            updateThemeAwareComponents()
+        }
     }
     
     private func updateThemeAwareComponents() {
