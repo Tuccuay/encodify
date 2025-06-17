@@ -53,7 +53,10 @@ class HashCalculator {
     
     static func calculateHashes(for input: String) -> [HashResult] {
         guard let data = input.data(using: .utf8) else { return [] }
-        
+        return calculateHashes(for: data)
+    }
+    
+    static func calculateHashes(for data: Data) -> [HashResult] {
         var results: [HashResult] = []
         
         // MARK: - 传统 MD 系列 (使用 CommonCrypto)

@@ -18,6 +18,10 @@
 		DF5F49922DFFF8E200D9462E /* HashGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49902DFFF8E200D9462E /* HashGroup.swift */; };
 		DF5F49992E0137DE00D9462E /* EncodeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49972E0137DE00D9462E /* EncodeModels.swift */; };
 		DF5F499B2E01568C00D9462E /* FullScreenTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F499A2E01568C00D9462E /* FullScreenTextViewController.swift */; };
+		DFA2ED002E01728E008D3963 /* FileHashManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2ECFF2E01728E008D3963 /* FileHashManager.swift */; };
+		DFA2ED052E017295008D3963 /* HashCollectionLayoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2ED022E017295008D3963 /* HashCollectionLayoutManager.swift */; };
+		DFA2ED062E017295008D3963 /* HashCollectionDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2ED012E017295008D3963 /* HashCollectionDataSource.swift */; };
+		DFA2ED072E017295008D3963 /* HashCollectionViewCells.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA2ED032E017295008D3963 /* HashCollectionViewCells.swift */; };
 		DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2982DFAC589005558F4 /* AppDelegate.swift */; };
 		DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2A42DFAC665005558F4 /* Toast.swift */; };
 		DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2EC2DFAC665005558F4 /* ImageDecodeViewController.swift */; };
@@ -89,6 +93,10 @@
 		DF5F49972E0137DE00D9462E /* EncodeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeModels.swift; sourceTree = "<group>"; };
 		DF5F499A2E01568C00D9462E /* FullScreenTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenTextViewController.swift; sourceTree = "<group>"; };
 		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		DFA2ECFF2E01728E008D3963 /* FileHashManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileHashManager.swift; sourceTree = "<group>"; };
+		DFA2ED012E017295008D3963 /* HashCollectionDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashCollectionDataSource.swift; sourceTree = "<group>"; };
+		DFA2ED022E017295008D3963 /* HashCollectionLayoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashCollectionLayoutManager.swift; sourceTree = "<group>"; };
+		DFA2ED032E017295008D3963 /* HashCollectionViewCells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashCollectionViewCells.swift; sourceTree = "<group>"; };
 		DFA9A2982DFAC589005558F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helper.swift"; sourceTree = "<group>"; };
 		DFA9A2A42DFAC665005558F4 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
@@ -212,6 +220,16 @@
 			path = Controllers;
 			sourceTree = "<group>";
 		};
+		DFA2ED042E017295008D3963 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DFA2ED012E017295008D3963 /* HashCollectionDataSource.swift */,
+				DFA2ED022E017295008D3963 /* HashCollectionLayoutManager.swift */,
+				DFA2ED032E017295008D3963 /* HashCollectionViewCells.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		DFA9A29E2DFAC665005558F4 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -288,6 +306,7 @@
 		DFA9A2D32DFAC665005558F4 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				DFA2ECFF2E01728E008D3963 /* FileHashManager.swift */,
 				DF5F498E2DFFF8D000D9462E /* HashViewController.swift */,
 			);
 			path = Controllers;
@@ -311,6 +330,7 @@
 		DFA9A2E22DFAC665005558F4 /* Hash */ = {
 			isa = PBXGroup;
 			children = (
+				DFA2ED042E017295008D3963 /* Views */,
 				DF5F49912DFFF8E200D9462E /* Models */,
 				DFA9A2D32DFAC665005558F4 /* Controllers */,
 				DFA9A2DB2DFAC665005558F4 /* Utils */,
@@ -684,8 +704,12 @@
 				DFF122792DFE9FBC00EAAA23 /* TextStyler.swift in Sources */,
 				DFF1227A2DFE9FBC00EAAA23 /* ResponsiveDesignHelper.swift in Sources */,
 				DFF122822DFEC0B800EAAA23 /* UITextView+PlaceholderDemo.swift in Sources */,
+				DFA2ED052E017295008D3963 /* HashCollectionLayoutManager.swift in Sources */,
+				DFA2ED062E017295008D3963 /* HashCollectionDataSource.swift in Sources */,
+				DFA2ED072E017295008D3963 /* HashCollectionViewCells.swift in Sources */,
 				DFF1227B2DFE9FBC00EAAA23 /* ButtonStyler.swift in Sources */,
 				DFF1227C2DFE9FBC00EAAA23 /* AnimationHelper.swift in Sources */,
+				DFA2ED002E01728E008D3963 /* FileHashManager.swift in Sources */,
 				DFF1227D2DFE9FBC00EAAA23 /* CardStyler.swift in Sources */,
 				DFF1227E2DFE9FBC00EAAA23 /* LayoutHelper.swift in Sources */,
 				DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */,
