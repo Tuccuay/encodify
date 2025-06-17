@@ -70,6 +70,29 @@ class ModernHashViewController: UIViewController {
         return button
     }()
     
+    private lazy var showTypeSegmentedControl: UISegmentedControl = {
+        let control = UISegmentedControl(items: ["Lowercase", "Uppercase", "Base64"])
+        control.selectedSegmentIndex = 0
+        control.addTarget(self, action: #selector(showTypeChanged), for: .valueChanged)
+        
+        // Modern styling with updated appearance
+        control.backgroundColor = UIColor.encodifyCardBackground
+        control.selectedSegmentTintColor = UIColor.encodifyTintColor
+        control.setTitleTextAttributes([
+            .foregroundColor: UIColor.encodifyPrimaryText,
+            .font: UIFont.preferredFont(forTextStyle: .callout)
+        ], for: .normal)
+        control.setTitleTextAttributes([
+            .foregroundColor: UIColor.white,
+            .font: UIFont.preferredFont(forTextStyle: .callout)
+        ], for: .selected)
+        
+        control.layer.cornerRadius = 10
+        control.applyThemeAwareShadow(radius: 4, opacity: 0.08, offset: CGSize(width: 0, height: 1))
+        
+        return control
+    }()
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -100,44 +123,70 @@ class ModernHashViewController: UIViewController {
         topContainerView.layer.cornerRadius = 16
         topContainerView.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
         
-        // 直接将组件添加到主视图
+        // 添加视图层次
         view.addSubview(topContainerView)
         view.addSubview(tableView)
         
         setContentScrollView(tableView)
         
+        topContainerView.addSubview(showTypeSegmentedControl)
         topContainerView.addSubview(inputTextView)
         topContainerView.addSubview(calculateButton)
         
-        // 设置顶部容器约束 - 添加边距以显示卡片效果
+        // 设置顶部容器约束 - 固定在顶部
         topContainerView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+        
+        showTypeSegmentedControl.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(20)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(36)
         }
         
         inputTextView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(20)
+            make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(120)
         }
         
         calculateButton.snp.makeConstraints { make in
-            make.top.equalTo(inputTextView.snp.bottom).offset(16)
+            make.top.equalTo(inputTextView.snp.bottom).offset(20)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
             make.bottom.equalToSuperview().offset(-20)
         }
         
-        // TableView 占用剩余空间
+        // TableView 占用剩余空间，可以滚动
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(topContainerView.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(topContainerView.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+
+        
+        // 添加入场动画
+        let allViews = [topContainerView, tableView]
+        allViews.forEach { view in
+            view.alpha = 0
+            view.transform = CGAffineTransform(translationX: 0, y: 20)
+        }
+        
+        UIView.animate(withDuration: 0.6, delay: 0.1, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
+            allViews.forEach { view in
+                view.alpha = 1
+                view.transform = .identity
+            }
         }
     }
     
+    // MARK: - Helper Methods
+    
     private func setupNavigationBar() {
         title = "Hash Calculator"
-        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationItem.largeTitleDisplayMode = .never
         
         // 添加工具栏按钮
         let clearButton = UIBarButtonItem(
@@ -282,6 +331,50 @@ class ModernHashViewController: UIViewController {
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
         feedbackGenerator.impactOccurred()
     }
+    
+    @objc private func showTypeChanged() {
+        // 格式类型改变时立即重新加载表格，无需重新计算哈希
+        tableView.reloadData()
+    }
+    
+    private func formattedHash(_ hash: String) -> String {
+        switch showTypeSegmentedControl.selectedSegmentIndex {
+        case 0:
+            return hash.lowercased()
+        case 1:
+            return hash.uppercased()
+        case 2:
+            // 将十六进制字符串转换为 base64
+            return hexStringToBase64(hash) ?? hash.lowercased()
+        default:
+            return hash.lowercased()
+        }
+    }
+    
+    private func hexStringToBase64(_ hexString: String) -> String? {
+        // 移除可能存在的空格和换行符
+        let cleanHex = hexString.replacingOccurrences(of: " ", with: "").replacingOccurrences(of: "\n", with: "")
+        
+        // 确保十六进制字符串长度是偶数
+        guard cleanHex.count % 2 == 0 else { return nil }
+        
+        var data = Data()
+        var index = cleanHex.startIndex
+        
+        // 将十六进制字符串转换为 Data
+        while index < cleanHex.endIndex {
+            let nextIndex = cleanHex.index(index, offsetBy: 2)
+            let byteString = String(cleanHex[index..<nextIndex])
+            
+            guard let byte = UInt8(byteString, radix: 16) else { return nil }
+            data.append(byte)
+            
+            index = nextIndex
+        }
+        
+        // 转换为 base64
+        return data.base64EncodedString()
+    }
 }
 
 // MARK: - UITextViewDelegate
@@ -308,9 +401,10 @@ extension ModernHashViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "HashCell", for: indexPath) as! ModernHashCell
         let algorithm = hashGroups[indexPath.section].algorithms[indexPath.row]
-        let hashValue = hashResults[algorithm.algorithmKey]
+        let rawHashValue = hashResults[algorithm.algorithmKey]
+        let formattedHashValue = rawHashValue != nil ? formattedHash(rawHashValue!) : nil
         
-        cell.configure(with: algorithm, hashValue: hashValue)
+        cell.configure(with: algorithm, hashValue: formattedHashValue)
         
         return cell
     }
@@ -332,12 +426,13 @@ extension ModernHashViewController: UITableViewDelegate {
         
         let algorithm = hashGroups[indexPath.section].algorithms[indexPath.row]
         
-        guard let hashValue = hashResults[algorithm.algorithmKey] else {
+        guard let rawHashValue = hashResults[algorithm.algorithmKey] else {
             Toast.showError("No hash value available. Please calculate hashes first.")
             return
         }
         
-        UIPasteboard.general.string = hashValue
+        let formattedHashValue = formattedHash(rawHashValue)
+        UIPasteboard.general.string = formattedHashValue
         Toast.showStatus("\(algorithm.name) hash copied to clipboard")
         
         let feedbackGenerator = UINotificationFeedbackGenerator()

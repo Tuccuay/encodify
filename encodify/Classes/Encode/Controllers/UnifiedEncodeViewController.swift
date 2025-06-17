@@ -232,7 +232,7 @@ class UnifiedEncodeViewController: UIViewController {
     }
     
     private func setupConstraints() {
-        let padding = LayoutHelper.Spacing.large.rawValue
+        let padding = LayoutHelper.Spacing.medium.rawValue
         let spacing = LayoutHelper.Spacing.medium.rawValue
         
         headerView.snp.makeConstraints { make in
@@ -254,13 +254,13 @@ class UnifiedEncodeViewController: UIViewController {
         }
         
         contentView.snp.makeConstraints { make in
-            make.top.equalTo(headerView.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.top.equalTo(headerView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(view.safeAreaLayoutGuide)
         }
         
         inputContainerView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(padding)
+            make.top.equalToSuperview().offset(spacing)
             make.leading.trailing.equalToSuperview().inset(padding)
         }
         
@@ -273,7 +273,7 @@ class UnifiedEncodeViewController: UIViewController {
         outputContainerView.snp.makeConstraints { make in
             make.top.equalTo(processButton.snp.bottom).offset(spacing)
             make.leading.trailing.equalToSuperview().inset(padding)
-            make.bottom.equalToSuperview().inset(padding)
+            make.bottom.equalToSuperview().inset(spacing)
             make.height.equalTo(inputContainerView)
         }
         
@@ -298,7 +298,7 @@ class UnifiedEncodeViewController: UIViewController {
         }
         
         inputTextView.snp.makeConstraints { make in
-            make.top.equalTo(inputHeaderView.snp.bottom).offset(8)
+            make.top.equalTo(inputHeaderView.snp.bottom).offset(padding)
             make.leading.trailing.bottom.equalToSuperview().inset(padding)
         }
         
@@ -323,7 +323,7 @@ class UnifiedEncodeViewController: UIViewController {
         }
         
         outputTextView.snp.makeConstraints { make in
-            make.top.equalTo(outputHeaderView.snp.bottom).offset(8)
+            make.top.equalTo(outputHeaderView.snp.bottom).offset(padding)
             make.leading.trailing.bottom.equalToSuperview().inset(padding)
         }
     }
