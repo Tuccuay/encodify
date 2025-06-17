@@ -43,19 +43,15 @@ class MainTabBarController: UITabBarController {
     // MARK: - Module Creation Methods
     
     private func createEncodeModule() -> UINavigationController {
-        let encodePagerViewController = EncodePagerViewController()
-        encodePagerViewController.title = "Encode"
+        let encodeViewController = UnifiedEncodeViewController()
+        encodeViewController.title = "Encode"
         
-        let navigationController = UINavigationController(rootViewController: encodePagerViewController)
+        let navigationController = UINavigationController(rootViewController: encodeViewController)
         navigationController.tabBarItem.title = "Encode"
         
-        // 使用 SF Symbol: 编码转换图标，更有活力 - 备选方案
-        // 选项1: arrow.triangle.2.circlepath.circle - 双向循环转换
-        // 选项2: function - 函数符号，代表转换处理
-        // 选项3: chevron.left.forwardslash.chevron.right - 代码标签样式
-        // 选项4: abc.dexia - 字母转换效果
+        // 使用 SF Symbol: 编码转换图标 - 更简洁现代
+        // 选择 textformat 图标，代表文本处理功能
         if let encodeImage = UIImage(systemName: "chevron.left.forwardslash.chevron.right") {
-            // 配置适合 TabBar 的图标尺寸和样式
             let configuredImage = encodeImage.withConfiguration(
                 UIImage.SymbolConfiguration(pointSize: 17, weight: .regular, scale: .medium)
             )
@@ -66,20 +62,15 @@ class MainTabBarController: UITabBarController {
     }
     
     private func createHashModule() -> UINavigationController {
-        let hashViewController = HashViewController()
+        let hashViewController = ModernHashViewController()
         hashViewController.title = "Hash"
         
         let navigationController = UINavigationController(rootViewController: hashViewController)
         navigationController.tabBarItem.title = "Hash"
         
-        // 使用 SF Symbol: 哈希/加密相关的图标 - 多种选择
-        // 选项1: checksum - 校验和图标，直接相关哈希计算 ⭐ 推荐
-        // 选项2: lock.shield - 安全盾牌，体现加密安全性
-        // 选项3: key.fill - 密钥图标，经典的加密象征  
-        // 选项4: function - 数学函数符号 ƒ，体现算法处理
-        // 选项5: seal.fill - 印章图标，体现验证和签名
-        if let hashImage = UIImage(systemName: "number") {
-            // 配置适合 TabBar 的图标尺寸和样式
+        // 使用 SF Symbol: 哈希/加密相关的图标
+        // 选择 number.square 图标，更简洁现代
+        if let hashImage = UIImage(systemName: "number.square") {
             let configuredImage = hashImage.withConfiguration(
                 UIImage.SymbolConfiguration(pointSize: 17, weight: .regular, scale: .medium)
             )
@@ -96,9 +87,8 @@ class MainTabBarController: UITabBarController {
         let navigationController = UINavigationController(rootViewController: utilitiesViewController)
         navigationController.tabBarItem.title = "Utilities"
         
-        // 使用 SF Symbol: 工具图标
+        // 使用 SF Symbol: 工具图标 - 更简洁
         if let utilitiesImage = UIImage(systemName: "wrench.and.screwdriver") {
-            // 配置适合 TabBar 的图标尺寸和样式
             let configuredImage = utilitiesImage.withConfiguration(
                 UIImage.SymbolConfiguration(pointSize: 17, weight: .regular, scale: .medium)
             )

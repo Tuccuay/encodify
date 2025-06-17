@@ -45,6 +45,11 @@ class ImageEncodeViewController: UIViewController {
         title = "Image Encode"
         view.backgroundColor = UIColor.systemBackground
         
+        // 添加点击手势以收起键盘
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
         view.addSubview(textView)
         textView.snp.makeConstraints { make in
             make.edges.equalTo(view.safeAreaLayoutGuide).inset(20)
@@ -76,18 +81,24 @@ class ImageEncodeViewController: UIViewController {
         present(imagePickerController, animated: true)
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     @objc private func copyResult() {
-        guard let text = textView.text, !text.isEmpty, text != "Loading..." else {
-            Toast.showError("No content to copy")
+        // 收起键盘
+        view.endEditing(true)
+        
+        guard let text = textView.text, !text.isEmpty else {
+            Toast.showError("No image data to copy")
             return
         }
         
-        // Add haptic feedback
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-        
         UIPasteboard.general.string = text
-        Toast.showStatus("Copied")
+        Toast.showStatus("Image data copied to clipboard")
+        
+        let feedbackGenerator = UINotificationFeedbackGenerator()
+        feedbackGenerator.notificationOccurred(.success)
     }
 }
 

@@ -13,11 +13,16 @@
 		DF5D980E2DFC02000048A2E8 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */; };
 		DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */; };
 		DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */; };
+		DF5F498D2DFFF8C100D9462E /* UnifiedEncodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F498C2DFFF8C100D9462E /* UnifiedEncodeViewController.swift */; };
+		DF5F498F2DFFF8D000D9462E /* ModernHashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F498E2DFFF8D000D9462E /* ModernHashViewController.swift */; };
+		DF5F49922DFFF8E200D9462E /* HashGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49902DFFF8E200D9462E /* HashGroup.swift */; };
+		DF5F49952E01374600D9462E /* DecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49932E01374600D9462E /* DecodeViewController.swift */; };
+		DF5F49962E01374600D9462E /* EncodePagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49942E01374600D9462E /* EncodePagerViewController.swift */; };
+		DF5F49992E0137DE00D9462E /* EncodeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49972E0137DE00D9462E /* EncodeModels.swift */; };
 		DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2982DFAC589005558F4 /* AppDelegate.swift */; };
 		DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2A42DFAC665005558F4 /* Toast.swift */; };
 		DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2EC2DFAC665005558F4 /* ImageDecodeViewController.swift */; };
 		DFA9A2FB2DFAC665005558F4 /* EncodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2B32DFAC665005558F4 /* EncodeViewController.swift */; };
-		DFA9A2FD2DFAC665005558F4 /* EncodePagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2B22DFAC665005558F4 /* EncodePagerViewController.swift */; };
 		DFA9A3012DFAC665005558F4 /* HashResultTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2DF2DFAC665005558F4 /* HashResultTableViewCell.swift */; };
 		DFA9A3042DFAC665005558F4 /* ImageEncodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2ED2DFAC665005558F4 /* ImageEncodeViewController.swift */; };
 		DFA9A3062DFAC665005558F4 /* UtilitiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2EF2DFAC665005558F4 /* UtilitiesViewController.swift */; };
@@ -29,7 +34,6 @@
 		DFA9A3112DFAC665005558F4 /* MorseEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2B62DFAC665005558F4 /* MorseEncoder.swift */; };
 		DFA9A3132DFAC665005558F4 /* HashCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2DA2DFAC665005558F4 /* HashCalculator.swift */; };
 		DFA9A3142DFAC665005558F4 /* HashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2D22DFAC665005558F4 /* HashViewController.swift */; };
-		DFA9A3182DFAC665005558F4 /* DecodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2B02DFAC665005558F4 /* DecodeViewController.swift */; };
 		DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A2B82DFAC665005558F4 /* URLEncoder.swift */; };
 		DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */; };
 		DFC350C22DFBBC0300CAE299 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = DFC350C12DFBBC0300CAE299 /* Launch Screen.storyboard */; };
@@ -85,13 +89,17 @@
 		DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedLabel.swift; sourceTree = "<group>"; };
+		DF5F498C2DFFF8C100D9462E /* UnifiedEncodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedEncodeViewController.swift; sourceTree = "<group>"; };
+		DF5F498E2DFFF8D000D9462E /* ModernHashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernHashViewController.swift; sourceTree = "<group>"; };
+		DF5F49902DFFF8E200D9462E /* HashGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashGroup.swift; sourceTree = "<group>"; };
+		DF5F49932E01374600D9462E /* DecodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodeViewController.swift; sourceTree = "<group>"; };
+		DF5F49942E01374600D9462E /* EncodePagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodePagerViewController.swift; sourceTree = "<group>"; };
+		DF5F49972E0137DE00D9462E /* EncodeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeModels.swift; sourceTree = "<group>"; };
 		DF917C991D7473EF00BAD51D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		DFA9A2982DFAC589005558F4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		DFA9A29D2DFAC665005558F4 /* UIColor+Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helper.swift"; sourceTree = "<group>"; };
 		DFA9A2A42DFAC665005558F4 /* Toast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Toast.swift; sourceTree = "<group>"; };
-		DFA9A2B02DFAC665005558F4 /* DecodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodeViewController.swift; sourceTree = "<group>"; };
 		DFA9A2B12DFAC665005558F4 /* EncodeBaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeBaseViewController.swift; sourceTree = "<group>"; };
-		DFA9A2B22DFAC665005558F4 /* EncodePagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodePagerViewController.swift; sourceTree = "<group>"; };
 		DFA9A2B32DFAC665005558F4 /* EncodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeViewController.swift; sourceTree = "<group>"; };
 		DFA9A2B52DFAC665005558F4 /* Base64Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Base64Encoder.swift; sourceTree = "<group>"; };
 		DFA9A2B62DFAC665005558F4 /* MorseEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorseEncoder.swift; sourceTree = "<group>"; };
@@ -192,6 +200,22 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		DF5F49912DFFF8E200D9462E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DF5F49902DFFF8E200D9462E /* HashGroup.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DF5F49982E0137DE00D9462E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DF5F49972E0137DE00D9462E /* EncodeModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		DFA9A29E2DFAC665005558F4 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -236,9 +260,10 @@
 			isa = PBXGroup;
 			children = (
 				DFF122852E006BE600EAAA23 /* EncodeDecodeViewController.swift */,
-				DFA9A2B02DFAC665005558F4 /* DecodeViewController.swift */,
 				DFA9A2B12DFAC665005558F4 /* EncodeBaseViewController.swift */,
-				DFA9A2B22DFAC665005558F4 /* EncodePagerViewController.swift */,
+				DF5F49932E01374600D9462E /* DecodeViewController.swift */,
+				DF5F49942E01374600D9462E /* EncodePagerViewController.swift */,
+				DF5F498C2DFFF8C100D9462E /* UnifiedEncodeViewController.swift */,
 				DFA9A2B32DFAC665005558F4 /* EncodeViewController.swift */,
 			);
 			path = Controllers;
@@ -263,6 +288,7 @@
 			children = (
 				DFA9A2B42DFAC665005558F4 /* Controllers */,
 				DFA9A2B92DFAC665005558F4 /* Encoders */,
+				DF5F49982E0137DE00D9462E /* Models */,
 			);
 			path = Encode;
 			sourceTree = "<group>";
@@ -270,6 +296,7 @@
 		DFA9A2D32DFAC665005558F4 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				DF5F498E2DFFF8D000D9462E /* ModernHashViewController.swift */,
 				DFA9A2D22DFAC665005558F4 /* HashViewController.swift */,
 			);
 			path = Controllers;
@@ -294,6 +321,7 @@
 		DFA9A2E22DFAC665005558F4 /* Hash */ = {
 			isa = PBXGroup;
 			children = (
+				DF5F49912DFFF8E200D9462E /* Models */,
 				DFA9A2D32DFAC665005558F4 /* Controllers */,
 				DFA9A2DB2DFAC665005558F4 /* Utils */,
 				DFA9A2E02DFAC665005558F4 /* Views */,
@@ -640,11 +668,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */,
+				DF5F498D2DFFF8C100D9462E /* UnifiedEncodeViewController.swift in Sources */,
 				DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */,
 				DFF122862E006BE600EAAA23 /* EncodeDecodeViewController.swift in Sources */,
 				DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */,
 				DFA9A2FB2DFAC665005558F4 /* EncodeViewController.swift in Sources */,
-				DFA9A2FD2DFAC665005558F4 /* EncodePagerViewController.swift in Sources */,
 				DFA9A3012DFAC665005558F4 /* HashResultTableViewCell.swift in Sources */,
 				DFA9A3042DFAC665005558F4 /* ImageEncodeViewController.swift in Sources */,
 				DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */,
@@ -654,6 +682,7 @@
 				DFA9A3062DFAC665005558F4 /* UtilitiesViewController.swift in Sources */,
 				DFA9A3092DFAC665005558F4 /* UtilityItem.swift in Sources */,
 				DFA9A30A2DFAC665005558F4 /* Base64Encoder.swift in Sources */,
+				DF5F49992E0137DE00D9462E /* EncodeModels.swift in Sources */,
 				DFA9A30C2DFAC665005558F4 /* ImageViewController.swift in Sources */,
 				DFA9A30F2DFAC665005558F4 /* EncodeBaseViewController.swift in Sources */,
 				DF5D980C2DFC01F50048A2E8 /* AppCoordinator.swift in Sources */,
@@ -674,8 +703,11 @@
 				DFF1227D2DFE9FBC00EAAA23 /* CardStyler.swift in Sources */,
 				DFF1227E2DFE9FBC00EAAA23 /* LayoutHelper.swift in Sources */,
 				DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */,
-				DFA9A3182DFAC665005558F4 /* DecodeViewController.swift in Sources */,
+				DF5F49922DFFF8E200D9462E /* HashGroup.swift in Sources */,
+				DF5F498F2DFFF8D000D9462E /* ModernHashViewController.swift in Sources */,
 				DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */,
+				DF5F49952E01374600D9462E /* DecodeViewController.swift in Sources */,
+				DF5F49962E01374600D9462E /* EncodePagerViewController.swift in Sources */,
 				DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

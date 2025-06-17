@@ -87,7 +87,6 @@ class EncodePagerViewController: UIViewController {
     // MARK: - Setup
     
     private func setupNavigationBar() {
-        navigationController?.setNavigationBarHidden(false, animated: true)
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "Encode & Decode"
         
@@ -233,54 +232,4 @@ extension EncodePagerViewController: UICollectionViewDataSource, UICollectionVie
     }
 }
 
-// MARK: - Method Cell
 
-class MethodCell: UICollectionViewCell {
-    static let identifier = "MethodCell"
-    
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.preferredFont(forTextStyle: .callout)
-        label.textAlignment = .center
-        label.adjustsFontForContentSizeCategory = true
-        return label
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setupUI()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func setupUI() {
-        contentView.addSubview(titleLabel)
-        
-        titleLabel.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(8)
-        }
-        
-        // Rounded corners and styling
-        contentView.layer.cornerRadius = 18
-        contentView.layer.cornerCurve = .continuous
-    }
-    
-    func configure(with title: String, isSelected: Bool) {
-        titleLabel.text = title
-        
-        if isSelected {
-            contentView.backgroundColor = UIColor.encodifyTintColor
-            titleLabel.textColor = .white
-        } else {
-            contentView.backgroundColor = UIColor.secondarySystemGroupedBackground
-            titleLabel.textColor = UIColor.label
-        }
-    }
-    
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        titleLabel.text = nil
-    }
-}

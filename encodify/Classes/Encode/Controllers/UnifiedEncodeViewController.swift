@@ -1,5 +1,5 @@
 //
-//  EncodeDecodeViewController.swift
+//  UnifiedEncodeViewController.swift
 //  encodify
 //
 //  Created by 洪朔 on 2024/12/20.
@@ -9,14 +9,63 @@
 import UIKit
 import SnapKit
 
-class EncodeDecodeViewController: UIViewController {
+/// 统一的编码解码界面控制器
+/// 使用现代 iOS 设计，替代 Pager 模式
+class UnifiedEncodeViewController: UIViewController {
     
     // MARK: - Properties
     
-    private var currentMethod: EncodeMethod = .base64
+    private let methods: [EncodeMethod] = [.base64, .unicode, .morse, .uri, .hex, .binary, .rot13]
+    private var currentMethodIndex = 0
     private var isEncodeMode = true
     
     // MARK: - UI Components
+    
+    private lazy var headerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.clear // 改为透明，让主背景显示
+        return view
+    }()
+    
+    private lazy var modeSegmentedControl: UISegmentedControl = {
+        let control = UISegmentedControl(items: ["Encode", "Decode"])
+        control.selectedSegmentIndex = 0
+        control.addTarget(self, action: #selector(modeChanged), for: .valueChanged)
+        
+        // 现代样式配置 - 使用卡片样式
+        control.selectedSegmentTintColor = UIColor.encodifyTintColor
+        control.setTitleTextAttributes([
+            .foregroundColor: UIColor.label,
+        ], for: .normal)
+        control.setTitleTextAttributes([
+            .foregroundColor: UIColor.white,
+        ], for: .selected)
+        
+        return control
+    }()
+    
+    private lazy var methodCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = 12
+        layout.minimumInteritemSpacing = 12
+        layout.sectionInset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .clear
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(MethodCell.self, forCellWithReuseIdentifier: MethodCell.identifier)
+        
+        return collectionView
+    }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.applyContentCardStyle()
+        return view
+    }()
     
     private lazy var inputContainerView: UIView = {
         let view = UIView()
@@ -55,9 +104,9 @@ class EncodeDecodeViewController: UIViewController {
     
     private lazy var inputTextView: UITextView = {
         let textView = UITextView()
+        textView.delegate = self
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.backgroundColor = .clear
-        textView.delegate = self
         textView.setPlaceholder("Enter text to process...", style: .inputPlaceholder)
         textView.setPlaceholderPadding(0)
         return textView
@@ -121,20 +170,46 @@ class EncodeDecodeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        setupGestures()
+        setupNavigationBar()
+        setupInitialState()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // 确保 collectionView 背景保持透明（修复切换 tab 后背景变白的问题）
+        methodCollectionView.backgroundColor = .clear
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // 再次确保 collectionView 背景保持透明
+        methodCollectionView.backgroundColor = .clear
     }
     
     // MARK: - Setup
     
-    // MARK: - Setup
-    
     private func setupUI() {
-        view.backgroundColor = .clear
+        view.backgroundColor = UIColor.systemGroupedBackground
         
-        // Add subviews
-        view.addSubview(inputContainerView)
-        view.addSubview(processButton)
-        view.addSubview(outputContainerView)
+        // 添加点击手势以收起键盘
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        // Add header area
+        view.addSubview(headerView)
+        headerView.addSubview(modeSegmentedControl)
+        headerView.addSubview(methodCollectionView)
+        
+        // Add content area
+        view.addSubview(contentView)
+        
+        // Add input/output areas to content view
+        contentView.addSubview(inputContainerView)
+        contentView.addSubview(processButton)
+        contentView.addSubview(outputContainerView)
         
         // Input area
         inputContainerView.addSubview(inputHeaderView)
@@ -160,10 +235,46 @@ class EncodeDecodeViewController: UIViewController {
         let padding = LayoutHelper.Spacing.large.rawValue
         let spacing = LayoutHelper.Spacing.medium.rawValue
         
+        headerView.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(120)
+        }
+        
+        modeSegmentedControl.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.height.equalTo(32)
+        }
+        
+        methodCollectionView.snp.makeConstraints { make in
+            make.top.equalTo(modeSegmentedControl.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().inset(8)
+        }
+        
+        contentView.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+        }
+        
         inputContainerView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(padding)
             make.leading.trailing.equalToSuperview().inset(padding)
-            make.height.equalTo(140)
+        }
+        
+        processButton.snp.makeConstraints { make in
+            make.top.equalTo(inputContainerView.snp.bottom).offset(spacing)
+            make.leading.trailing.equalToSuperview().inset(padding)
+            make.centerY.equalToSuperview()
+        }
+        
+        outputContainerView.snp.makeConstraints { make in
+            make.top.equalTo(processButton.snp.bottom).offset(spacing)
+            make.leading.trailing.equalToSuperview().inset(padding)
+            make.bottom.equalToSuperview().inset(padding)
+            make.height.equalTo(inputContainerView)
         }
         
         inputHeaderView.snp.makeConstraints { make in
@@ -189,18 +300,6 @@ class EncodeDecodeViewController: UIViewController {
         inputTextView.snp.makeConstraints { make in
             make.top.equalTo(inputHeaderView.snp.bottom).offset(8)
             make.leading.trailing.bottom.equalToSuperview().inset(padding)
-        }
-        
-        processButton.snp.makeConstraints { make in
-            make.top.equalTo(inputContainerView.snp.bottom).offset(spacing)
-            make.leading.trailing.equalToSuperview().inset(padding)
-        }
-        
-        outputContainerView.snp.makeConstraints { make in
-            make.top.equalTo(processButton.snp.bottom).offset(spacing)
-            make.leading.trailing.equalToSuperview().inset(padding)
-            make.height.greaterThanOrEqualTo(140)
-            make.bottom.lessThanOrEqualToSuperview().inset(padding)
         }
         
         outputHeaderView.snp.makeConstraints { make in
@@ -229,21 +328,46 @@ class EncodeDecodeViewController: UIViewController {
         }
     }
     
-    private func setupGestures() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tapGesture)
+    private func setupNavigationBar() {
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.title = "Encode & Decode"
+        
+        // 添加工具栏按钮
+        let clearButton = UIBarButtonItem(
+            image: UIImage(systemName: "trash"),
+            style: .plain,
+            target: self,
+            action: #selector(clearAll)
+        )
+        
+        let shareButton = UIBarButtonItem(
+            image: UIImage(systemName: "square.and.arrow.up"),
+            style: .plain,
+            target: self,
+            action: #selector(shareOutput)
+        )
+        
+        navigationItem.rightBarButtonItems = [shareButton, clearButton]
+    }
+    
+    private func setupInitialState() {
+        updateCurrentMethod()
+    }
+    
+    private func updateCurrentMethod() {
+        let currentMethod = methods[currentMethodIndex]
+        
+        configure(with: currentMethod, isEncodeMode: isEncodeMode)
+        methodCollectionView.reloadData()
+        
+        // Scroll to current selected method
+        let indexPath = IndexPath(item: currentMethodIndex, section: 0)
+        methodCollectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
     
     // MARK: - Configuration
     
     func configure(with method: EncodeMethod, isEncodeMode: Bool) {
-        self.currentMethod = method
-        self.isEncodeMode = isEncodeMode
-        
-        updateUI()
-    }
-    
-    private func updateUI() {
         let buttonTitle = isEncodeMode ? "Encode" : "Decode"
         processButton.setTitle(buttonTitle, for: .normal)
         
@@ -254,13 +378,13 @@ class EncodeDecodeViewController: UIViewController {
         outputTextView.text = ""
         
         // Update method-specific placeholder
-        updatePlaceholderForMethod()
+        updatePlaceholderForMethod(method: method, isEncodeMode: isEncodeMode)
     }
     
-    private func updatePlaceholderForMethod() {
+    private func updatePlaceholderForMethod(method: EncodeMethod, isEncodeMode: Bool) {
         let methodSpecificText: String
         
-        switch currentMethod {
+        switch method {
         case .base64:
             methodSpecificText = isEncodeMode ? "Enter text to encode as Base64..." : "Enter Base64 text to decode..."
         case .unicode:
@@ -282,12 +406,25 @@ class EncodeDecodeViewController: UIViewController {
     
     // MARK: - Actions
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
+    @objc private func modeChanged() {
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+        
+        isEncodeMode = modeSegmentedControl.selectedSegmentIndex == 0
+        updateCurrentMethod()
+    }
+    
     @objc private func processText() {
         guard let text = inputTextView.text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             Toast.showError("Please enter text to process")
             return
         }
         
+        let currentMethod = methods[currentMethodIndex]
         let result: String
         
         if isEncodeMode {
@@ -426,16 +563,10 @@ class EncodeDecodeViewController: UIViewController {
         
         present(activityViewController, animated: true)
     }
-    
-    @objc private func dismissKeyboard() {
-        inputTextView.resignFirstResponder()
-    }
 }
-
 // MARK: - UITextViewDelegate
 
-extension EncodeDecodeViewController: UITextViewDelegate {
-    
+extension UnifiedEncodeViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         // Auto-process if enabled and text is not too long
         if UserDefaults.standard.bool(forKey: "autoProcess") && 
@@ -460,6 +591,44 @@ extension EncodeDecodeViewController: UITextViewDelegate {
         UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5) {
             self.inputContainerView.transform = .identity
         }
+    }
+}
+
+// MARK: - UICollectionViewDataSource & UICollectionViewDelegate
+
+extension UnifiedEncodeViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return methods.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MethodCell.identifier, for: indexPath) as! MethodCell
+        
+        let method = methods[indexPath.item]
+        let isSelected = indexPath.item == currentMethodIndex
+        
+        cell.configure(with: method.displayName, isSelected: isSelected)
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+        
+        currentMethodIndex = indexPath.item
+        updateCurrentMethod()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let method = methods[indexPath.item]
+        
+        // Calculate text width
+        let font = UIFont.preferredFont(forTextStyle: .callout)
+        let textSize = (method.displayName as NSString).size(withAttributes: [.font: font])
+        let width = textSize.width + 32 // Left and right margins
+        
+        return CGSize(width: max(width, 80), height: 36)
     }
 }
 

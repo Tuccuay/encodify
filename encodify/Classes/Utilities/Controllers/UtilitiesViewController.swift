@@ -17,21 +17,31 @@ class UtilitiesViewController: UIViewController {
         tableView.delegate = self
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.contentInsetAdjustmentBehavior = .automatic
-        tableView.backgroundColor = UIColor.systemBackground
-        tableView.separatorStyle = .none
-        
-        // Modern appearance configuration
-        if #available(iOS 15.0, *) {
-            tableView.sectionHeaderTopPadding = 0
-        }
+        tableView.backgroundColor = UIColor.clear
         
         return tableView
     }()
     
     private let utilities: [[UtilityItem]] = [
         [
-            UtilityItem(title: "Pick image & encode to base64", viewControllerType: ImageEncodeViewController.self),
-            UtilityItem(title: "Decode base64 to image", viewControllerType: ImageDecodeViewController.self),
+            UtilityItem(title: "Image to Base64", 
+                       subtitle: "Convert images to Base64 encoding",
+                       systemIcon: "photo.on.rectangle.angled",
+                       viewControllerType: ImageEncodeViewController.self),
+            UtilityItem(title: "Base64 to Image", 
+                       subtitle: "Decode Base64 data to images",
+                       systemIcon: "photo.badge.plus",
+                       viewControllerType: ImageDecodeViewController.self),
+        ],
+        [
+            UtilityItem(title: "QR Code Generator", 
+                       subtitle: "Generate QR codes from text",
+                       systemIcon: "qrcode",
+                       viewControllerType: nil), // 待实现
+            UtilityItem(title: "Color Palette", 
+                       subtitle: "Extract colors from text or images",
+                       systemIcon: "paintpalette",
+                       viewControllerType: nil), // 待实现
         ]
     ]
     
@@ -42,14 +52,14 @@ class UtilitiesViewController: UIViewController {
     
     private func setupUI() {
         title = "Utilities"
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.systemGroupedBackground
         
         // Modern navigation bar setup
         navigationController?.navigationBar.prefersLargeTitles = true
         
         view.addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.edges.equalToSuperview()
         }
     }
 }
@@ -68,18 +78,27 @@ extension UtilitiesViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         let utility = utilities[indexPath.section][indexPath.row]
         
-        // Configure cell with modern styling
-        cell.textLabel?.text = utility.title
-        cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
-        cell.textLabel?.adjustsFontForContentSizeCategory = true
-        cell.textLabel?.textColor = UIColor.encodifyPrimaryText
-        cell.accessoryType = .disclosureIndicator
-        cell.backgroundColor = UIColor.encodifyCardBackground
-        cell.selectionStyle = .none
+        // 配置现代化的单元格样式
+        var content = cell.defaultContentConfiguration()
+        content.text = utility.title
+        content.secondaryText = utility.subtitle
         
-        // Add subtle shadow and rounded corners
-        cell.layer.cornerRadius = 12
-        cell.applyThemeAwareShadow(radius: 4, opacity: 0.08, offset: CGSize(width: 0, height: 1))
+        // 设置字体样式
+//        content.textProperties.font = UIFont.preferredFont(forTextStyle: .headline)
+//        content.textProperties.color = UIColor.label
+//        content.secondaryTextProperties.font = UIFont.preferredFont(forTextStyle: .subheadline)
+//        content.secondaryTextProperties.color = UIColor.secondaryLabel
+        
+        // 设置图标
+        if let systemIcon = utility.systemIcon {
+            content.image = UIImage(systemName: systemIcon)
+            content.imageProperties.tintColor = UIColor.encodifyTintColor
+//            content.imageProperties.cornerRadius = 8
+        }
+        
+        cell.contentConfiguration = content
+        cell.accessoryType = utility.viewControllerType != nil ? .disclosureIndicator : .none
+        cell.backgroundColor = UIColor.secondarySystemGroupedBackground
         
         return cell
     }
@@ -88,12 +107,21 @@ extension UtilitiesViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 extension UtilitiesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
         // Add haptic feedback
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
         
         let utility = utilities[indexPath.section][indexPath.row]
-        let viewController = utility.viewControllerType.init()
+        
+        guard let viewControllerType = utility.viewControllerType else {
+            // 显示"即将推出"提示
+            Toast.showStatus("Coming soon!")
+            return
+        }
+        
+        let viewController = viewControllerType.init()
         navigationController?.pushViewController(viewController, animated: true)
     }
     

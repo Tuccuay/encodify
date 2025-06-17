@@ -18,7 +18,7 @@ class HashViewController: UIViewController {
         let textView = UITextView()
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.adjustsFontForContentSizeCategory = true
-        textView.backgroundColor = UIColor.encodifyCardBackground
+        textView.backgroundColor = UIColor.secondarySystemGroupedBackground
         textView.textColor = UIColor.encodifyPrimaryText
         textView.layer.cornerRadius = 12
         textView.layer.masksToBounds = false
@@ -43,7 +43,7 @@ class HashViewController: UIViewController {
         tableView.estimatedRowHeight = 60
         tableView.rowHeight = UITableView.automaticDimension
         tableView.separatorStyle = .none
-        tableView.backgroundColor = UIColor.systemBackground
+        tableView.backgroundColor = UIColor.systemGroupedBackground
         tableView.contentInsetAdjustmentBehavior = .automatic
         tableView.keyboardDismissMode = .onDrag
         
@@ -175,7 +175,7 @@ class HashViewController: UIViewController {
     
     private func setupUI() {
         title = "Hash"
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.systemGroupedBackground
         
         view.addSubview(showTypeSegmentedControl)
         view.addSubview(inputTextView)
@@ -240,7 +240,8 @@ class HashViewController: UIViewController {
     }
     
     @objc private func pasteButtonTapped() {
-        inputTextView.resignFirstResponder()
+        // 收起键盘
+        view.endEditing(true)
         
         guard let text = UIPasteboard.general.string else {
             Toast.showError("No text in clipboard")
@@ -253,7 +254,9 @@ class HashViewController: UIViewController {
     }
     
     @objc private func clearButtonTapped() {
-        inputTextView.resignFirstResponder()
+        // 收起键盘
+        view.endEditing(true)
+        
         inputTextView.text = ""
         
         // 取消正在进行的哈希计算
@@ -265,11 +268,11 @@ class HashViewController: UIViewController {
     }
     
     @objc private func resignTextView() {
-        inputTextView.resignFirstResponder()
+        view.endEditing(true)
     }
     
     @objc private func tapToResign() {
-        inputTextView.resignFirstResponder()
+        view.endEditing(true)
     }
     
     private func calculateHashes() {

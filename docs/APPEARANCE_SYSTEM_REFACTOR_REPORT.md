@@ -106,7 +106,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 ### 1. 现代化 iOS 设计
 - 遵循 iOS 16.6+ 设计规范
-- 参考 Apple Music 等系统应用的设计语言
+- 参考系统应用的设计语言
 - 保持原生 iOS 组件的现代化外观
 - 不过度定制 UITabBar 和 UINavigationBar
 
@@ -131,7 +131,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 ## 色彩系统
 
 ### 1. 主色调
-- **Primary Tint**: 粉紫色渐变 (参考 Apple Music)
+- **Primary Tint**: 粉紫色渐变
 - **Secondary Accent**: 蓝色系对比色
 - **适配深浅色模式**: 自动切换适合的色调
 

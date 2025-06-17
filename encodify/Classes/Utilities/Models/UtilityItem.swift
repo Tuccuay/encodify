@@ -11,10 +11,17 @@ import UIKit
 
 struct UtilityItem {
     let title: String
-    let viewControllerType: UIViewController.Type
+    let subtitle: String?
+    let systemIcon: String?
+    let viewControllerType: UIViewController.Type?
     
-    init(title: String, viewControllerType: UIViewController.Type) {
+    init(title: String, 
+         subtitle: String? = nil,
+         systemIcon: String? = nil,
+         viewControllerType: UIViewController.Type? = nil) {
         self.title = title
+        self.subtitle = subtitle
+        self.systemIcon = systemIcon
         self.viewControllerType = viewControllerType
     }
 }

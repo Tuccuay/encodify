@@ -13,7 +13,7 @@ class HashResultTableViewCell: UITableViewCell {
     
     private lazy var containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.encodifyCardBackground
+        view.backgroundColor = UIColor.secondarySystemGroupedBackground
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = false
         

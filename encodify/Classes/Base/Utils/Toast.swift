@@ -12,7 +12,7 @@ import NotificationBannerSwift
 class Toast {
     
     // MARK: - Custom Banner Colors
-    private static let customColors = AppleMusicBannerColors()
+    private static let customColors = BannerColors()
     
     @MainActor
     static func showStatus(_ message: String) {
@@ -71,7 +71,7 @@ class Toast {
 }
 
 // MARK: - Custom Banner Colors for Modern Style
-private final class AppleMusicBannerColors: BannerColorsProtocol, @unchecked Sendable {
+private final class BannerColors: BannerColorsProtocol, @unchecked Sendable {
     func color(for style: BannerStyle) -> UIColor {
         switch style {
         case .success:

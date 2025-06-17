@@ -11,26 +11,28 @@ import SnapKit
 
 class ImageDecodeViewController: UIViewController {
     
+    private lazy var cardContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.secondarySystemGroupedBackground
+        view.layer.cornerRadius = 16
+        view.layer.masksToBounds = false
+        
+        // Modern shadow with enhanced depth
+        view.applyThemeAwareShadow(radius: 10, opacity: 0.12, offset: CGSize(width: 0, height: 3))
+        
+        return view
+    }()
+    
     private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.delegate = self
-        let baseFont = UIFont.preferredFont(forTextStyle: .body)
-        textView.font = UIFont.monospacedSystemFont(ofSize: baseFont.pointSize, weight: .regular)
         textView.adjustsFontForContentSizeCategory = true
-        textView.backgroundColor = UIColor.encodifyCardBackground
+        textView.backgroundColor = UIColor.secondarySystemGroupedBackground
         textView.textColor = UIColor.encodifyPrimaryText
-        textView.layer.cornerRadius = 16
-        textView.layer.masksToBounds = false
         textView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         // Disable horizontal scrolling
-        textView.showsHorizontalScrollIndicator = false
         textView.isScrollEnabled = true
-        textView.textContainer.widthTracksTextView = true
-        textView.textContainer.lineBreakMode = .byCharWrapping
-        
-        // Modern shadow with enhanced depth
-        textView.applyThemeAwareShadow(radius: 10, opacity: 0.12, offset: CGSize(width: 0, height: 3))
         
         // Accessibility improvements
         textView.accessibilityLabel = "Input base64 text"
@@ -55,13 +57,24 @@ class ImageDecodeViewController: UIViewController {
     
     private func setupUI() {
         title = "Image Decode"
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor.systemGroupedBackground
         
-        view.addSubview(textView)
-        textView.snp.makeConstraints { make in
+        // 添加点击手势以收起键盘
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        view.addSubview(cardContainerView)
+        cardContainerView.addSubview(textView)
+        
+        cardContainerView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).inset(16)
             make.leading.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
             make.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+        }
+        
+        textView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
         
         // Create modern decode button with enhanced styling
@@ -105,7 +118,14 @@ class ImageDecodeViewController: UIViewController {
         return pasteControl
     }
     
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     @objc private func decodeString() {
+        // 收起键盘
+        view.endEditing(true)
+        
         // Add haptic feedback
         let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
         impactFeedback.impactOccurred()
@@ -166,6 +186,15 @@ class ImageDecodeViewController: UIViewController {
             .font: UIFont.preferredFont(forTextStyle: .body)
         ], for: .normal)
         navigationItem.rightBarButtonItems?[0] = decodeButton
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        // 在主题变化时更新阴影等主题相关组件
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+            cardContainerView.applyThemeAwareShadow(radius: 10, opacity: 0.12, offset: CGSize(width: 0, height: 3))
+        }
     }
 }
 

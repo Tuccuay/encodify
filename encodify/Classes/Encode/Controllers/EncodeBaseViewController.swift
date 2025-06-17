@@ -237,7 +237,8 @@ class EncodeBaseViewController: UIViewController {
     }
     
     @objc private func copyDownButtonAction() {
-        inputTextView.resignFirstResponder()
+        // 收起键盘
+        view.endEditing(true)
         
         guard let text = outputTextView.text, !text.isEmpty else {
             Toast.showError("No text in output box.")
@@ -249,7 +250,8 @@ class EncodeBaseViewController: UIViewController {
     }
     
     @objc private func pasteButtonAction() {
-        inputTextView.resignFirstResponder()
+        // 收起键盘
+        view.endEditing(true)
         
         guard let pasteText = UIPasteboard.general.string else {
             Toast.showError("No text in clipboard.")
@@ -262,19 +264,22 @@ class EncodeBaseViewController: UIViewController {
     }
     
     @objc private func clearButtonAction() {
-        inputTextView.resignFirstResponder()
+        // 收起键盘
+        view.endEditing(true)
+        
         inputTextView.text = ""
         outputTextView.text = ""
         Toast.showStatus("Cleared")
     }
     
     @objc private func tapToResign() {
-        inputTextView.resignFirstResponder()
+        view.endEditing(true)
     }
     
     // MARK: - Encoding
     @objc private func performEncode() {
-        inputTextView.resignFirstResponder()
+        // 收起键盘
+        view.endEditing(true)
         
         guard let inputString = inputTextView.text, 
               !inputString.isEmpty else {
