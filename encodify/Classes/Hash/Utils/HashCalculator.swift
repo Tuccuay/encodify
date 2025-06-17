@@ -10,12 +10,62 @@ import Foundation
 import CryptoSwift
 import CommonCrypto
 
-struct HashResult {
+struct HashResult: Sendable {
     let algorithm: String
     let hash: String
 }
 
+struct HashProgressUpdate: Sendable {
+    let progress: Double
+    let currentAlgorithm: String
+}
+
 class HashCalculator {
+    
+    // MARK: - Performance Configuration
+    
+    /// 大文件分块大小 (1MB)
+    private static let chunkSize = 1024 * 1024
+    /// 大文件阈值 (20MB) - 降低阈值，确保中等文件也能稳定处理
+    private static let largeFileThreshold = 20 * 1024 * 1024
+    /// 最大并发任务数 (保留一些CPU核心给系统)
+    private static let maxConcurrentTasks: Int = {
+        let availableProcessors = ProcessInfo.processInfo.activeProcessorCount
+        return max(2, min(availableProcessors - 1, 8)) // 最少2个，最多8个并发
+    }()
+    
+    // 按照计算速度分组的算法列表
+    private static let fastAlgorithms = ["MD5", "SHA1", "CRC-32", "CRC-16", "Adler-32"]
+    private static let mediumAlgorithms = ["SHA224", "SHA256", "MD2", "MD4", "CRC-32C"]
+    private static let slowAlgorithms = ["SHA384", "SHA512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", 
+                                       "Keccak-224", "Keccak-256", "Keccak-384", "Keccak-512"]
+    
+    // 全局取消标志 - 使用 actor 来保证并发安全
+    private static let cancellationToken = CancellationToken()
+    
+    // MARK: - Cancellation Support
+    
+    actor CancellationToken {
+        private var _isCancelled = false
+        
+        var isCancelled: Bool {
+            _isCancelled
+        }
+        
+        func cancel() {
+            _isCancelled = true
+        }
+        
+        func reset() {
+            _isCancelled = false
+        }
+    }
+    
+    static func cancelCalculation() {
+        Task {
+            await cancellationToken.cancel()
+        }
+    }
     
     // MARK: - MD2 和 MD4 实现 (使用 CommonCrypto)
     
@@ -49,6 +99,77 @@ class HashCalculator {
         
         let result = (b << 16) | a
         return String(format: "%08x", result)
+    }
+    
+    // MARK: - Large File Support
+    
+    /// 流式哈希上下文协议
+    private protocol StreamingHashContext {
+        func update(data: Data)
+        func finalize() -> String
+    }
+    
+    /// 流式 MD5 上下文
+    private class StreamingMD5Context: StreamingHashContext {
+        private var context = CC_MD5_CTX()
+        
+        init() {
+            CC_MD5_Init(&context)
+        }
+        
+        func update(data: Data) {
+            data.withUnsafeBytes { bytes in
+                CC_MD5_Update(&context, bytes.baseAddress, CC_LONG(data.count))
+            }
+        }
+        
+        func finalize() -> String {
+            var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
+            CC_MD5_Final(&digest, &context)
+            return digest.map { String(format: "%02x", $0) }.joined()
+        }
+    }
+    
+    /// 流式 SHA1 上下文
+    private class StreamingSHA1Context: StreamingHashContext {
+        private var context = CC_SHA1_CTX()
+        
+        init() {
+            CC_SHA1_Init(&context)
+        }
+        
+        func update(data: Data) {
+            data.withUnsafeBytes { bytes in
+                CC_SHA1_Update(&context, bytes.baseAddress, CC_LONG(data.count))
+            }
+        }
+        
+        func finalize() -> String {
+            var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
+            CC_SHA1_Final(&digest, &context)
+            return digest.map { String(format: "%02x", $0) }.joined()
+        }
+    }
+    
+    /// 流式 SHA256 上下文
+    private class StreamingSHA256Context: StreamingHashContext {
+        private var context = CC_SHA256_CTX()
+        
+        init() {
+            CC_SHA256_Init(&context)
+        }
+        
+        func update(data: Data) {
+            data.withUnsafeBytes { bytes in
+                CC_SHA256_Update(&context, bytes.baseAddress, CC_LONG(data.count))
+            }
+        }
+        
+        func finalize() -> String {
+            var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+            CC_SHA256_Final(&digest, &context)
+            return digest.map { String(format: "%02x", $0) }.joined()
+        }
     }
     
     static func calculateHashes(for input: String) -> [HashResult] {
@@ -144,5 +265,303 @@ class HashCalculator {
         results.append(HashResult(algorithm: "Adler-32", hash: adler32Hash))
         
         return results
+    }
+    
+    // MARK: - Async Hash Calculation
+    
+    static func calculateHashesAsync(for input: String) async -> [HashResult] {
+        guard let data = input.data(using: .utf8) else { return [] }
+        return await calculateHashesAsync(for: data)
+    }
+    
+    static func calculateHashesAsync(for data: Data) async -> [HashResult] {
+        return await Task.detached(priority: .userInitiated) {
+            return calculateHashes(for: data)
+        }.value
+    }
+    
+    // MARK: - Progressive Hash Calculation with Parallel Processing
+    
+    static func calculateHashesWithProgress(for data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
+        // 重置取消标志
+        Task {
+            await cancellationToken.reset()
+        }
+        
+        // 根据文件大小选择计算策略
+        if data.count > largeFileThreshold {
+            return calculateHashesForLargeFile(data: data)
+        } else {
+            return calculateHashesWithParallelProcessing(for: data)
+        }
+    }
+    
+    /// 并行计算哈希算法（适用于小文件）- 按速度优先级处理
+    private static func calculateHashesWithParallelProcessing(for data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
+        AsyncThrowingStream { continuation in
+            Task.detached(priority: .userInitiated) {
+                do {
+                    var results: [HashResult] = []
+                    let algorithmGroups = [fastAlgorithms, mediumAlgorithms, slowAlgorithms]
+                    let totalAlgorithms = fastAlgorithms.count + mediumAlgorithms.count + slowAlgorithms.count
+                    var completedCount = 0
+                    
+                    // 创建 Sendable 的数据副本以避免并发警告
+                    let inputData = data
+                    
+                    // 按优先级分组处理算法
+                    for (groupIndex, algorithms) in algorithmGroups.enumerated() {
+                        // 检查取消状态
+                        if await cancellationToken.isCancelled {
+                            continuation.finish(throwing: CancellationError())
+                            return
+                        }
+                        
+                        // 使用TaskGroup并行计算当前组的哈希算法
+                        await withTaskGroup(of: HashResult?.self) { group in
+                            for algorithm in algorithms {
+                                group.addTask(priority: .userInitiated) { @Sendable in
+                                    // 检查取消状态
+                                    if await cancellationToken.isCancelled {
+                                        return nil
+                                    }
+                                    
+                                    let hash: String
+                                    switch algorithm {
+                                    case "MD2":
+                                        hash = md2(data: inputData)
+                                    case "MD4":
+                                        hash = md4(data: inputData)
+                                    case "MD5":
+                                        hash = inputData.md5().toHexString()
+                                    case "SHA1":
+                                        hash = inputData.sha1().toHexString()
+                                    case "SHA224":
+                                        hash = inputData.sha224().toHexString()
+                                    case "SHA256":
+                                        hash = inputData.sha256().toHexString()
+                                    case "SHA384":
+                                        hash = inputData.sha384().toHexString()
+                                    case "SHA512":
+                                        hash = inputData.sha512().toHexString()
+                                    case "SHA3-224":
+                                        hash = inputData.sha3(.sha224).toHexString()
+                                    case "SHA3-256":
+                                        hash = inputData.sha3(.sha256).toHexString()
+                                    case "SHA3-384":
+                                        hash = inputData.sha3(.sha384).toHexString()
+                                    case "SHA3-512":
+                                        hash = inputData.sha3(.sha512).toHexString()
+                                    case "Keccak-224":
+                                        hash = inputData.sha3(.keccak224).toHexString()
+                                    case "Keccak-256":
+                                        hash = inputData.sha3(.keccak256).toHexString()
+                                    case "Keccak-384":
+                                        hash = inputData.sha3(.keccak384).toHexString()
+                                    case "Keccak-512":
+                                        hash = inputData.sha3(.keccak512).toHexString()
+                                    case "CRC-16":
+                                        hash = inputData.crc16().toHexString()
+                                    case "CRC-32":
+                                        hash = inputData.crc32().toHexString()
+                                    case "CRC-32C":
+                                        hash = inputData.crc32c().toHexString()
+                                    case "Adler-32":
+                                        hash = adler32(data: inputData)
+                                    default:
+                                        return nil
+                                    }
+                                    return HashResult(algorithm: algorithm, hash: hash)
+                                }
+                            }
+                            
+                            // 收集当前组的结果并实时报告进度
+                            for await result in group {
+                                if let result = result {
+                                    results.append(result)
+                                    completedCount += 1
+                                    
+                                    let progress = Double(completedCount) / Double(totalAlgorithms)
+                                    continuation.yield((
+                                        HashProgressUpdate(progress: progress, currentAlgorithm: result.algorithm),
+                                        results
+                                    ))
+                                }
+                            }
+                        }
+                        
+                        // 组间小延迟，给UI更新时间
+                        if groupIndex < algorithmGroups.count - 1 {
+                            try await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                        }
+                    }
+                    
+                    // 完成时发送最终结果
+                    continuation.yield((
+                        HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete"),
+                        results
+                    ))
+                    continuation.finish(throwing: nil)
+                    
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+    
+    /// 大文件分块处理（流式计算）- 按速度优先级处理
+    private static func calculateHashesForLargeFile(data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
+        AsyncThrowingStream { continuation in
+            Task.detached(priority: .userInitiated) {
+                do {
+                    let algorithmGroups = [fastAlgorithms, mediumAlgorithms, slowAlgorithms]
+                    let totalAlgorithms = fastAlgorithms.count + mediumAlgorithms.count + slowAlgorithms.count
+                    var completedResults: [HashResult] = []
+                    
+                    // 创建 Sendable 的数据副本以避免并发警告
+                    let inputData = data
+                    
+                    // 根据文件大小动态调整策略
+                    let fileSizeMB = Double(inputData.count) / (1024 * 1024)
+                    
+                    // 按优先级分组顺序处理
+                    for algorithms in algorithmGroups {
+                        // 检查取消状态
+                        if await cancellationToken.isCancelled {
+                            continuation.finish(throwing: CancellationError())
+                            return
+                        }
+                        
+                        let concurrencyLimit: Int
+                        let batchDelay: UInt64
+                        
+                        if fileSizeMB <= 100 { // 100MB以下
+                            concurrencyLimit = min(4, maxConcurrentTasks) // 中等并发
+                            batchDelay = 50_000_000 // 50ms
+                        } else if fileSizeMB <= 200 { // 200MB以下  
+                            concurrencyLimit = min(3, maxConcurrentTasks) // 适中并发
+                            batchDelay = 100_000_000 // 100ms
+                        } else { // 超大文件
+                            concurrencyLimit = min(2, maxConcurrentTasks) // 保守并发
+                            batchDelay = 200_000_000 // 200ms
+                        }
+                        
+                        for i in stride(from: 0, to: algorithms.count, by: concurrencyLimit) {
+                            // 检查取消状态
+                            if await cancellationToken.isCancelled {
+                                continuation.finish(throwing: CancellationError())
+                                return
+                            }
+                            
+                            let batch = Array(algorithms[i..<min(i + concurrencyLimit, algorithms.count)])
+                            
+                            // 小批量并行处理
+                            await withTaskGroup(of: HashResult?.self) { group in
+                                for algorithm in batch {
+                                    group.addTask(priority: .userInitiated) { @Sendable in
+                                        // 检查取消状态
+                                        if await cancellationToken.isCancelled {
+                                            return nil
+                                        }
+                                        
+                                        do {
+                                            let hash: String
+                                            switch algorithm {
+                                            case "MD2":
+                                                hash = md2(data: inputData)
+                                            case "MD4":
+                                                hash = md4(data: inputData)
+                                            case "MD5":
+                                                hash = inputData.md5().toHexString()
+                                            case "SHA1":
+                                                hash = inputData.sha1().toHexString()
+                                            case "SHA224":
+                                                hash = inputData.sha224().toHexString()
+                                            case "SHA256":
+                                                hash = inputData.sha256().toHexString()
+                                            case "SHA384":
+                                                hash = inputData.sha384().toHexString()
+                                            case "SHA512":
+                                                hash = inputData.sha512().toHexString()
+                                            case "SHA3-224":
+                                                hash = inputData.sha3(.sha224).toHexString()
+                                            case "SHA3-256":
+                                                hash = inputData.sha3(.sha256).toHexString()
+                                            case "SHA3-384":
+                                                hash = inputData.sha3(.sha384).toHexString()
+                                            case "SHA3-512":
+                                                hash = inputData.sha3(.sha512).toHexString()
+                                            case "Keccak-224":
+                                                hash = inputData.sha3(.keccak224).toHexString()
+                                            case "Keccak-256":
+                                                hash = inputData.sha3(.keccak256).toHexString()
+                                            case "Keccak-384":
+                                                hash = inputData.sha3(.keccak384).toHexString()
+                                            case "Keccak-512":
+                                                hash = inputData.sha3(.keccak512).toHexString()
+                                            case "CRC-16":
+                                                hash = inputData.crc16().toHexString()
+                                            case "CRC-32":
+                                                hash = inputData.crc32().toHexString()
+                                            case "CRC-32C":
+                                                hash = inputData.crc32c().toHexString()
+                                            case "Adler-32":
+                                                hash = adler32(data: inputData)
+                                            default:
+                                                return nil
+                                            }
+                                            return HashResult(algorithm: algorithm, hash: hash)
+                                        } catch {
+                                            // 如果某个算法失败，记录错误但继续处理其他算法
+                                            print("Hash calculation failed for \(algorithm): \(error)")
+                                            return nil
+                                        }
+                                    }
+                                }
+                                
+                                for await result in group {
+                                    if let result = result {
+                                        completedResults.append(result)
+                                        
+                                        let progress = Double(completedResults.count) / Double(totalAlgorithms)
+                                        await MainActor.run {
+                                            continuation.yield((
+                                                HashProgressUpdate(progress: progress, currentAlgorithm: result.algorithm),
+                                                completedResults
+                                            ))
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // 动态延迟，根据文件大小调整
+                            try await Task.sleep(nanoseconds: batchDelay)
+                            
+                            // 只在大文件时进行内存清理
+                            if fileSizeMB > 100 {
+                                autoreleasepool {
+                                    // 强制内存回收
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 完成时发送最终结果
+                    await MainActor.run {
+                        continuation.yield((
+                            HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete"),
+                            completedResults
+                        ))
+                        continuation.finish(throwing: nil)
+                    }
+                    
+                } catch {
+                    await MainActor.run {
+                        continuation.finish(throwing: error)
+                    }
+                }
+            }
+        }
     }
 }

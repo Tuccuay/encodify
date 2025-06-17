@@ -25,9 +25,9 @@ class FormatSelectorCell: UICollectionViewCell {
     }
     
     private func setupUI() {
-        backgroundColor = UIColor.secondarySystemGroupedBackground
-        layer.cornerRadius = 12
-        applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
+        backgroundColor = UIColor.clear
+        layer.cornerRadius = 0
+        // 移除阴影以获得更清爽的外观
     }
     
     func configure(segmentedControl: UISegmentedControl) {
@@ -37,7 +37,7 @@ class FormatSelectorCell: UICollectionViewCell {
         contentView.addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in
             make.center.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(20)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(36)
         }
         
@@ -57,6 +57,9 @@ class InputAreaCell: UICollectionViewCell {
     var onTextChanged: (() -> Void)?
     var onFileTap: (() -> Void)?
     var onImageTap: (() -> Void)?
+    var onClearFile: (() -> Void)?
+    
+    private var currentFileInfo: FileInfo?
     
     private lazy var headerView: UIView = {
         let view = UIView()
@@ -100,6 +103,54 @@ class InputAreaCell: UICollectionViewCell {
         return button
     }()
     
+    // File display components
+    private lazy var fileDisplayView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.tertiarySystemGroupedBackground
+        view.layer.cornerRadius = 8
+        view.layer.borderWidth = 1
+        view.layer.borderColor = UIColor.separator.cgColor
+        view.isHidden = true
+        return view
+    }()
+    
+    private lazy var fileIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.tintColor = UIColor.systemBlue
+        return imageView
+    }()
+    
+    private lazy var fileNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .headline)
+        label.textColor = UIColor.label
+        label.numberOfLines = 1
+        return label
+    }()
+    
+    private lazy var fileSizeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .caption1)
+        label.textColor = UIColor.secondaryLabel
+        return label
+    }()
+    
+    private lazy var fileModificationLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .caption2)
+        label.textColor = UIColor.tertiaryLabel
+        return label
+    }()
+    
+    private lazy var clearFileButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        button.tintColor = UIColor.systemRed
+        button.addTarget(self, action: #selector(clearFileTapped), for: .touchUpInside)
+        return button
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -122,6 +173,14 @@ class InputAreaCell: UICollectionViewCell {
         buttonsStackView.addArrangedSubview(imageButton)
         buttonsStackView.addArrangedSubview(fullScreenButton)
         
+        // Setup file display view
+        contentView.addSubview(fileDisplayView)
+        fileDisplayView.addSubview(fileIconImageView)
+        fileDisplayView.addSubview(fileNameLabel)
+        fileDisplayView.addSubview(fileSizeLabel)
+        fileDisplayView.addSubview(fileModificationLabel)
+        fileDisplayView.addSubview(clearFileButton)
+        
         headerView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.height.equalTo(40)
@@ -138,19 +197,67 @@ class InputAreaCell: UICollectionViewCell {
             make.width.equalTo(96) // 3 buttons * 24 width + 2 spacings * 8
             make.height.equalTo(24)
         }
+        
+        // File display view constraints
+        fileDisplayView.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(16)
+            make.height.greaterThanOrEqualTo(80)
+        }
+        
+        fileIconImageView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(12)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(32)
+        }
+        
+        fileNameLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(12)
+            make.leading.equalTo(fileIconImageView.snp.trailing).offset(12)
+            make.trailing.equalTo(clearFileButton.snp.leading).offset(-8)
+        }
+        
+        fileSizeLabel.snp.makeConstraints { make in
+            make.top.equalTo(fileNameLabel.snp.bottom).offset(2)
+            make.leading.equalTo(fileIconImageView.snp.trailing).offset(12)
+            make.trailing.equalTo(clearFileButton.snp.leading).offset(-8)
+        }
+        
+        fileModificationLabel.snp.makeConstraints { make in
+            make.top.equalTo(fileSizeLabel.snp.bottom).offset(2)
+            make.leading.equalTo(fileIconImageView.snp.trailing).offset(12)
+            make.trailing.equalTo(clearFileButton.snp.leading).offset(-8)
+            make.bottom.lessThanOrEqualToSuperview().offset(-12)
+        }
+        
+        clearFileButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(8)
+            make.trailing.equalToSuperview().offset(-8)
+            make.width.height.equalTo(24)
+        }
     }
     
     func configure(textView: UITextView) {
+        // Hide file display
+        fileDisplayView.isHidden = true
+        headerLabel.text = "Input Text"
+        
+        // Show full screen button for text mode
+        fullScreenButton.isHidden = false
+        
         // Remove from previous superview if any
         textView.removeFromSuperview()
         
         contentView.addSubview(textView)
         textView.snp.makeConstraints { make in
-            make.top.equalTo(headerView.snp.bottom)
+            make.top.equalTo(headerView.snp.bottom).offset(8)
             make.leading.trailing.bottom.equalToSuperview().inset(16)
+            make.height.greaterThanOrEqualTo(80)
         }
         
         // Set up text change observation
+        NotificationCenter.default.removeObserver(self, name: UITextView.textDidChangeNotification, object: nil)
         NotificationCenter.default.addObserver(
             forName: UITextView.textDidChangeNotification,
             object: textView,
@@ -160,6 +267,31 @@ class InputAreaCell: UICollectionViewCell {
                 self?.onTextChanged?()
             }
         }
+        
+        // Show textView
+        textView.isHidden = false
+    }
+    
+    func configureWithFile(_ fileInfo: FileInfo) {
+        currentFileInfo = fileInfo
+        headerLabel.text = "Selected File"
+        
+        // Hide full screen button for file mode
+        fullScreenButton.isHidden = true
+        
+        // Hide any existing textView
+        contentView.subviews.compactMap { $0 as? UITextView }.forEach { textView in
+            textView.removeFromSuperview()
+        }
+        
+        // Show file display
+        fileDisplayView.isHidden = false
+        
+        // Configure file display
+        fileIconImageView.image = UIImage(systemName: fileInfo.fileType.icon)
+        fileNameLabel.text = fileInfo.fileName
+        fileSizeLabel.text = fileInfo.formattedFileSize
+        fileModificationLabel.text = "Modified: \(fileInfo.formattedModificationDate)"
     }
     
     @objc private func fullScreenTapped() {
@@ -173,6 +305,14 @@ class InputAreaCell: UICollectionViewCell {
     @objc private func imageTapped() {
         onImageTap?()
     }
+    
+    @objc private func clearFileTapped() {
+        currentFileInfo = nil
+        fileDisplayView.isHidden = true
+        headerLabel.text = "Input Text"
+        
+        onClearFile?()
+    }
 }
 
 // MARK: - CalculateButtonCell
@@ -180,6 +320,11 @@ class InputAreaCell: UICollectionViewCell {
 @MainActor
 class CalculateButtonCell: UICollectionViewCell {
     var onButtonTap: (() -> Void)?
+    var onStopButtonTap: (() -> Void)?
+    
+    private var calculateButton: UIButton?
+    private var stopButton: UIButton?
+    private let stackView = UIStackView()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -192,24 +337,68 @@ class CalculateButtonCell: UICollectionViewCell {
     
     private func setupUI() {
         backgroundColor = UIColor.clear
+        
+        stackView.axis = .horizontal
+        stackView.spacing = 12
+        stackView.distribution = .fill
+        stackView.alignment = .center
+        
+        contentView.addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(16)
+        }
     }
     
-    func configure(button: UIButton) {
-        // Remove from previous superview if any
-        button.removeFromSuperview()
+    func configure(button: UIButton, stopButton: UIButton? = nil) {
+        // 清空之前的按钮
+        stackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        contentView.addSubview(button)
-        button.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(50)
-        }
+        self.calculateButton = button
+        self.stopButton = stopButton
         
+        // 移除之前的target
+        button.removeTarget(nil, action: nil, for: .allEvents)
+        stopButton?.removeTarget(nil, action: nil, for: .allEvents)
+        
+        // 添加计算按钮
+        stackView.addArrangedSubview(button)
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+        
+        // 如果有停止按钮且不隐藏，则添加到stackView
+        if let stopButton = stopButton, !stopButton.isHidden {
+            stackView.addArrangedSubview(stopButton)
+            stopButton.addTarget(self, action: #selector(stopButtonTapped), for: .touchUpInside)
+            
+            // 设置按钮约束
+            button.snp.makeConstraints { make in
+                make.height.equalTo(50)
+            }
+            stopButton.snp.makeConstraints { make in
+                make.height.equalTo(50)
+            }
+            
+            // 确保stopButton只占用其内容所需的最小宽度
+            stopButton.setContentHuggingPriority(.required, for: .horizontal)
+            stopButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+            button.setContentHuggingPriority(.defaultLow, for: .horizontal)
+            
+            // 设置stopButton的内容边距以减少额外空间
+            stopButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        } else {
+            // 只有计算按钮时，让其占满整个宽度
+            button.snp.makeConstraints { make in
+                make.height.equalTo(50)
+            }
+        }
     }
     
     @objc private func buttonTapped() {
+        guard calculateButton?.isEnabled == true else { return }
         onButtonTap?()
+    }
+    
+    @objc private func stopButtonTapped() {
+        onStopButtonTap?()
     }
 }
 

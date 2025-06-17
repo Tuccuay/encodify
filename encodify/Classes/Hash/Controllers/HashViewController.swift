@@ -19,12 +19,23 @@ class HashViewController: UIViewController {
     private let hashGroups = HashAlgorithm.allAlgorithms
     private var hashResults: [String: String] = [:]  // [algorithmKey: hashValue]
     private var currentInputType: InputType = .text
-    private var currentFileName: String?
+    private var currentFileInfo: FileInfo?
+    private var isCalculating: Bool = false {
+        didSet {
+            if isCalculating != oldValue {
+                updateCalculateButtonState()
+            }
+        }
+    }
     
     private var collectionView: UICollectionView!
     private var dataSourceManager: HashCollectionDataSource!
     private var fileHashManager: FileHashManager!
     private var updateTimer: Timer?
+    
+    // 停止按钮相关
+    private var calculationStartTime: Date?
+    private var showStopButtonTimer: Timer?
     
     // UI Components
     private var inputTextView: UITextView = {
@@ -78,6 +89,26 @@ class HashViewController: UIViewController {
         return control
     }()
     
+    private var stopButton: UIButton = {
+        var config = UIButton.Configuration.filled()
+        config.title = "Stop"
+        config.baseBackgroundColor = UIColor.systemRed
+        config.baseForegroundColor = UIColor.white
+//        config.cornerStyle = .medium
+        config.buttonSize = .small
+        config.image = UIImage(systemName: "stop.fill")
+        config.imagePadding = 2
+        config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+            var outgoing = incoming
+            outgoing.font = UIFont.preferredFont(forTextStyle: .headline)
+            return outgoing
+        }
+        
+        let button = UIButton(configuration: config)
+        button.isHidden = true
+        return button
+    }()
+    
     // MARK: - Input Types
     
     enum InputType {
@@ -103,6 +134,8 @@ class HashViewController: UIViewController {
         NotificationCenter.default.removeObserver(self)
         updateTimer?.invalidate()
         updateTimer = nil
+        showStopButtonTimer?.invalidate()
+        showStopButtonTimer = nil
     }
     
     
@@ -118,8 +151,7 @@ class HashViewController: UIViewController {
     
     private func setupNavigationBar() {
         title = "Hash Calculator"
-        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationItem.largeTitleDisplayMode = .never
+        navigationController?.navigationBar.prefersLargeTitles = true
         
         let clearButton = UIBarButtonItem(
             image: UIImage(systemName: "trash"),
@@ -148,7 +180,7 @@ class HashViewController: UIViewController {
         
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
-            make.edges.equalTo(view.safeAreaLayoutGuide)
+            make.edges.equalToSuperview()
         }
         
         // Register cells
@@ -168,8 +200,8 @@ class HashViewController: UIViewController {
     private func setupFileHashManager() {
         fileHashManager = FileHashManager()
         fileHashManager.presentingViewController = self
-        fileHashManager.onFileSelected = { [weak self] data, fileName in
-            self?.processFileData(data, fileName: fileName)
+        fileHashManager.onFileSelected = { [weak self] fileInfo in
+            self?.processFileInfo(fileInfo)
         }
     }
     
@@ -199,59 +231,149 @@ class HashViewController: UIViewController {
     @objc private func calculateHashes() {
         view.endEditing(true)
         
-        let allResults: [HashResult]
+        // 防止重复计算
+        guard !isCalculating else { return }
         
+        // 设置计算状态
+        isCalculating = true
+        calculationStartTime = Date()
+        
+        // 启动定时器，5秒后显示停止按钮
+        showStopButtonTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
+            Task { @MainActor in
+                self?.showStopButton()
+            }
+        }
+        
+        // 清空之前的结果，准备显示新的结果
+        hashResults.removeAll()
+        dataSourceManager.reloadHashResults()
+        
+        // 准备输入数据
+        let inputData: Data
         switch currentInputType {
         case .text:
             guard let text = inputTextView.text?.trimmingCharacters(in: .whitespacesAndNewlines),
                   !text.isEmpty else {
                 Toast.showError("Please enter text to hash")
+                isCalculating = false
                 return
             }
-            allResults = HashCalculator.calculateHashes(for: text)
+            guard let data = text.data(using: .utf8) else {
+                Toast.showError("Failed to encode text")
+                isCalculating = false
+                return
+            }
+            inputData = data
             
         case .file:
-            guard let inputData = getCurrentInputData() else {
+            guard let fileInfo = currentFileInfo else {
                 Toast.showError("Please select a file to hash")
+                isCalculating = false
                 return
             }
-            allResults = HashCalculator.calculateHashes(for: inputData)
+            inputData = fileInfo.data
         }
         
-        // Show loading state
-        var config = calculateButton.configuration ?? UIButton.Configuration.filled()
-        config.showsActivityIndicator = true
-        config.title = "Calculating..."
-        calculateButton.configuration = config
-        calculateButton.isEnabled = false
+        // 检查文件大小并显示相应提示
+        let fileSizeText = ByteCountFormatter.string(fromByteCount: Int64(inputData.count), countStyle: .binary)
+        if inputData.count > 50 * 1024 * 1024 { // 50MB
+            Toast.showStatus("Processing large file (\(fileSizeText)) with optimized strategy...")
+        } else if inputData.count > 10 * 1024 * 1024 { // 10MB
+            Toast.showStatus("Processing file (\(fileSizeText)) with parallel computing...")
+        } else {
+            Toast.showStatus("Processing \(fileSizeText) with high-speed parallel computing...")
+        }
         
-        // Calculate hashes asynchronously
-        Task.detached {
-            var results: [String: String] = [:]
-            
-            for result in allResults {
-                results[result.algorithm] = result.hash
-            }
-            
-            await MainActor.run {
-                self.hashResults = results
-                self.dataSourceManager.reloadHashResults()
+        // 在后台线程进行哈希计算，实时更新结果
+        Task {
+            do {
+                var lastUpdateTime = Date()
+                let fileSizeMB = Double(inputData.count) / (1024 * 1024)
                 
-                // Restore button state
-                var config = self.calculateButton.configuration ?? UIButton.Configuration.filled()
-                config.showsActivityIndicator = false
-                config.title = "Calculate All Hashes"
-                self.calculateButton.configuration = config
-                self.calculateButton.isEnabled = true
+                // 根据文件大小动态调整更新频率
+                let updateInterval: TimeInterval = {
+                    if fileSizeMB <= 10 { return 0.05 } // 小文件: 50ms更新
+                    else if fileSizeMB <= 50 { return 0.1 } // 中等文件: 100ms更新  
+                    else { return 0.2 } // 大文件: 200ms更新
+                }()
                 
-                // Success feedback
-                let feedbackGenerator = UINotificationFeedbackGenerator()
-                feedbackGenerator.notificationOccurred(.success)
+                // 使用 AsyncThrowingStream 获取进度更新和结果
+                for try await (progressUpdate, currentResults) in HashCalculator.calculateHashesWithProgress(for: inputData) {
+                    let now = Date()
+                    let shouldUpdateUI = now.timeIntervalSince(lastUpdateTime) >= updateInterval || progressUpdate.currentAlgorithm == "Complete"
+                    
+                    if shouldUpdateUI {
+                        await MainActor.run {
+                            // 检查计算状态是否仍然有效
+                            guard self.isCalculating else { return }
+                            
+                            // 更新进度
+                            self.updateCalculateButtonProgress(progressUpdate.progress)
+                            
+                            // 实时更新已完成的哈希结果
+                            var updatedResults: [String: String] = [:]
+                            for result in currentResults {
+                                updatedResults[result.algorithm] = result.hash
+                            }
+                            
+                            // 动态批量更新UI
+                            if updatedResults.count > self.hashResults.count {
+                                self.hashResults = updatedResults
+                                
+                                // 根据文件大小调整UI更新策略
+                                let shouldReloadUI: Bool = {
+                                    if fileSizeMB <= 10 { 
+                                        return updatedResults.count % 3 == 0 || progressUpdate.currentAlgorithm == "Complete"
+                                    } else if fileSizeMB <= 50 {
+                                        return updatedResults.count % 5 == 0 || progressUpdate.currentAlgorithm == "Complete"
+                                    } else {
+                                        return updatedResults.count % 7 == 0 || progressUpdate.currentAlgorithm == "Complete"
+                                    }
+                                }()
+                                
+                                if shouldReloadUI {
+                                    self.dataSourceManager.reloadHashResults()
+                                }
+                            }
+                        }
+                        lastUpdateTime = now
+                    }
+                    
+                    // 当进度完成时，退出循环
+                    if progressUpdate.currentAlgorithm == "Complete" {
+                        break
+                    }
+                }
                 
-                if let fileName = self.currentFileName {
-                    Toast.showStatus("Hashes calculated for \(fileName)")
-                } else {
-                    Toast.showStatus("Hashes calculated successfully")
+                // 回到主线程完成最终处理
+                await MainActor.run {
+                    guard self.isCalculating else { return }
+                    
+                    self.isCalculating = false
+                    self.hideStopButton()
+                    
+                    // 确保最终UI更新
+                    self.dataSourceManager.reloadHashResults()
+                    
+                    // Success feedback
+                    let feedbackGenerator = UINotificationFeedbackGenerator()
+                    feedbackGenerator.notificationOccurred(.success)
+                    
+                    let resultCount = self.hashResults.count
+                    if let fileInfo = self.currentFileInfo {
+                        Toast.showSuccess("Computed \(resultCount) hashes for \(fileInfo.fileName)")
+                    } else {
+                        Toast.showSuccess("Computed \(resultCount) hashes successfully")
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    if error is CancellationError {
+                        self.handleCalculationCancellation()
+                    } else {
+                        self.handleCalculationError(error)
+                    }
                 }
             }
         }
@@ -263,7 +385,7 @@ class HashViewController: UIViewController {
         inputTextView.text = ""
         hashResults.removeAll()
         currentInputType = .text
-        currentFileName = nil
+        currentFileInfo = nil
         updateInputPlaceholder()
         dataSourceManager.reloadHashResults()
         
@@ -282,12 +404,28 @@ class HashViewController: UIViewController {
         }
         
         currentInputType = .text
-        currentFileName = nil
+        currentFileInfo = nil
         inputTextView.text = text
         updateInputPlaceholder()
         Toast.showStatus("Text pasted")
         
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+        feedbackGenerator.impactOccurred()
+    }
+    
+    @objc private func stopCalculation() {
+        guard isCalculating else { return }
+        
+        // 取消计算
+        HashCalculator.cancelCalculation()
+        
+        // 立即更新UI状态
+        isCalculating = false
+        hideStopButton()
+        
+        Toast.showStatus("Calculation stopped")
+        
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
         feedbackGenerator.impactOccurred()
     }
     
@@ -306,24 +444,62 @@ class HashViewController: UIViewController {
         }
     }
     
+    // MARK: - Stop Button Management
+    
+    private func showStopButton() {
+        guard isCalculating else { return }
+        
+        stopButton.isHidden = false
+        dataSourceManager.reloadCalculateButtonSection()
+        
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+        feedbackGenerator.impactOccurred()
+    }
+    
+    private func hideStopButton() {
+        showStopButtonTimer?.invalidate()
+        showStopButtonTimer = nil
+        
+        stopButton.isHidden = true
+        dataSourceManager.reloadCalculateButtonSection()
+    }
+    
     // MARK: - File Processing
     
-    private func processFileData(_ data: Data, fileName: String) {
+    private func processFileInfo(_ fileInfo: FileInfo) {
         currentInputType = .file
-        currentFileName = fileName
-        
-        // Convert to Base64 for display in text view
-        let base64String = data.base64EncodedString()
-        let displayText = "File: \(fileName) (\(data.count) bytes)\n\nBase64 representation:\n\(base64String)"
-        
-        inputTextView.text = displayText
-        updateInputPlaceholder()
-        
-        Toast.showStatus("File loaded: \(fileName)")
+        currentFileInfo = fileInfo
         
         // Clear previous results
         hashResults.removeAll()
+        
+        // Reload the input area to show file info
         dataSourceManager.reloadHashResults()
+        
+        Toast.showStatus("File loaded: \(fileInfo.fileName)")
+        
+        // Auto-calculate hashes for files
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            self?.calculateHashes()
+        }
+    }
+    
+    private func clearFileSelection() {
+        currentInputType = .text
+        currentFileInfo = nil
+        hashResults.removeAll()
+        
+        // Clear text and reset placeholder
+        inputTextView.text = ""
+        updateInputPlaceholder()
+        
+        // Reload data to refresh input area
+        dataSourceManager.reloadHashResults()
+        
+        Toast.showStatus("File selection cleared")
+        
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
+        feedbackGenerator.impactOccurred()
     }
     
     private func getCurrentInputData() -> Data? {
@@ -336,17 +512,7 @@ class HashViewController: UIViewController {
             return text.data(using: .utf8)
             
         case .file:
-            // Extract the original file data from the display text
-            guard let text = inputTextView.text,
-                  text.hasPrefix("File:"),
-                  let base64StartRange = text.range(of: "Base64 representation:\n") else {
-                return nil
-            }
-            
-            let base64String = String(text[base64StartRange.upperBound...])
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            
-            return Data(base64Encoded: base64String)
+            return currentFileInfo?.data
         }
     }
     
@@ -355,9 +521,43 @@ class HashViewController: UIViewController {
         case .text:
             inputTextView.setPlaceholder("Enter text here, then tap 'Calculate All Hashes' button to generate hash values...", style: .inputPlaceholder)
         case .file:
-            // Don't show placeholder when displaying file content
+            // File display will be handled by InputAreaCell
             inputTextView.setPlaceholder("", style: .inputPlaceholder)
         }
+    }
+    
+    // MARK: - Button State Management
+    
+    private func updateCalculateButtonState() {
+        var config = calculateButton.configuration ?? UIButton.Configuration.filled()
+        
+        if isCalculating {
+            config.showsActivityIndicator = true
+            config.title = "Calculating..."
+            calculateButton.alpha = 0.7
+            calculateButton.isEnabled = false
+        } else {
+            config.showsActivityIndicator = false
+            config.title = "Calculate All Hashes"
+            calculateButton.alpha = 1.0
+            calculateButton.isEnabled = true
+            hideStopButton()
+        }
+        
+        calculateButton.configuration = config
+        
+        // 重新加载按钮所在的 cell
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSourceManager.reloadCalculateButtonSection()
+        }
+    }
+    
+    private func updateCalculateButtonProgress(_ progress: Double) {
+        guard isCalculating else { return }
+        
+        var config = calculateButton.configuration ?? UIButton.Configuration.filled()
+        config.title = "Calculating... \(Int(progress * 100))%"
+        calculateButton.configuration = config
     }
     
     // MARK: - Keyboard Handling
@@ -447,10 +647,21 @@ extension HashViewController: UICollectionViewDelegate {
 extension HashViewController: HashCollectionDataSourceDelegate {
     
     func configureInputAreaCell(_ cell: InputAreaCell) {
-        cell.configure(textView: inputTextView)
-        cell.onFullScreenTap = { [weak self] in
-            self?.showInputFullScreen()
+        if let fileInfo = currentFileInfo, currentInputType == .file {
+            cell.configureWithFile(fileInfo)
+        } else {
+            cell.configure(textView: inputTextView)
         }
+        
+        // Only set full screen callback for text mode
+        if currentInputType == .text {
+            cell.onFullScreenTap = { [weak self] in
+                self?.showInputFullScreen()
+            }
+        } else {
+            cell.onFullScreenTap = nil
+        }
+        
         cell.onTextChanged = { [weak self] in
             if self?.currentInputType == .text {
                 self?.inputTextDidChange()
@@ -462,12 +673,18 @@ extension HashViewController: HashCollectionDataSourceDelegate {
         cell.onImageTap = { [weak self] in
             self?.fileHashManager.presentImagePicker()
         }
+        cell.onClearFile = { [weak self] in
+            self?.clearFileSelection()
+        }
     }
     
     func configureCalculateButtonCell(_ cell: CalculateButtonCell) {
-        cell.configure(button: calculateButton)
+        cell.configure(button: calculateButton, stopButton: stopButton)
         cell.onButtonTap = { [weak self] in
             self?.calculateHashes()
+        }
+        cell.onStopButtonTap = { [weak self] in
+            self?.stopCalculation()
         }
     }
     
@@ -514,7 +731,7 @@ extension HashViewController: HashCollectionDataSourceDelegate {
             return
         }
         
-        let title = currentFileName != nil ? "\(algorithm.name) Hash for \(currentFileName!)" : "\(algorithm.name) Hash Result"
+        let title = currentFileInfo != nil ? "\(algorithm.name) Hash for \(currentFileInfo!.fileName)" : "\(algorithm.name) Hash Result"
         
         let fullScreenVC = FullScreenTextViewController(
             text: hashValue,
@@ -536,23 +753,29 @@ extension HashViewController: HashCollectionDataSourceDelegate {
     }
     
     private func showInputFullScreen() {
-        let title = currentInputType == .file ? "File Content" : "Input Text"
-        let placeholder = currentInputType == .file ? "" : "Enter text here, then tap 'Calculate All Hashes' button to generate hash values..."
-        
-        let fullScreenVC = FullScreenTextViewController(
-            text: inputTextView.text ?? "",
-            title: title,
-            placeholder: placeholder,
-            isReadOnly: currentInputType == .file
-        )
-        
-        if currentInputType == .text {
-            fullScreenVC.onTextChanged = { [weak self] text in
-                self?.inputTextView.text = text
-                self?.inputTextDidChange()
-            }
+        // Only allow full screen for text mode
+        guard currentInputType == .text else {
+            return
         }
         
+        let title = "Input Text"
+        let placeholder = "Enter text here, then tap 'Calculate All Hashes' button to generate hash values..."
+        let displayText = inputTextView.text ?? ""
+        
+        let fullScreenVC = FullScreenTextViewController(
+            text: displayText,
+            title: title,
+            placeholder: placeholder,
+            isReadOnly: false
+        )
+        
+        // 设置文本变更回调
+        fullScreenVC.onTextChanged = { [weak self] newText in
+            self?.inputTextView.text = newText
+            self?.inputTextDidChange()
+        }
+        
+        // 设置分享和复制回调
         fullScreenVC.onShare = { [weak self] text in
             self?.shareText(text, from: "Input Text")
         }
@@ -561,9 +784,16 @@ extension HashViewController: HashCollectionDataSourceDelegate {
             self?.copyText(text, from: "Input Text")
         }
         
-        let navController = UINavigationController(rootViewController: fullScreenVC)
-        navController.modalPresentationStyle = .fullScreen
-        present(navController, animated: true)
+        fullScreenVC.modalPresentationStyle = .pageSheet
+        if let sheet = fullScreenVC.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(fullScreenVC, animated: true)
+        
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
     }
     
     private func shareText(_ text: String, from source: String) {
@@ -597,5 +827,53 @@ extension HashViewController: HashCollectionDataSourceDelegate {
         
         let impact = UIImpactFeedbackGenerator(style: .light)
         impact.impactOccurred()
+    }
+}
+
+// MARK: - Error Handling for Async Operations
+
+extension HashViewController {
+    private func handleCalculationError(_ error: Error) {
+        isCalculating = false
+        hideStopButton()
+        
+        // 清理可能的内存占用
+        hashResults.removeAll()
+        
+        // 检查是否是内存相关错误
+        let errorMessage: String
+        if let nsError = error as NSError? {
+            switch nsError.code {
+            case -999: // 取消错误
+                errorMessage = "Hash calculation was cancelled."
+            default:
+                errorMessage = "Hash calculation failed: \(error.localizedDescription)"
+            }
+        } else {
+            errorMessage = "Hash calculation failed: \(error.localizedDescription)"
+        }
+        
+        Toast.showError(errorMessage)
+        
+        let feedbackGenerator = UINotificationFeedbackGenerator()
+        feedbackGenerator.notificationOccurred(.error)
+        
+        // 刷新UI状态
+        dataSourceManager.reloadHashResults()
+        updateCalculateButtonState()
+    }
+    
+    private func handleCalculationCancellation() {
+        isCalculating = false
+        hideStopButton()
+        
+        Toast.showStatus("Calculation stopped by user")
+        
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+        feedbackGenerator.impactOccurred()
+        
+        // 刷新UI状态
+        dataSourceManager.reloadHashResults()
+        updateCalculateButtonState()
     }
 }

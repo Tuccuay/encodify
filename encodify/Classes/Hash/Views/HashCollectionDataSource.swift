@@ -164,12 +164,63 @@ class HashCollectionDataSource {
             self?.isUpdatingDataSource = false
         }
     }
-    
-    func reloadHashResults() {
-        guard !isUpdatingDataSource else { return }
+     func reloadHashResults() {
+        guard !isUpdatingDataSource else { 
+            // 如果正在更新，延迟执行
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.reloadHashResults()
+            }
+            return 
+        }
         guard Thread.isMainThread else {
             Task { @MainActor in
                 self.reloadHashResults()
+            }
+            return
+        }
+
+        isUpdatingDataSource = true
+        
+        // 添加安全检查，避免在视图控制器销毁时更新
+        guard let collectionView = collectionView, 
+              collectionView.window != nil,
+              !collectionView.isHidden else {
+            isUpdatingDataSource = false
+            return
+        }
+
+        var snapshot = dataSource.snapshot()
+        
+        // Reload input area to handle text/file mode changes
+        if snapshot.sectionIdentifiers.contains(.inputArea) {
+            let inputItems = snapshot.itemIdentifiers(inSection: .inputArea)
+            snapshot.reloadItems(inputItems)
+        }
+        
+        // Reload hash results
+        if snapshot.sectionIdentifiers.contains(.hashResults) {
+            let hashItems = snapshot.itemIdentifiers(inSection: .hashResults)
+            snapshot.reloadItems(hashItems)
+        }
+        
+        // 使用低优先级更新，避免阻塞主线程
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let collectionView = self.collectionView else {
+                self?.isUpdatingDataSource = false
+                return
+            }
+            
+            self.dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in
+                self?.isUpdatingDataSource = false
+            }
+        }
+    }
+    
+    func reloadCalculateButtonSection() {
+        guard !isUpdatingDataSource else { return }
+        guard Thread.isMainThread else {
+            Task { @MainActor in
+                self.reloadCalculateButtonSection()
             }
             return
         }
@@ -178,9 +229,10 @@ class HashCollectionDataSource {
         
         var snapshot = dataSource.snapshot()
         
-        if snapshot.sectionIdentifiers.contains(.hashResults) {
-            let hashItems = snapshot.itemIdentifiers(inSection: .hashResults)
-            snapshot.reloadItems(hashItems)
+        // Reload calculate button section
+        if snapshot.sectionIdentifiers.contains(.calculateButton) {
+            let buttonItems = snapshot.itemIdentifiers(inSection: .calculateButton)
+            snapshot.reloadItems(buttonItems)
         }
         
         dataSource.apply(snapshot, animatingDifferences: false) { [weak self] in

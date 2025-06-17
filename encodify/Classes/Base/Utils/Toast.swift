@@ -18,7 +18,7 @@ class Toast {
     static func showStatus(_ message: String) {
         let banner = StatusBarNotificationBanner(
             title: message, 
-            style: .success,
+            style: .info,
             colors: customColors
         )
         banner.duration = 1.5
@@ -31,6 +31,31 @@ class Toast {
         // Add subtle vibration pattern
         let impact = UIImpactFeedbackGenerator(style: .soft)
         impact.impactOccurred()
+    }
+    
+    @MainActor
+    static func showSuccess(_ message: String) {
+        let banner = StatusBarNotificationBanner(
+            title: message, 
+            style: .success,
+            colors: customColors
+        )
+        banner.duration = 1.8
+        banner.show()
+        
+        // Enhanced success feedback
+        let feedback = UINotificationFeedbackGenerator()
+        feedback.notificationOccurred(.success)
+        
+        // Add celebratory vibration pattern
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let impact = UIImpactFeedbackGenerator(style: .soft)
+            impact.impactOccurred()
+        }
     }
     
     @MainActor

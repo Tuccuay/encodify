@@ -24,7 +24,7 @@ class FileHashManager: NSObject {
     // MARK: - Properties
     
     weak var presentingViewController: UIViewController?
-    var onFileSelected: ((Data, String) -> Void)?
+    var onFileSelected: ((FileInfo) -> Void)?
     
     // MARK: - Public Methods
     
@@ -111,7 +111,36 @@ extension FileHashManager: UIDocumentPickerDelegate {
         do {
             let data = try Data(contentsOf: url)
             let fileName = url.lastPathComponent
-            onFileSelected?(data, fileName)
+            
+            // Get file attributes
+            let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+            let fileSize = attributes[.size] as? Int64 ?? Int64(data.count)
+            let modificationDate = attributes[.modificationDate] as? Date
+            
+            // Determine file type
+            let fileType: FileInfo.FileType
+            if url.pathExtension.lowercased() == "jpg" || 
+               url.pathExtension.lowercased() == "jpeg" ||
+               url.pathExtension.lowercased() == "png" ||
+               url.pathExtension.lowercased() == "gif" ||
+               url.pathExtension.lowercased() == "bmp" ||
+               url.pathExtension.lowercased() == "tiff" {
+                fileType = .image
+            } else if !url.pathExtension.isEmpty {
+                fileType = .document
+            } else {
+                fileType = .unknown
+            }
+            
+            let fileInfo = FileInfo(
+                data: data,
+                fileName: fileName,
+                fileSize: fileSize,
+                modificationDate: modificationDate,
+                fileType: fileType
+            )
+            
+            onFileSelected?(fileInfo)
         } catch {
             Toast.showError("Failed to read file: \(error.localizedDescription)")
         }
@@ -139,7 +168,15 @@ extension FileHashManager: UIImagePickerControllerDelegate, UINavigationControll
             }
             
             let fileName = "selected_image.jpg"
-            self?.onFileSelected?(imageData, fileName)
+            let fileInfo = FileInfo(
+                data: imageData,
+                fileName: fileName,
+                fileSize: Int64(imageData.count),
+                modificationDate: Date(),
+                fileType: .image
+            )
+            
+            self?.onFileSelected?(fileInfo)
         }
     }
     
