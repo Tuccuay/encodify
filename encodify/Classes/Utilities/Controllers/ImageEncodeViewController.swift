@@ -15,7 +15,6 @@ class ImageEncodeViewController: UIViewController {
         let textView = UITextView()
         let baseFont = UIFont.preferredFont(forTextStyle: .body)
         textView.font = UIFont.monospacedSystemFont(ofSize: baseFont.pointSize, weight: .regular)
-        textView.adjustsFontForContentSizeCategory = true
         textView.isEditable = false
         textView.backgroundColor = UIColor.encodifyCardBackground
         textView.textColor = UIColor.encodifyPrimaryText

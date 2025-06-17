@@ -101,7 +101,6 @@ struct TextStyler {
         label.textColor = style.color
         label.numberOfLines = numberOfLines
         label.textAlignment = textAlignment
-        label.adjustsFontForContentSizeCategory = true
         
         // 配置行间距和段落样式
         configureLineSpacing(label, style: style)
@@ -123,7 +122,6 @@ struct TextStyler {
         // 配置主要文本
         textField.font = UIFont.preferredFont(forTextStyle: style.textStyle)
         textField.textColor = style.color
-        textField.adjustsFontForContentSizeCategory = true
         
         // 配置占位符（如果有）
         if let placeholder = textField.placeholder {
@@ -145,7 +143,6 @@ struct TextStyler {
     static func configure(_ textView: UITextView, style: Style = .body) {
         textView.font = UIFont.preferredFont(forTextStyle: style.textStyle)
         textView.textColor = style.color
-        textView.adjustsFontForContentSizeCategory = true
         
         // 配置行间距
         configureLineSpacing(textView, style: style)
@@ -159,7 +156,6 @@ struct TextStyler {
     static func configure(_ button: UIButton, style: Style = .buttonText, for state: UIControl.State = .normal) {
         let font = UIFont.preferredFont(forTextStyle: style.textStyle)
         button.titleLabel?.font = font
-        button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.setTitleColor(style.color, for: state)
     }
     

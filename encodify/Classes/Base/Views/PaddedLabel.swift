@@ -205,7 +205,6 @@ extension PaddedLabel {
         let label = PaddedLabel(textInsets: padding)
         label.text = text
         label.applyStyle(style)
-        label.adjustsFontForContentSizeCategory = true
         return label
     }
     
@@ -226,7 +225,6 @@ extension PaddedLabel {
         label.textColor = UIColor.encodifySecondaryText
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.adjustsFontForContentSizeCategory = true
         
         return label
     }

@@ -42,7 +42,6 @@ class MethodCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.preferredFont(forTextStyle: .callout)
         label.textAlignment = .center
-        label.adjustsFontForContentSizeCategory = true
         return label
     }()
     

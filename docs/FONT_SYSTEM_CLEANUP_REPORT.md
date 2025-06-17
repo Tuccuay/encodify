@@ -34,7 +34,6 @@ var textStyle: UIFont.TextStyle {
 }
 
 button.titleLabel?.font = UIFont.preferredFont(forTextStyle: size.textStyle)
-button.titleLabel?.adjustsFontForContentSizeCategory = true
 ```
 
 ### 2. TextStyler 简化
@@ -56,7 +55,6 @@ cell.textLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
 
 // 变更后  
 cell.textLabel?.font = UIFont.preferredFont(forTextStyle: .body)
-cell.textLabel?.adjustsFontForContentSizeCategory = true
 ```
 
 #### HashViewController
@@ -144,7 +142,6 @@ view.applyThemeAwareShadow(radius: 4, opacity: 0.08, offset: CGSize(width: 0, he
 ```swift
 let baseFont = UIFont.preferredFont(forTextStyle: .body)
 textView.font = UIFont.monospacedSystemFont(ofSize: baseFont.pointSize, weight: .regular)
-textView.adjustsFontForContentSizeCategory = true
 ```
 
 ### 2. 系统组件样式

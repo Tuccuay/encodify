@@ -32,7 +32,6 @@ class UITextViewPlaceholderDemoViewController: UIViewController {
         label.textColor = UIColor.encodifyPrimaryText
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.adjustsFontForContentSizeCategory = true
         return label
     }()
     
@@ -43,7 +42,6 @@ class UITextViewPlaceholderDemoViewController: UIViewController {
         label.textColor = UIColor.encodifySecondaryText
         label.textAlignment = .left
         label.numberOfLines = 0
-        label.adjustsFontForContentSizeCategory = true
         return label
     }()
     
@@ -161,7 +159,6 @@ class UITextViewPlaceholderDemoViewController: UIViewController {
         titleLabel.text = title
         titleLabel.font = UIFont.preferredFont(forTextStyle: .headline)
         titleLabel.textColor = UIColor.encodifyTintColor
-        titleLabel.adjustsFontForContentSizeCategory = true
         
         sectionView.addSubview(titleLabel)
         sectionView.addSubview(textView)

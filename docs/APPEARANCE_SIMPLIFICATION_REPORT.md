@@ -129,7 +129,6 @@ class MyView: ThemeAwareView {
 ```swift
 // 用户调整系统字体大小时，文本会自动缩放
 label.setText("标题", style: .headline)
-label.adjustsFontForContentSizeCategory = true
 ```
 
 ### 3. 无障碍功能支持

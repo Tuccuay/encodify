@@ -22,7 +22,6 @@ class ImageDecodeViewController: UIViewController {
         let textView = UITextView()
         textView.delegate = self
         textView.font = UIFont.preferredFont(forTextStyle: .body)
-        textView.adjustsFontForContentSizeCategory = true
         textView.backgroundColor = UIColor.secondarySystemGroupedBackground
         textView.textColor = UIColor.label
         textView.layer.cornerRadius = 12

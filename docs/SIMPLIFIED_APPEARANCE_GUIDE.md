@@ -169,7 +169,6 @@ titleLabel.setText("标题", style: .headline)
 let customFont = UIFont.systemFont(ofSize: 17, weight: .medium)
 let scaledFont = UIFontMetrics.default.scaledFont(for: customFont)
 label.font = scaledFont
-label.adjustsFontForContentSizeCategory = true
 ```
 
 ## 注意事项

@@ -38,7 +38,6 @@ button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
 
 // 新架构：动态系统字体
 button.titleLabel?.font = UIFont.preferredFont(forTextStyle: .body)
-button.titleLabel?.adjustsFontForContentSizeCategory = true
 ```
 
 ### 2. 主执行器并发安全 ✅

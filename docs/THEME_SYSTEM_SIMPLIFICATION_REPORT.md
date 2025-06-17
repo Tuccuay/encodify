@@ -118,7 +118,6 @@ class MyViewController: UIViewController {
    ```swift
    // 推荐：自动适配字体大小
    label.font = UIFont.preferredFont(forTextStyle: .body)
-   label.adjustsFontForContentSizeCategory = true
    ```
 
 ## 结论

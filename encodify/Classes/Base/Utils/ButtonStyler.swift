@@ -72,7 +72,6 @@ struct ButtonStyler {
     static func configure(_ button: UIButton, style: Style, size: Size = .medium, isEnabled: Bool = true) {
         // 基础配置
         button.titleLabel?.font = UIFont.preferredFont(forTextStyle: size.textStyle)
-        button.titleLabel?.adjustsFontForContentSizeCategory = true
         button.layer.cornerRadius = size.cornerRadius
         button.layer.masksToBounds = false
         button.contentEdgeInsets = UIEdgeInsets(
