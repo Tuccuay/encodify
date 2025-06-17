@@ -43,7 +43,7 @@ class MainTabBarController: UITabBarController {
     // MARK: - Module Creation Methods
     
     private func createEncodeModule() -> UINavigationController {
-        let encodeViewController = UnifiedEncodeViewController()
+        let encodeViewController = EncodeViewController()
         encodeViewController.title = "Encode"
         
         let navigationController = UINavigationController(rootViewController: encodeViewController)
@@ -62,7 +62,7 @@ class MainTabBarController: UITabBarController {
     }
     
     private func createHashModule() -> UINavigationController {
-        let hashViewController = ModernHashViewController()
+        let hashViewController = HashViewController()
         hashViewController.title = "Hash"
         
         let navigationController = UINavigationController(rootViewController: hashViewController)

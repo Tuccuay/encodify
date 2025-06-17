@@ -13,8 +13,8 @@
 		DF5D980E2DFC02000048A2E8 /* MainTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */; };
 		DF5D98102DFC03470048A2E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */; };
 		DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */; };
-		DF5F498D2DFFF8C100D9462E /* UnifiedEncodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F498C2DFFF8C100D9462E /* UnifiedEncodeViewController.swift */; };
-		DF5F498F2DFFF8D000D9462E /* ModernHashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F498E2DFFF8D000D9462E /* ModernHashViewController.swift */; };
+		DF5F498D2DFFF8C100D9462E /* EncodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F498C2DFFF8C100D9462E /* EncodeViewController.swift */; };
+		DF5F498F2DFFF8D000D9462E /* HashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F498E2DFFF8D000D9462E /* HashViewController.swift */; };
 		DF5F49922DFFF8E200D9462E /* HashGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49902DFFF8E200D9462E /* HashGroup.swift */; };
 		DF5F49992E0137DE00D9462E /* EncodeModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F49972E0137DE00D9462E /* EncodeModels.swift */; };
 		DF5F499B2E01568C00D9462E /* FullScreenTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF5F499A2E01568C00D9462E /* FullScreenTextViewController.swift */; };
@@ -83,8 +83,8 @@
 		DF5D980D2DFC02000048A2E8 /* MainTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabBarController.swift; sourceTree = "<group>"; };
 		DF5D980F2DFC03470048A2E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		DF5F49892DFFEF7500D9462E /* PaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaddedLabel.swift; sourceTree = "<group>"; };
-		DF5F498C2DFFF8C100D9462E /* UnifiedEncodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedEncodeViewController.swift; sourceTree = "<group>"; };
-		DF5F498E2DFFF8D000D9462E /* ModernHashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernHashViewController.swift; sourceTree = "<group>"; };
+		DF5F498C2DFFF8C100D9462E /* EncodeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeViewController.swift; sourceTree = "<group>"; };
+		DF5F498E2DFFF8D000D9462E /* HashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashViewController.swift; sourceTree = "<group>"; };
 		DF5F49902DFFF8E200D9462E /* HashGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashGroup.swift; sourceTree = "<group>"; };
 		DF5F49972E0137DE00D9462E /* EncodeModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodeModels.swift; sourceTree = "<group>"; };
 		DF5F499A2E01568C00D9462E /* FullScreenTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullScreenTextViewController.swift; sourceTree = "<group>"; };
@@ -256,7 +256,7 @@
 		DFA9A2B42DFAC665005558F4 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				DF5F498C2DFFF8C100D9462E /* UnifiedEncodeViewController.swift */,
+				DF5F498C2DFFF8C100D9462E /* EncodeViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -288,7 +288,7 @@
 		DFA9A2D32DFAC665005558F4 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				DF5F498E2DFFF8D000D9462E /* ModernHashViewController.swift */,
+				DF5F498E2DFFF8D000D9462E /* HashViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -658,7 +658,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFA9A2992DFAC589005558F4 /* AppDelegate.swift in Sources */,
-				DF5F498D2DFFF8C100D9462E /* UnifiedEncodeViewController.swift in Sources */,
+				DF5F498D2DFFF8C100D9462E /* EncodeViewController.swift in Sources */,
 				DFA9A2F92DFAC665005558F4 /* Toast.swift in Sources */,
 				DFA9A2FA2DFAC665005558F4 /* ImageDecodeViewController.swift in Sources */,
 				DFA9A3042DFAC665005558F4 /* ImageEncodeViewController.swift in Sources */,
@@ -690,7 +690,7 @@
 				DFF1227E2DFE9FBC00EAAA23 /* LayoutHelper.swift in Sources */,
 				DF5F498B2DFFEF7500D9462E /* PaddedLabel.swift in Sources */,
 				DF5F49922DFFF8E200D9462E /* HashGroup.swift in Sources */,
-				DF5F498F2DFFF8D000D9462E /* ModernHashViewController.swift in Sources */,
+				DF5F498F2DFFF8D000D9462E /* HashViewController.swift in Sources */,
 				DFA9A31D2DFAC665005558F4 /* URLEncoder.swift in Sources */,
 				DFA9A31F2DFAC665005558F4 /* UIColor+Helper.swift in Sources */,
 			);

@@ -1,5 +1,5 @@
 //
-//  UnifiedEncodeViewController.swift
+//  EncodeViewController.swift
 //  encodify
 //
 //  Created by 洪朔 on 2024/12/20.
@@ -11,7 +11,7 @@ import SnapKit
 
 /// 统一的编码解码界面控制器
 /// 使用现代 iOS 设计，替代 Pager 模式
-class UnifiedEncodeViewController: UIViewController {
+class EncodeViewController: UIViewController {
     
     // MARK: - Properties
     
@@ -718,7 +718,7 @@ class UnifiedEncodeViewController: UIViewController {
 }
 // MARK: - UITextViewDelegate
 
-extension UnifiedEncodeViewController: UITextViewDelegate {
+extension EncodeViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         // Auto-process if enabled and text is not too long
         if UserDefaults.standard.bool(forKey: "autoProcess") && 
@@ -748,7 +748,7 @@ extension UnifiedEncodeViewController: UITextViewDelegate {
 
 // MARK: - UICollectionViewDataSource & UICollectionViewDelegate
 
-extension UnifiedEncodeViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension EncodeViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return methods.count

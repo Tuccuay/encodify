@@ -1,5 +1,5 @@
 //
-//  ModernHashViewController.swift
+//  HashViewController.swift
 //  encodify
 //
 //  Created by 洪朔 on 2024/12/20.
@@ -11,7 +11,7 @@ import SnapKit
 
 /// 现代化的哈希计算控制器
 /// 提供分组展示和更好的用户体验
-class ModernHashViewController: UIViewController {
+class HashViewController: UIViewController {
     
     // MARK: - Properties
     
@@ -42,7 +42,6 @@ class ModernHashViewController: UIViewController {
     private lazy var inputFullScreenButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "arrow.up.left.and.arrow.down.right"), for: .normal)
-        button.tintColor = UIColor.systemBlue
         button.addTarget(self, action: #selector(showInputFullScreen), for: .touchUpInside)
         return button
     }()
@@ -66,7 +65,7 @@ class ModernHashViewController: UIViewController {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(ModernHashCell.self, forCellReuseIdentifier: "HashCell")
+        tableView.register(HashCell.self, forCellReuseIdentifier: "HashCell")
         tableView.estimatedRowHeight = 80
         tableView.rowHeight = UITableView.automaticDimension
         tableView.backgroundColor = UIColor.systemGroupedBackground
@@ -498,7 +497,7 @@ class ModernHashViewController: UIViewController {
 
 // MARK: - UITextViewDelegate
 
-extension ModernHashViewController: UITextViewDelegate {
+extension HashViewController: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
         // 清空之前的结果
         hashResults.removeAll()
@@ -508,7 +507,7 @@ extension ModernHashViewController: UITextViewDelegate {
 
 // MARK: - UITableViewDataSource
 
-extension ModernHashViewController: UITableViewDataSource {
+extension HashViewController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return hashGroups.count
     }
@@ -518,7 +517,7 @@ extension ModernHashViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "HashCell", for: indexPath) as! ModernHashCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "HashCell", for: indexPath) as! HashCell
         let algorithm = hashGroups[indexPath.section].algorithms[indexPath.row]
         let rawHashValue = hashResults[algorithm.algorithmKey]
         let formattedHashValue = rawHashValue != nil ? formattedHash(rawHashValue!) : nil
@@ -565,7 +564,7 @@ extension ModernHashViewController: UITableViewDataSource {
 
 // MARK: - UITableViewDelegate
 
-extension ModernHashViewController: UITableViewDelegate {
+extension HashViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
@@ -615,7 +614,7 @@ extension ModernHashViewController: UITableViewDelegate {
 
 // MARK: - Modern Hash Cell
 
-class ModernHashCell: UITableViewCell {
+class HashCell: UITableViewCell {
     
     // MARK: - Properties
     
