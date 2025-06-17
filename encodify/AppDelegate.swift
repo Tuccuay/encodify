@@ -20,12 +20,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // 初始化系统主题管理器
         _ = ThemeManager.shared
         
-        // 配置应用外观
-        Task { @MainActor in
-            AppearanceManager.shared.configureAppearance()
-            AppearanceManager.shared.configureDynamicTypeSupport()
-            AppearanceManager.shared.configureAccessibilitySupport()
-        }
+        // 同步配置应用外观，确保在界面创建前完成
+        AppearanceManager.shared.configureAppearance()
+        AppearanceManager.shared.configureDynamicTypeSupport()
+        AppearanceManager.shared.configureAccessibilitySupport()
         
         return true
     }

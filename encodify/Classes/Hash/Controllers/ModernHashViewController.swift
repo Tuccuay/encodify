@@ -18,20 +18,46 @@ class ModernHashViewController: UIViewController {
     private let hashGroups = HashAlgorithm.allAlgorithms
     private var hashResults: [String: String] = [:]  // [algorithmKey: hashValue]
     
+    private lazy var inputContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.secondarySystemGroupedBackground
+        view.layer.cornerRadius = 12
+        view.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
+        return view
+    }()
+    
+    private lazy var inputHeaderView: UIView = {
+        let view = UIView()
+        return view
+    }()
+    
+    private lazy var inputHeaderLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.preferredFont(forTextStyle: .subheadline)
+        label.textColor = UIColor.label
+        label.text = "Input Text"
+        return label
+    }()
+    
+    private lazy var inputFullScreenButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "arrow.up.left.and.arrow.down.right"), for: .normal)
+        button.tintColor = UIColor.systemBlue
+        button.addTarget(self, action: #selector(showInputFullScreen), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var inputTextView: UITextView = {
         let textView = UITextView()
         textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.adjustsFontForContentSizeCategory = true
-        textView.backgroundColor = UIColor.secondarySystemGroupedBackground
+        textView.backgroundColor = .clear
         textView.textColor = UIColor.label
-        textView.layer.cornerRadius = 12
-        textView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         textView.delegate = self
-        textView.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
         
         // 设置占位符
         textView.setPlaceholder("Enter text to calculate hash values...", style: .inputPlaceholder)
-        textView.setPlaceholderPadding(16)
+        textView.setPlaceholderPadding(0)
         
         return textView
     }()
@@ -130,8 +156,16 @@ class ModernHashViewController: UIViewController {
         setContentScrollView(tableView)
         
         topContainerView.addSubview(showTypeSegmentedControl)
-        topContainerView.addSubview(inputTextView)
+        topContainerView.addSubview(inputContainerView)
         topContainerView.addSubview(calculateButton)
+        
+        // 输入容器内容
+        inputContainerView.addSubview(inputHeaderView)
+        inputContainerView.addSubview(inputTextView)
+        
+        // 输入头部
+        inputHeaderView.addSubview(inputHeaderLabel)
+        inputHeaderView.addSubview(inputFullScreenButton)
         
         // 设置顶部容器约束 - 固定在顶部
         topContainerView.snp.makeConstraints { make in
@@ -145,14 +179,35 @@ class ModernHashViewController: UIViewController {
             make.height.equalTo(36)
         }
         
-        inputTextView.snp.makeConstraints { make in
-            make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(20)
+        inputContainerView.snp.makeConstraints { make in
+            make.top.equalTo(showTypeSegmentedControl.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(120)
         }
         
+        inputHeaderView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(40)
+        }
+        
+        inputHeaderLabel.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalToSuperview().offset(16)
+        }
+        
+        inputFullScreenButton.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().inset(16)
+            make.size.equalTo(24)
+        }
+        
+        inputTextView.snp.makeConstraints { make in
+            make.top.equalTo(inputHeaderView.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview().inset(16)
+        }
+        
         calculateButton.snp.makeConstraints { make in
-            make.top.equalTo(inputTextView.snp.bottom).offset(20)
+            make.top.equalTo(inputContainerView.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(50)
             make.bottom.equalToSuperview().offset(-20)
@@ -337,6 +392,70 @@ class ModernHashViewController: UIViewController {
         tableView.reloadData()
     }
     
+    @objc private func showInputFullScreen() {
+        let fullScreenVC = FullScreenTextViewController(
+            text: inputTextView.text ?? "",
+            title: "Input Text",
+            placeholder: "Enter text to calculate hash values...",
+            isReadOnly: false
+        )
+        
+        fullScreenVC.onTextChanged = { [weak self] text in
+            self?.inputTextView.text = text
+            // 清空之前的结果
+            self?.hashResults.removeAll()
+            self?.tableView.reloadData()
+        }
+        
+        fullScreenVC.onShare = { [weak self] text in
+            self?.shareText(text, from: "Input Text")
+        }
+        
+        fullScreenVC.onCopy = { [weak self] text in
+            self?.copyText(text, from: "Input Text")
+        }
+        
+        let navController = UINavigationController(rootViewController: fullScreenVC)
+        navController.modalPresentationStyle = .fullScreen
+        present(navController, animated: true)
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func shareText(_ text: String, from source: String) {
+        guard !text.isEmpty else {
+            Toast.showError("No content to share")
+            return
+        }
+        
+        let activityViewController = UIActivityViewController(
+            activityItems: [text],
+            applicationActivities: nil
+        )
+        
+        // iPad 支持
+        if let popover = activityViewController.popoverPresentationController {
+            popover.sourceView = view
+            popover.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 0, height: 0)
+            popover.permittedArrowDirections = []
+        }
+        
+        present(activityViewController, animated: true)
+    }
+    
+    private func copyText(_ text: String, from source: String) {
+        guard !text.isEmpty else {
+            Toast.showError("No content to copy")
+            return
+        }
+        
+        UIPasteboard.general.string = text
+        Toast.showStatus("Copied to clipboard")
+        
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+    }
+    
     private func formattedHash(_ hash: String) -> String {
         switch showTypeSegmentedControl.selectedSegmentIndex {
         case 0:
@@ -406,6 +525,32 @@ extension ModernHashViewController: UITableViewDataSource {
         
         cell.configure(with: algorithm, hashValue: formattedHashValue)
         
+        // 设置长按手势查看哈希值全屏
+        cell.onLongPress = { [weak self] in
+            guard let strongSelf = self, let hashValue = formattedHashValue else {
+                Toast.showError("No hash value available. Please calculate hashes first.")
+                return
+            }
+            
+            let fullScreenVC = FullScreenTextViewController(
+                text: hashValue,
+                title: "\(algorithm.name) Hash Result",
+                isReadOnly: true
+            )
+            
+            fullScreenVC.onShare = { [weak self] text in
+                self?.shareText(text, from: "\(algorithm.name) Hash")
+            }
+            
+            fullScreenVC.onCopy = { [weak self] text in
+                self?.copyText(text, from: "\(algorithm.name) Hash")
+            }
+            
+            let navController = UINavigationController(rootViewController: fullScreenVC)
+            navController.modalPresentationStyle = .fullScreen
+            strongSelf.present(navController, animated: true)
+        }
+        
         return cell
     }
     
@@ -471,6 +616,11 @@ extension ModernHashViewController: UITableViewDelegate {
 // MARK: - Modern Hash Cell
 
 class ModernHashCell: UITableViewCell {
+    
+    // MARK: - Properties
+    
+    /// 长按回调
+    var onLongPress: (() -> Void)?
     
     private lazy var algorithmLabel: UILabel = {
         let label = UILabel()
@@ -604,6 +754,11 @@ class ModernHashCell: UITableViewCell {
         contentView.addSubview(checksumBadge)
         contentView.addSubview(blockchainBadge)
         
+        // 添加长按手势
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        longPressGesture.minimumPressDuration = 0.5
+        contentView.addGestureRecognizer(longPressGesture)
+        
         algorithmLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.equalToSuperview().offset(16)
@@ -639,6 +794,17 @@ class ModernHashCell: UITableViewCell {
             make.top.equalTo(descriptionLabel.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalToSuperview().offset(-12)
+        }
+    }
+    
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            // 添加触觉反馈
+            let impact = UIImpactFeedbackGenerator(style: .medium)
+            impact.impactOccurred()
+            
+            // 执行回调
+            onLongPress?()
         }
     }
     

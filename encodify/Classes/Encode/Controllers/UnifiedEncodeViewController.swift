@@ -102,6 +102,13 @@ class UnifiedEncodeViewController: UIViewController {
         return button
     }()
     
+    private lazy var inputFullScreenButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "arrow.up.left.and.arrow.down.right"), for: .normal)
+        button.addTarget(self, action: #selector(showInputFullScreen), for: .touchUpInside)
+        return button
+    }()
+    
     private lazy var inputTextView: UITextView = {
         let textView = UITextView()
         textView.delegate = self
@@ -144,6 +151,13 @@ class UnifiedEncodeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "doc.on.doc"), for: .normal)
         button.addTarget(self, action: #selector(copyOutput), for: .touchUpInside)
+        return button
+    }()
+    
+    private lazy var outputFullScreenButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "arrow.up.left.and.arrow.down.right"), for: .normal)
+        button.addTarget(self, action: #selector(showOutputFullScreen), for: .touchUpInside)
         return button
     }()
     
@@ -217,6 +231,7 @@ class UnifiedEncodeViewController: UIViewController {
         
         // Input header with buttons
         inputHeaderView.addSubview(inputHeaderLabel)
+        inputHeaderView.addSubview(inputFullScreenButton)
         inputHeaderView.addSubview(pasteButton)
         inputHeaderView.addSubview(inputCopyButton)
         
@@ -225,8 +240,9 @@ class UnifiedEncodeViewController: UIViewController {
         outputContainerView.addSubview(outputTextView)
         
         outputHeaderView.addSubview(outputHeaderLabel)
-        outputHeaderView.addSubview(copyButton)
+        outputHeaderView.addSubview(outputFullScreenButton)
         outputHeaderView.addSubview(swapButton)
+        outputHeaderView.addSubview(copyButton)
         
         setupConstraints()
     }
@@ -286,6 +302,12 @@ class UnifiedEncodeViewController: UIViewController {
             make.leading.centerY.equalToSuperview()
         }
         
+        inputFullScreenButton.snp.makeConstraints { make in
+            make.trailing.equalTo(pasteButton.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(30)
+        }
+        
         pasteButton.snp.makeConstraints { make in
             make.trailing.equalTo(inputCopyButton.snp.leading).offset(-8)
             make.centerY.equalToSuperview()
@@ -309,6 +331,12 @@ class UnifiedEncodeViewController: UIViewController {
         
         outputHeaderLabel.snp.makeConstraints { make in
             make.leading.centerY.equalToSuperview()
+        }
+        
+        outputFullScreenButton.snp.makeConstraints { make in
+            make.trailing.equalTo(swapButton.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(30)
         }
         
         swapButton.snp.makeConstraints { make in
@@ -562,6 +590,130 @@ class UnifiedEncodeViewController: UIViewController {
         }
         
         present(activityViewController, animated: true)
+    }
+    
+    // MARK: - Full Screen Actions
+    
+    @objc private func showInputFullScreen() {
+        let currentMethod = methods[currentMethodIndex]
+        let title = isEncodeMode ? "Input - \(currentMethod.displayName)" : "Input - \(currentMethod.displayName)"
+        let placeholder = getPlaceholderText(for: currentMethod, isEncodeMode: isEncodeMode)
+        
+        let fullScreenVC = FullScreenTextViewController(
+            text: inputTextView.text,
+            title: title,
+            placeholder: placeholder,
+            isReadOnly: false
+        )
+        
+        // 设置文本变更回调
+        fullScreenVC.onTextChanged = { [weak self] newText in
+            self?.inputTextView.text = newText
+            
+            // 如果启用了自动处理，则处理文本
+            if UserDefaults.standard.bool(forKey: "autoProcess") {
+                self?.processText()
+            }
+        }
+        
+        // 设置分享和复制回调
+        fullScreenVC.onShare = { [weak self] text in
+            self?.shareText(text, from: "input")
+        }
+        
+        fullScreenVC.onCopy = { [weak self] text in
+            self?.copyText(text, from: "input")
+        }
+        
+        fullScreenVC.modalPresentationStyle = .pageSheet
+        if let sheet = fullScreenVC.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(fullScreenVC, animated: true)
+        
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+    }
+    
+    @objc private func showOutputFullScreen() {
+        let currentMethod = methods[currentMethodIndex]
+        let title = isEncodeMode ? "Output - \(currentMethod.displayName)" : "Output - \(currentMethod.displayName)"
+        
+        let fullScreenVC = FullScreenTextViewController(
+            text: outputTextView.text,
+            title: title,
+            placeholder: "No output yet...",
+            isReadOnly: true
+        )
+        
+        // 设置分享和复制回调
+        fullScreenVC.onShare = { [weak self] text in
+            self?.shareText(text, from: "output")
+        }
+        
+        fullScreenVC.onCopy = { [weak self] text in
+            self?.copyText(text, from: "output")
+        }
+        
+        fullScreenVC.modalPresentationStyle = .pageSheet
+        if let sheet = fullScreenVC.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        present(fullScreenVC, animated: true)
+        
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+    }
+    
+    // MARK: - Helper Methods
+    
+    private func getPlaceholderText(for method: EncodeMethod, isEncodeMode: Bool) -> String {
+        switch method {
+        case .base64:
+            return isEncodeMode ? "Enter text to encode as Base64..." : "Enter Base64 text to decode..."
+        case .unicode:
+            return isEncodeMode ? "Enter text to encode as Unicode..." : "Enter Unicode text (\\u format) to decode..."
+        case .morse:
+            return isEncodeMode ? "Enter text to encode as Morse code..." : "Enter Morse code (dots and dashes) to decode..."
+        case .uri:
+            return isEncodeMode ? "Enter text to URL encode..." : "Enter URL encoded text to decode..."
+        case .hex:
+            return isEncodeMode ? "Enter text to encode as hexadecimal..." : "Enter hexadecimal text to decode..."
+        case .binary:
+            return isEncodeMode ? "Enter text to encode as binary..." : "Enter binary text to decode..."
+        case .rot13:
+            return isEncodeMode ? "Enter text to encode with ROT13..." : "Enter ROT13 text to decode..."
+        }
+    }
+    
+    private func shareText(_ text: String, from source: String) {
+        guard !text.isEmpty else {
+            Toast.showError("No content to share")
+            return
+        }
+        
+        // 记录分享来源（可用于分析）
+        // Analytics.shared.track("text_shared", properties: ["source": source])
+    }
+    
+    private func copyText(_ text: String, from source: String) {
+        guard !text.isEmpty else {
+            Toast.showError("No content to copy")
+            return
+        }
+        
+        UIPasteboard.general.string = text
+        Toast.showStatus("Copied to clipboard")
+        
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
+        
+        // 记录复制来源（可用于分析）
+        // Analytics.shared.track("text_copied", properties: ["source": source])
     }
 }
 // MARK: - UITextViewDelegate
