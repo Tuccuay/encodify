@@ -13,12 +13,7 @@ class ImageDecodeViewController: UIViewController {
     
     private lazy var cardContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.secondarySystemGroupedBackground
-        view.layer.cornerRadius = 16
-        view.layer.masksToBounds = false
-        
-        // Modern shadow with enhanced depth
-        view.applyThemeAwareShadow(radius: 10, opacity: 0.12, offset: CGSize(width: 0, height: 3))
+        view.backgroundColor = UIColor.clear
         
         return view
     }()
@@ -26,10 +21,13 @@ class ImageDecodeViewController: UIViewController {
     private lazy var textView: UITextView = {
         let textView = UITextView()
         textView.delegate = self
+        textView.font = UIFont.preferredFont(forTextStyle: .body)
         textView.adjustsFontForContentSizeCategory = true
         textView.backgroundColor = UIColor.secondarySystemGroupedBackground
-        textView.textColor = UIColor.encodifyPrimaryText
+        textView.textColor = UIColor.label
+        textView.layer.cornerRadius = 12
         textView.contentInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        textView.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
         
         // Disable horizontal scrolling
         textView.isScrollEnabled = true
@@ -193,7 +191,7 @@ class ImageDecodeViewController: UIViewController {
         
         // 在主题变化时更新阴影等主题相关组件
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            cardContainerView.applyThemeAwareShadow(radius: 10, opacity: 0.12, offset: CGSize(width: 0, height: 3))
+            textView.applyThemeAwareShadow(radius: 8, opacity: 0.1, offset: CGSize(width: 0, height: 2))
         }
     }
 }
