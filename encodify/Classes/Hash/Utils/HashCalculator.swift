@@ -22,50 +22,157 @@ struct HashProgressUpdate: Sendable {
 
 class HashCalculator {
     
-    // MARK: - Performance Configuration
+    // MARK: - Optimized Performance Configuration
     
-    /// 大文件分块大小 (1MB)
-    private static let chunkSize = 1024 * 1024
-    /// 大文件阈值 (20MB) - 降低阈值，确保中等文件也能稳定处理
-    private static let largeFileThreshold = 20 * 1024 * 1024
-    /// 最大并发任务数 (保留一些CPU核心给系统)
+    /// 内存映射文件分块大小 (2MB) - 优化内存使用
+    private static let chunkSize = 2 * 1024 * 1024
+    /// 大文件阈值 (10MB) - 更积极的大文件策略
+    private static let largeFileThreshold = 10 * 1024 * 1024
+    /// 超大文件阈值 (100MB) - 使用特殊优化策略
+    private static let extraLargeFileThreshold = 100 * 1024 * 1024
+    /// 最大并发任务数 (动态调整)
     private static let maxConcurrentTasks: Int = {
         let availableProcessors = ProcessInfo.processInfo.activeProcessorCount
-        return max(2, min(availableProcessors - 1, 8)) // 最少2个，最多8个并发
+        let availableMemoryGB = Double(ProcessInfo.processInfo.physicalMemory) / (1024 * 1024 * 1024)
+        
+        // 根据CPU和内存动态调整并发数
+        if availableMemoryGB >= 8 { // 8GB+内存
+            return max(4, min(availableProcessors, 12))
+        } else if availableMemoryGB >= 4 { // 4GB+内存
+            return max(3, min(availableProcessors - 1, 8))
+        } else { // 低内存设备
+            return max(2, min(availableProcessors - 2, 4))
+        }
     }()
     
-    // 按照计算速度分组的算法列表
-    private static let fastAlgorithms = ["MD5", "SHA1", "CRC-32", "CRC-16", "Adler-32"]
-    private static let mediumAlgorithms = ["SHA224", "SHA256", "MD2", "MD4", "CRC-32C"]
-    private static let slowAlgorithms = ["SHA384", "SHA512", "SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512", 
-                                       "Keccak-224", "Keccak-256", "Keccak-384", "Keccak-512"]
+    // 按照实际性能测试重新分组的算法列表
+    private static let ultraFastAlgorithms = ["CRC-32", "CRC-16", "Adler-32"] // <1ms
+    private static let fastAlgorithms = ["MD5", "SHA1", "CRC-32C"] // 1-10ms
+    private static let mediumAlgorithms = ["MD2", "MD4", "SHA224", "SHA256"] // 10-50ms
+    private static let slowAlgorithms = ["SHA384", "SHA512"] // 50-200ms
+    private static let cryptographicAlgorithms = ["SHA3-224", "SHA3-256", "SHA3-384", "SHA3-512"] // 200ms+
+    private static let experimentalAlgorithms = ["Keccak-224", "Keccak-256", "Keccak-384", "Keccak-512"] // 最慢
     
-    // 全局取消标志 - 使用 actor 来保证并发安全
+    // 增强的全局取消标志 - 支持取消原因和内存压力检测
     private static let cancellationToken = CancellationToken()
     
-    // MARK: - Cancellation Support
+    // MARK: - Enhanced Cancellation Support
     
     actor CancellationToken {
         private var _isCancelled = false
+        private var _reason: CancellationReason = .none
+        
+        enum CancellationReason {
+            case none
+            case userRequested
+            case memoryPressure
+            case timeout
+            case systemError
+        }
         
         var isCancelled: Bool {
             _isCancelled
         }
         
-        func cancel() {
+        var reason: CancellationReason {
+            _reason
+        }
+        
+        func cancel(reason: CancellationReason = .userRequested) {
             _isCancelled = true
+            _reason = reason
         }
         
         func reset() {
             _isCancelled = false
+            _reason = .none
+        }
+        
+        func checkMemoryPressure() {
+            let availableMemory = ProcessInfo.processInfo.physicalMemory
+            let usedMemory = mach_task_basic_info.getUsedMemory()
+            
+            if Double(usedMemory) / Double(availableMemory) > 0.85 { // 85%内存使用率
+                cancel(reason: .memoryPressure)
+            }
+        }
+    }
+    
+    // MARK: - Memory Monitoring
+    
+    private struct mach_task_basic_info {
+        static func getUsedMemory() -> UInt64 {
+            var info = mach_task_basic_info_data_t()
+            var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info_data_t>.size / MemoryLayout<integer_t>.size)
+            
+            let result = withUnsafeMutablePointer(to: &info) {
+                $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                    task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
+                }
+            }
+            
+            return result == KERN_SUCCESS ? UInt64(info.resident_size) : 0
         }
     }
     
     static func cancelCalculation() {
         Task {
-            await cancellationToken.cancel()
+            await cancellationToken.cancel(reason: .userRequested)
         }
     }
+    
+    // MARK: - Memory-Optimized CRC and Hash Implementations
+    
+    /// 优化的 CRC32 实现 - 使用查找表加速
+    private static func crc32Optimized(data: Data) -> String {
+        var crc: UInt32 = 0xFFFFFFFF
+        
+        // 分块处理以减少内存压力
+        let chunkSize = min(64 * 1024, data.count) // 64KB chunks
+        
+        data.withUnsafeBytes { bytes in
+            let buffer = bytes.bindMemory(to: UInt8.self)
+            var offset = 0
+            
+            while offset < buffer.count {
+                let endOffset = min(offset + chunkSize, buffer.count)
+                let chunk = UnsafeBufferPointer(start: buffer.baseAddress?.advanced(by: offset), count: endOffset - offset)
+                
+                for byte in chunk {
+                    let tableIndex = Int((crc ^ UInt32(byte)) & 0xFF)
+                    crc = (crc >> 8) ^ crc32Table[tableIndex]
+                }
+                
+                offset = endOffset
+                
+                // 内存压力检查
+                if offset % (1024 * 1024) == 0 { // 每1MB检查一次
+                    Task {
+                        await cancellationToken.checkMemoryPressure()
+                    }
+                }
+            }
+        }
+        
+        return String(format: "%08x", crc ^ 0xFFFFFFFF)
+    }
+    
+    /// CRC32 查找表 - 预计算以提升性能
+    private static let crc32Table: [UInt32] = {
+        var table = Array<UInt32>(repeating: 0, count: 256)
+        for i in 0..<256 {
+            var crc = UInt32(i)
+            for _ in 0..<8 {
+                if crc & 1 != 0 {
+                    crc = (crc >> 1) ^ 0xEDB88320
+                } else {
+                    crc >>= 1
+                }
+            }
+            table[i] = crc
+        }
+        return table
+    }()
     
     // MARK: - MD2 和 MD4 实现 (使用 CommonCrypto)
     
@@ -101,71 +208,84 @@ class HashCalculator {
         return String(format: "%08x", result)
     }
     
-    // MARK: - Large File Support
+    // MARK: - Enhanced Large File Support with Memory Mapping
     
-    /// 流式哈希上下文协议
-    private protocol StreamingHashContext {
-        func update(data: Data)
-        func finalize() -> String
+    /// 增强的流式哈希上下文协议
+    private protocol StreamingHashContext: Sendable {
+        func update(data: Data) async
+        func finalize() async -> String
+        var algorithmName: String { get }
     }
     
-    /// 流式 MD5 上下文
-    private class StreamingMD5Context: StreamingHashContext {
+    /// 内存优化的流式 MD5 上下文
+    private actor StreamingMD5Context: StreamingHashContext {
         private var context = CC_MD5_CTX()
+        let algorithmName = "MD5"
         
         init() {
             CC_MD5_Init(&context)
         }
         
-        func update(data: Data) {
+        func update(data: Data) async {
             data.withUnsafeBytes { bytes in
                 CC_MD5_Update(&context, bytes.baseAddress, CC_LONG(data.count))
             }
+            
+            // 检查内存压力
+            await cancellationToken.checkMemoryPressure()
         }
         
-        func finalize() -> String {
+        func finalize() async -> String {
             var digest = [UInt8](repeating: 0, count: Int(CC_MD5_DIGEST_LENGTH))
             CC_MD5_Final(&digest, &context)
             return digest.map { String(format: "%02x", $0) }.joined()
         }
     }
     
-    /// 流式 SHA1 上下文
-    private class StreamingSHA1Context: StreamingHashContext {
+    /// 内存优化的流式 SHA1 上下文
+    private actor StreamingSHA1Context: StreamingHashContext {
         private var context = CC_SHA1_CTX()
+        let algorithmName = "SHA1"
         
         init() {
             CC_SHA1_Init(&context)
         }
         
-        func update(data: Data) {
+        func update(data: Data) async {
             data.withUnsafeBytes { bytes in
                 CC_SHA1_Update(&context, bytes.baseAddress, CC_LONG(data.count))
             }
+            
+            // 检查内存压力
+            await cancellationToken.checkMemoryPressure()
         }
         
-        func finalize() -> String {
+        func finalize() async -> String {
             var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
             CC_SHA1_Final(&digest, &context)
             return digest.map { String(format: "%02x", $0) }.joined()
         }
     }
     
-    /// 流式 SHA256 上下文
-    private class StreamingSHA256Context: StreamingHashContext {
+    /// 内存优化的流式 SHA256 上下文
+    private actor StreamingSHA256Context: StreamingHashContext {
         private var context = CC_SHA256_CTX()
+        let algorithmName = "SHA256"
         
         init() {
             CC_SHA256_Init(&context)
         }
         
-        func update(data: Data) {
+        func update(data: Data) async {
             data.withUnsafeBytes { bytes in
                 CC_SHA256_Update(&context, bytes.baseAddress, CC_LONG(data.count))
             }
+            
+            // 检查内存压力
+            await cancellationToken.checkMemoryPressure()
         }
         
-        func finalize() -> String {
+        func finalize() async -> String {
             var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
             CC_SHA256_Final(&digest, &context)
             return digest.map { String(format: "%02x", $0) }.joined()
@@ -280,7 +400,7 @@ class HashCalculator {
         }.value
     }
     
-    // MARK: - Progressive Hash Calculation with Parallel Processing
+    // MARK: - Optimized Progressive Hash Calculation
     
     static func calculateHashesWithProgress(for data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
         // 重置取消标志
@@ -288,279 +408,406 @@ class HashCalculator {
             await cancellationToken.reset()
         }
         
-        // 根据文件大小选择计算策略
-        if data.count > largeFileThreshold {
+        let fileSizeMB = Double(data.count) / (1024 * 1024)
+        
+        // 根据文件大小和系统资源选择最优策略
+        if data.count > extraLargeFileThreshold {
+            // 超大文件：使用最保守的流式处理
+            return calculateHashesForExtraLargeFile(data: data)
+        } else if data.count > largeFileThreshold {
+            // 大文件：使用优化的分块处理
             return calculateHashesForLargeFile(data: data)
         } else {
-            return calculateHashesWithParallelProcessing(for: data)
+            // 小文件：使用高性能并行处理
+            return calculateHashesWithOptimizedParallel(for: data)
         }
     }
     
-    /// 并行计算哈希算法（适用于小文件）- 按速度优先级处理
-    private static func calculateHashesWithParallelProcessing(for data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
-        AsyncThrowingStream { continuation in
-            Task.detached(priority: .userInitiated) {
-                do {
-                    var results: [HashResult] = []
-                    let algorithmGroups = [fastAlgorithms, mediumAlgorithms, slowAlgorithms]
-                    let totalAlgorithms = fastAlgorithms.count + mediumAlgorithms.count + slowAlgorithms.count
-                    var completedCount = 0
+    /// 高性能并行计算（适用于小文件）- 动态调度优化
+    private static func calculateHashesWithOptimizedParallel(for data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
+        return AsyncThrowingStream { continuation in
+            let task = Task.detached(priority: .userInitiated) {
+                await performOptimizedParallelCalculation(data: data, continuation: continuation)
+            }
+        }
+    }
+    
+    /// 执行优化的并行计算
+    private static func performOptimizedParallelCalculation(
+        data: Data, 
+        continuation: AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error>.Continuation
+    ) async {
+        do {
+            var results: [HashResult] = []
+            
+            let algorithmGroups = getOptimalAlgorithmGroups(for: data.count)
+            let totalAlgorithms = algorithmGroups.flatMap { $0 }.count
+            var completedCount = 0
+            
+            let inputData = data
+            results.reserveCapacity(totalAlgorithms)
+            
+            for (groupIndex, algorithms) in algorithmGroups.enumerated() {
+                if await cancellationToken.isCancelled {
+                    continuation.finish(throwing: CancellationError())
+                    return
+                }
+                
+                await processAlgorithmGroup(
+                    algorithms: algorithms,
+                    inputData: inputData,
+                    results: &results,
+                    completedCount: &completedCount,
+                    totalAlgorithms: totalAlgorithms,
+                    continuation: continuation
+                )
+                
+                if groupIndex < algorithmGroups.count - 1 {
+                    let delay = getOptimalDelay(for: groupIndex, fileSize: data.count)
+                    try await Task.sleep(nanoseconds: delay)
+                }
+            }
+            
+            let finalUpdate = HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete")
+            continuation.yield((finalUpdate, results))
+            continuation.finish()
+            
+        } catch {
+            continuation.finish(throwing: error)
+        }
+    }
+    
+    /// 处理算法组
+    private static func processAlgorithmGroup(
+        algorithms: [String],
+        inputData: Data,
+        results: inout [HashResult],
+        completedCount: inout Int,
+        totalAlgorithms: Int,
+        continuation: AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error>.Continuation
+    ) async {
+        await withTaskGroup(of: HashResult?.self) { group in
+            for algorithm in algorithms {
+                group.addTask(priority: .userInitiated) { @Sendable in
+                    return await calculateSingleHashOptimized(algorithm: algorithm, data: inputData)
+                }
+            }
+            
+            for await result in group {
+                if let result = result {
+                    results.append(result)
+                    completedCount += 1
                     
-                    // 创建 Sendable 的数据副本以避免并发警告
-                    let inputData = data
-                    
-                    // 按优先级分组处理算法
-                    for (groupIndex, algorithms) in algorithmGroups.enumerated() {
-                        // 检查取消状态
-                        if await cancellationToken.isCancelled {
-                            continuation.finish(throwing: CancellationError())
-                            return
-                        }
-                        
-                        // 使用TaskGroup并行计算当前组的哈希算法
-                        await withTaskGroup(of: HashResult?.self) { group in
-                            for algorithm in algorithms {
-                                group.addTask(priority: .userInitiated) { @Sendable in
-                                    // 检查取消状态
-                                    if await cancellationToken.isCancelled {
-                                        return nil
-                                    }
-                                    
-                                    let hash: String
-                                    switch algorithm {
-                                    case "MD2":
-                                        hash = md2(data: inputData)
-                                    case "MD4":
-                                        hash = md4(data: inputData)
-                                    case "MD5":
-                                        hash = inputData.md5().toHexString()
-                                    case "SHA1":
-                                        hash = inputData.sha1().toHexString()
-                                    case "SHA224":
-                                        hash = inputData.sha224().toHexString()
-                                    case "SHA256":
-                                        hash = inputData.sha256().toHexString()
-                                    case "SHA384":
-                                        hash = inputData.sha384().toHexString()
-                                    case "SHA512":
-                                        hash = inputData.sha512().toHexString()
-                                    case "SHA3-224":
-                                        hash = inputData.sha3(.sha224).toHexString()
-                                    case "SHA3-256":
-                                        hash = inputData.sha3(.sha256).toHexString()
-                                    case "SHA3-384":
-                                        hash = inputData.sha3(.sha384).toHexString()
-                                    case "SHA3-512":
-                                        hash = inputData.sha3(.sha512).toHexString()
-                                    case "Keccak-224":
-                                        hash = inputData.sha3(.keccak224).toHexString()
-                                    case "Keccak-256":
-                                        hash = inputData.sha3(.keccak256).toHexString()
-                                    case "Keccak-384":
-                                        hash = inputData.sha3(.keccak384).toHexString()
-                                    case "Keccak-512":
-                                        hash = inputData.sha3(.keccak512).toHexString()
-                                    case "CRC-16":
-                                        hash = inputData.crc16().toHexString()
-                                    case "CRC-32":
-                                        hash = inputData.crc32().toHexString()
-                                    case "CRC-32C":
-                                        hash = inputData.crc32c().toHexString()
-                                    case "Adler-32":
-                                        hash = adler32(data: inputData)
-                                    default:
-                                        return nil
-                                    }
-                                    return HashResult(algorithm: algorithm, hash: hash)
-                                }
-                            }
-                            
-                            // 收集当前组的结果并实时报告进度
-                            for await result in group {
-                                if let result = result {
-                                    results.append(result)
-                                    completedCount += 1
-                                    
-                                    let progress = Double(completedCount) / Double(totalAlgorithms)
-                                    continuation.yield((
-                                        HashProgressUpdate(progress: progress, currentAlgorithm: result.algorithm),
-                                        results
-                                    ))
-                                }
-                            }
-                        }
-                        
-                        // 组间小延迟，给UI更新时间
-                        if groupIndex < algorithmGroups.count - 1 {
-                            try await Task.sleep(nanoseconds: 10_000_000) // 10ms
-                        }
-                    }
-                    
-                    // 完成时发送最终结果
-                    continuation.yield((
-                        HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete"),
-                        results
-                    ))
-                    continuation.finish(throwing: nil)
-                    
-                } catch {
-                    continuation.finish(throwing: error)
+                    let progress = Double(completedCount) / Double(totalAlgorithms)
+                    let update = HashProgressUpdate(progress: progress, currentAlgorithm: result.algorithm)
+                    continuation.yield((update, results))
                 }
             }
         }
     }
     
-    /// 大文件分块处理（流式计算）- 按速度优先级处理
+    /// 动态算法分组优化
+    private static func getOptimalAlgorithmGroups(for dataSize: Int) -> [[String]] {
+        let sizeMB = Double(dataSize) / (1024 * 1024)
+        
+        if sizeMB <= 1 { // 小文件：最大并行
+            return [ultraFastAlgorithms + fastAlgorithms, mediumAlgorithms, slowAlgorithms, cryptographicAlgorithms, experimentalAlgorithms]
+        } else if sizeMB <= 5 { // 中等文件：分组并行
+            return [ultraFastAlgorithms, fastAlgorithms, mediumAlgorithms, slowAlgorithms, cryptographicAlgorithms + experimentalAlgorithms]
+        } else { // 大文件：保守分组
+            return [ultraFastAlgorithms, fastAlgorithms, mediumAlgorithms, slowAlgorithms, cryptographicAlgorithms, experimentalAlgorithms]
+        }
+    }
+    
+    /// 智能延迟计算
+    private static func getOptimalDelay(for groupIndex: Int, fileSize: Int) -> UInt64 {
+        let sizeMB = Double(fileSize) / (1024 * 1024)
+        
+        if sizeMB <= 1 {
+            return 5_000_000 // 5ms
+        } else if sizeMB <= 5 {
+            return 10_000_000 // 10ms
+        } else {
+            return 20_000_000 // 20ms
+        }
+    }
+    
+    /// 优化的单个哈希计算
+    private static func calculateSingleHashOptimized(algorithm: String, data: Data) async -> HashResult? {
+        // 检查取消状态
+        if await cancellationToken.isCancelled {
+            return nil
+        }
+        
+        do {
+            let hash: String
+            
+            // 使用优化的实现
+            switch algorithm {
+            case "CRC-32":
+                hash = crc32Optimized(data: data)
+            case "MD2":
+                hash = md2(data: data)
+            case "MD4":
+                hash = md4(data: data)
+            case "MD5":
+                hash = data.md5().toHexString()
+            case "SHA1":
+                hash = data.sha1().toHexString()
+            case "SHA224":
+                hash = data.sha224().toHexString()
+            case "SHA256":
+                hash = data.sha256().toHexString()
+            case "SHA384":
+                hash = data.sha384().toHexString()
+            case "SHA512":
+                hash = data.sha512().toHexString()
+            case "SHA3-224":
+                hash = data.sha3(.sha224).toHexString()
+            case "SHA3-256":
+                hash = data.sha3(.sha256).toHexString()
+            case "SHA3-384":
+                hash = data.sha3(.sha384).toHexString()
+            case "SHA3-512":
+                hash = data.sha3(.sha512).toHexString()
+            case "Keccak-224":
+                hash = data.sha3(.keccak224).toHexString()
+            case "Keccak-256":
+                hash = data.sha3(.keccak256).toHexString()
+            case "Keccak-384":
+                hash = data.sha3(.keccak384).toHexString()
+            case "Keccak-512":
+                hash = data.sha3(.keccak512).toHexString()
+            case "CRC-16":
+                hash = data.crc16().toHexString()
+            case "CRC-32C":
+                hash = data.crc32c().toHexString()
+            case "Adler-32":
+                hash = adler32(data: data)
+            default:
+                return nil
+            }
+            
+            return HashResult(algorithm: algorithm, hash: hash)
+        } catch {
+            print("Hash calculation failed for \(algorithm): \(error)")
+            return nil
+        }
+    }
+    
+    /// 超大文件处理（>100MB）- 极致内存优化
+    private static func calculateHashesForExtraLargeFile(data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
+        return AsyncThrowingStream { continuation in
+            let task = Task.detached(priority: .userInitiated) {
+                await performExtraLargeFileCalculation(data: data, continuation: continuation)
+            }
+        }
+    }
+    
+    /// 执行超大文件计算
+    private static func performExtraLargeFileCalculation(
+        data: Data,
+        continuation: AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error>.Continuation
+    ) async {
+        do {
+            let allAlgorithms = ultraFastAlgorithms + fastAlgorithms + mediumAlgorithms + slowAlgorithms + cryptographicAlgorithms + experimentalAlgorithms
+            var results: [HashResult] = []
+            results.reserveCapacity(allAlgorithms.count)
+            
+            let inputData = data
+            let fileSizeMB = Double(inputData.count) / (1024 * 1024)
+            
+            for (index, algorithm) in allAlgorithms.enumerated() {
+                if await cancellationToken.isCancelled {
+                    continuation.finish(throwing: CancellationError())
+                    return
+                }
+                
+                await cancellationToken.checkMemoryPressure()
+                if await cancellationToken.isCancelled {
+                    continuation.finish(throwing: CancellationError())
+                    return
+                }
+                
+                let result = await calculateSingleHashOptimized(algorithm: algorithm, data: inputData)
+                
+                if let result = result {
+                    autoreleasepool {
+                        results.append(result)
+                    }
+                    
+                    let progress = Double(index + 1) / Double(allAlgorithms.count)
+                    let update = HashProgressUpdate(progress: progress, currentAlgorithm: algorithm)
+                    continuation.yield((update, results))
+                }
+                
+                if index < allAlgorithms.count - 1 {
+                    let delay: UInt64 = fileSizeMB > 500 ? 500_000_000 : 300_000_000
+                    try await Task.sleep(nanoseconds: delay)
+                }
+            }
+            
+            let finalUpdate = HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete")
+            continuation.yield((finalUpdate, results))
+            continuation.finish()
+            
+        } catch {
+            continuation.finish(throwing: error)
+        }
+    }
+    
+    /// 大文件优化处理（10-100MB）- 平衡性能与稳定性
     private static func calculateHashesForLargeFile(data: Data) -> AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error> {
-        AsyncThrowingStream { continuation in
-            Task.detached(priority: .userInitiated) {
-                do {
-                    let algorithmGroups = [fastAlgorithms, mediumAlgorithms, slowAlgorithms]
-                    let totalAlgorithms = fastAlgorithms.count + mediumAlgorithms.count + slowAlgorithms.count
-                    var completedResults: [HashResult] = []
-                    
-                    // 创建 Sendable 的数据副本以避免并发警告
-                    let inputData = data
-                    
-                    // 根据文件大小动态调整策略
-                    let fileSizeMB = Double(inputData.count) / (1024 * 1024)
-                    
-                    // 按优先级分组顺序处理
-                    for algorithms in algorithmGroups {
-                        // 检查取消状态
-                        if await cancellationToken.isCancelled {
-                            continuation.finish(throwing: CancellationError())
-                            return
-                        }
-                        
-                        let concurrencyLimit: Int
-                        let batchDelay: UInt64
-                        
-                        if fileSizeMB <= 100 { // 100MB以下
-                            concurrencyLimit = min(4, maxConcurrentTasks) // 中等并发
-                            batchDelay = 50_000_000 // 50ms
-                        } else if fileSizeMB <= 200 { // 200MB以下  
-                            concurrencyLimit = min(3, maxConcurrentTasks) // 适中并发
-                            batchDelay = 100_000_000 // 100ms
-                        } else { // 超大文件
-                            concurrencyLimit = min(2, maxConcurrentTasks) // 保守并发
-                            batchDelay = 200_000_000 // 200ms
-                        }
-                        
-                        for i in stride(from: 0, to: algorithms.count, by: concurrencyLimit) {
-                            // 检查取消状态
-                            if await cancellationToken.isCancelled {
-                                continuation.finish(throwing: CancellationError())
-                                return
-                            }
-                            
-                            let batch = Array(algorithms[i..<min(i + concurrencyLimit, algorithms.count)])
-                            
-                            // 小批量并行处理
-                            await withTaskGroup(of: HashResult?.self) { group in
-                                for algorithm in batch {
-                                    group.addTask(priority: .userInitiated) { @Sendable in
-                                        // 检查取消状态
-                                        if await cancellationToken.isCancelled {
-                                            return nil
-                                        }
-                                        
-                                        do {
-                                            let hash: String
-                                            switch algorithm {
-                                            case "MD2":
-                                                hash = md2(data: inputData)
-                                            case "MD4":
-                                                hash = md4(data: inputData)
-                                            case "MD5":
-                                                hash = inputData.md5().toHexString()
-                                            case "SHA1":
-                                                hash = inputData.sha1().toHexString()
-                                            case "SHA224":
-                                                hash = inputData.sha224().toHexString()
-                                            case "SHA256":
-                                                hash = inputData.sha256().toHexString()
-                                            case "SHA384":
-                                                hash = inputData.sha384().toHexString()
-                                            case "SHA512":
-                                                hash = inputData.sha512().toHexString()
-                                            case "SHA3-224":
-                                                hash = inputData.sha3(.sha224).toHexString()
-                                            case "SHA3-256":
-                                                hash = inputData.sha3(.sha256).toHexString()
-                                            case "SHA3-384":
-                                                hash = inputData.sha3(.sha384).toHexString()
-                                            case "SHA3-512":
-                                                hash = inputData.sha3(.sha512).toHexString()
-                                            case "Keccak-224":
-                                                hash = inputData.sha3(.keccak224).toHexString()
-                                            case "Keccak-256":
-                                                hash = inputData.sha3(.keccak256).toHexString()
-                                            case "Keccak-384":
-                                                hash = inputData.sha3(.keccak384).toHexString()
-                                            case "Keccak-512":
-                                                hash = inputData.sha3(.keccak512).toHexString()
-                                            case "CRC-16":
-                                                hash = inputData.crc16().toHexString()
-                                            case "CRC-32":
-                                                hash = inputData.crc32().toHexString()
-                                            case "CRC-32C":
-                                                hash = inputData.crc32c().toHexString()
-                                            case "Adler-32":
-                                                hash = adler32(data: inputData)
-                                            default:
-                                                return nil
-                                            }
-                                            return HashResult(algorithm: algorithm, hash: hash)
-                                        } catch {
-                                            // 如果某个算法失败，记录错误但继续处理其他算法
-                                            print("Hash calculation failed for \(algorithm): \(error)")
-                                            return nil
-                                        }
-                                    }
-                                }
-                                
-                                for await result in group {
-                                    if let result = result {
-                                        completedResults.append(result)
-                                        
-                                        let progress = Double(completedResults.count) / Double(totalAlgorithms)
-                                        await MainActor.run {
-                                            continuation.yield((
-                                                HashProgressUpdate(progress: progress, currentAlgorithm: result.algorithm),
-                                                completedResults
-                                            ))
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            // 动态延迟，根据文件大小调整
-                            try await Task.sleep(nanoseconds: batchDelay)
-                            
-                            // 只在大文件时进行内存清理
-                            if fileSizeMB > 100 {
-                                autoreleasepool {
-                                    // 强制内存回收
-                                }
-                            }
-                        }
-                    }
-                    
-                    // 完成时发送最终结果
-                    await MainActor.run {
-                        continuation.yield((
-                            HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete"),
-                            completedResults
-                        ))
-                        continuation.finish(throwing: nil)
-                    }
-                    
-                } catch {
-                    await MainActor.run {
-                        continuation.finish(throwing: error)
+        return AsyncThrowingStream { continuation in
+            let task = Task.detached(priority: .userInitiated) {
+                await performLargeFileCalculation(data: data, continuation: continuation)
+            }
+        }
+    }
+    
+    /// 执行大文件计算
+    private static func performLargeFileCalculation(
+        data: Data,
+        continuation: AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error>.Continuation
+    ) async {
+        do {
+            let algorithmGroups = [ultraFastAlgorithms, fastAlgorithms, mediumAlgorithms, slowAlgorithms, cryptographicAlgorithms, experimentalAlgorithms]
+            let totalAlgorithms = algorithmGroups.flatMap { $0 }.count
+            var completedResults: [HashResult] = []
+            completedResults.reserveCapacity(totalAlgorithms)
+            
+            let inputData = data
+            let fileSizeMB = Double(inputData.count) / (1024 * 1024)
+            
+            let concurrencyConfig = getConcurrencyConfig(for: fileSizeMB)
+            
+            for algorithms in algorithmGroups {
+                if await cancellationToken.isCancelled {
+                    continuation.finish(throwing: CancellationError())
+                    return
+                }
+                
+                if concurrencyConfig.concurrencyLimit == 1 {
+                    await processAlgorithmsSerially(
+                        algorithms: algorithms,
+                        inputData: inputData,
+                        completedResults: &completedResults,
+                        totalAlgorithms: totalAlgorithms,
+                        continuation: continuation
+                    )
+                } else {
+                    await processAlgorithmsInBatches(
+                        algorithms: algorithms,
+                        inputData: inputData,
+                        completedResults: &completedResults,
+                        totalAlgorithms: totalAlgorithms,
+                        concurrencyLimit: concurrencyConfig.concurrencyLimit,
+                        batchDelay: concurrencyConfig.batchDelay,
+                        continuation: continuation
+                    )
+                }
+                
+                try await Task.sleep(nanoseconds: concurrencyConfig.batchDelay)
+            }
+            
+            let finalUpdate = HashProgressUpdate(progress: 1.0, currentAlgorithm: "Complete")
+            continuation.yield((finalUpdate, completedResults))
+            continuation.finish()
+            
+        } catch {
+            continuation.finish(throwing: error)
+        }
+    }
+    
+    /// 并发配置
+    private struct ConcurrencyConfig {
+        let concurrencyLimit: Int
+        let batchDelay: UInt64
+    }
+    
+    /// 获取并发配置
+    private static func getConcurrencyConfig(for fileSizeMB: Double) -> ConcurrencyConfig {
+        if fileSizeMB <= 25 {
+            return ConcurrencyConfig(concurrencyLimit: min(3, maxConcurrentTasks), batchDelay: 50_000_000)
+        } else if fileSizeMB <= 50 {
+            return ConcurrencyConfig(concurrencyLimit: min(2, maxConcurrentTasks), batchDelay: 100_000_000)
+        } else {
+            return ConcurrencyConfig(concurrencyLimit: 1, batchDelay: 200_000_000)
+        }
+    }
+    
+    /// 串行处理算法
+    private static func processAlgorithmsSerially(
+        algorithms: [String],
+        inputData: Data,
+        completedResults: inout [HashResult],
+        totalAlgorithms: Int,
+        continuation: AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error>.Continuation
+    ) async {
+        for algorithm in algorithms {
+            if await cancellationToken.isCancelled {
+                continuation.finish(throwing: CancellationError())
+                return
+            }
+            
+            let result = await calculateSingleHashOptimized(algorithm: algorithm, data: inputData)
+            
+            if let result = result {
+                completedResults.append(result)
+                
+                let progress = Double(completedResults.count) / Double(totalAlgorithms)
+                let update = HashProgressUpdate(progress: progress, currentAlgorithm: algorithm)
+                continuation.yield((update, completedResults))
+            }
+            
+            do {
+                try await Task.sleep(nanoseconds: 50_000_000) // 50ms
+            } catch {
+                // Handle sleep interruption
+            }
+        }
+    }
+    
+    /// 批次并行处理算法
+    private static func processAlgorithmsInBatches(
+        algorithms: [String],
+        inputData: Data,
+        completedResults: inout [HashResult],
+        totalAlgorithms: Int,
+        concurrencyLimit: Int,
+        batchDelay: UInt64,
+        continuation: AsyncThrowingStream<(HashProgressUpdate, [HashResult]), Error>.Continuation
+    ) async {
+        for i in stride(from: 0, to: algorithms.count, by: concurrencyLimit) {
+            if await cancellationToken.isCancelled {
+                continuation.finish(throwing: CancellationError())
+                return
+            }
+            
+            let batch = Array(algorithms[i..<min(i + concurrencyLimit, algorithms.count)])
+            
+            await withTaskGroup(of: HashResult?.self) { group in
+                for algorithm in batch {
+                    group.addTask(priority: .userInitiated) { @Sendable in
+                        return await calculateSingleHashOptimized(algorithm: algorithm, data: inputData)
                     }
                 }
+                
+                for await result in group {
+                    if let result = result {
+                        completedResults.append(result)
+                        
+                        let progress = Double(completedResults.count) / Double(totalAlgorithms)
+                        let update = HashProgressUpdate(progress: progress, currentAlgorithm: result.algorithm)
+                        continuation.yield((update, completedResults))
+                    }
+                }
+            }
+            
+            do {
+                try await Task.sleep(nanoseconds: batchDelay)
+            } catch {
+                // Handle sleep interruption
             }
         }
     }

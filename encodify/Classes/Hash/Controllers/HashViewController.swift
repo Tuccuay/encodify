@@ -28,6 +28,11 @@ class HashViewController: UIViewController {
         }
     }
     
+    // Prevent duplicate file processing
+    private var lastProcessedFileName: String?
+    private var lastProcessingTime: Date?
+    private let duplicateProcessingThreshold: TimeInterval = 1.0 // 1 second
+    
     private var collectionView: UICollectionView!
     private var dataSourceManager: HashCollectionDataSource!
     private var fileHashManager: FileHashManager!
@@ -229,27 +234,34 @@ class HashViewController: UIViewController {
     }
     
     @objc private func calculateHashes() {
+        calculateHashesOptimized()
+    }
+    
+    // MARK: - Optimized Hash Calculation with Enhanced Error Handling
+    
+    private func calculateHashesOptimized() {
         view.endEditing(true)
-        
-        // 防止重复计算
+
         guard !isCalculating else { return }
-        
-        // 设置计算状态
+
+        // 预检查系统资源
+        guard checkSystemResources() else {
+            Toast.showError("Insufficient system resources for hash calculation")
+            return
+        }
+
         isCalculating = true
         calculationStartTime = Date()
-        
-        // 启动定时器，5秒后显示停止按钮
-        showStopButtonTimer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { [weak self] _ in
+
+        showStopButtonTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 self?.showStopButton()
             }
         }
-        
-        // 清空之前的结果，准备显示新的结果
+
         hashResults.removeAll()
         dataSourceManager.reloadHashResults()
-        
-        // 准备输入数据
+
         let inputData: Data
         switch currentInputType {
         case .text:
@@ -265,7 +277,7 @@ class HashViewController: UIViewController {
                 return
             }
             inputData = data
-            
+
         case .file:
             guard let fileInfo = currentFileInfo else {
                 Toast.showError("Please select a file to hash")
@@ -274,97 +286,81 @@ class HashViewController: UIViewController {
             }
             inputData = fileInfo.data
         }
-        
-        // 检查文件大小并显示相应提示
-        let fileSizeText = ByteCountFormatter.string(fromByteCount: Int64(inputData.count), countStyle: .binary)
-        if inputData.count > 50 * 1024 * 1024 { // 50MB
-            Toast.showStatus("Processing large file (\(fileSizeText)) with optimized strategy...")
-        } else if inputData.count > 10 * 1024 * 1024 { // 10MB
-            Toast.showStatus("Processing file (\(fileSizeText)) with parallel computing...")
-        } else {
-            Toast.showStatus("Processing \(fileSizeText) with high-speed parallel computing...")
-        }
-        
-        // 在后台线程进行哈希计算，实时更新结果
+
+        // 智能提示优化
+        let fileSizeMB = Double(inputData.count) / (1024 * 1024)
+        let statusMessage = getOptimizedStatusMessage(for: fileSizeMB)
+        Toast.showStatus(statusMessage)
+
+        // 动态调整更新策略
+        let updateStrategy = getUpdateStrategy(for: fileSizeMB)
+
         Task {
             do {
                 var lastUpdateTime = Date()
-                let fileSizeMB = Double(inputData.count) / (1024 * 1024)
-                
-                // 根据文件大小动态调整更新频率
-                let updateInterval: TimeInterval = {
-                    if fileSizeMB <= 10 { return 0.05 } // 小文件: 50ms更新
-                    else if fileSizeMB <= 50 { return 0.1 } // 中等文件: 100ms更新  
-                    else { return 0.2 } // 大文件: 200ms更新
-                }()
-                
-                // 使用 AsyncThrowingStream 获取进度更新和结果
+                var updateCounter = 0
+
                 for try await (progressUpdate, currentResults) in HashCalculator.calculateHashesWithProgress(for: inputData) {
                     let now = Date()
-                    let shouldUpdateUI = now.timeIntervalSince(lastUpdateTime) >= updateInterval || progressUpdate.currentAlgorithm == "Complete"
-                    
+                    let shouldUpdateUI = shouldUpdateUI(
+                        lastUpdateTime: lastUpdateTime,
+                        updateCounter: updateCounter,
+                        strategy: updateStrategy,
+                        progressUpdate: progressUpdate
+                    )
+
                     if shouldUpdateUI {
                         await MainActor.run {
-                            // 检查计算状态是否仍然有效
                             guard self.isCalculating else { return }
-                            
-                            // 更新进度
+
                             self.updateCalculateButtonProgress(progressUpdate.progress)
-                            
-                            // 实时更新已完成的哈希结果
+
                             var updatedResults: [String: String] = [:]
                             for result in currentResults {
                                 updatedResults[result.algorithm] = result.hash
                             }
-                            
-                            // 动态批量更新UI
+
                             if updatedResults.count > self.hashResults.count {
                                 self.hashResults = updatedResults
-                                
-                                // 根据文件大小调整UI更新策略
-                                let shouldReloadUI: Bool = {
-                                    if fileSizeMB <= 10 { 
-                                        return updatedResults.count % 3 == 0 || progressUpdate.currentAlgorithm == "Complete"
-                                    } else if fileSizeMB <= 50 {
-                                        return updatedResults.count % 5 == 0 || progressUpdate.currentAlgorithm == "Complete"
-                                    } else {
-                                        return updatedResults.count % 7 == 0 || progressUpdate.currentAlgorithm == "Complete"
-                                    }
-                                }()
-                                
-                                if shouldReloadUI {
+
+                                if self.shouldReloadUI(
+                                    newCount: updatedResults.count,
+                                    strategy: updateStrategy,
+                                    isComplete: progressUpdate.currentAlgorithm == "Complete"
+                                ) {
                                     self.dataSourceManager.reloadHashResults()
                                 }
                             }
                         }
                         lastUpdateTime = now
+                        updateCounter += 1
                     }
-                    
-                    // 当进度完成时，退出循环
+
                     if progressUpdate.currentAlgorithm == "Complete" {
                         break
                     }
                 }
-                
-                // 回到主线程完成最终处理
+
                 await MainActor.run {
                     guard self.isCalculating else { return }
-                    
+
                     self.isCalculating = false
                     self.hideStopButton()
-                    
-                    // 确保最终UI更新
                     self.dataSourceManager.reloadHashResults()
-                    
-                    // Success feedback
+
                     let feedbackGenerator = UINotificationFeedbackGenerator()
                     feedbackGenerator.notificationOccurred(.success)
-                    
+
                     let resultCount = self.hashResults.count
+                    let elapsedTime = Date().timeIntervalSince(self.calculationStartTime ?? Date())
+                    
+                    // 记录性能指标
+                    self.logPerformanceMetrics(startTime: self.calculationStartTime ?? Date(), resultCount: resultCount, fileSizeMB: fileSizeMB)
+                    
                     if let fileInfo = self.currentFileInfo {
-                        Toast.showSuccess("Computed \(resultCount) hashes for \(fileInfo.fileName)")
+                        Toast.showSuccess("Computed \(resultCount) hashes for \(fileInfo.fileName) in \(String(format: "%.1f", elapsedTime))s")
                     } else {
-                        Toast.showSuccess("Computed \(resultCount) hashes successfully")
+                        Toast.showSuccess("Computed \(resultCount) hashes in \(String(format: "%.1f", elapsedTime))s")
                     }
                 }
             } catch {
@@ -379,6 +375,85 @@ class HashViewController: UIViewController {
         }
     }
     
+    // MARK: - System Resource Management
+    
+    private func checkSystemResources() -> Bool {
+        let availableMemory = ProcessInfo.processInfo.physicalMemory
+        let usedMemory = mach_task_basic_info.getUsedMemory()
+        let memoryUsageRatio = Double(usedMemory) / Double(availableMemory)
+        
+        // 如果内存使用率超过80%，拒绝计算
+        if memoryUsageRatio > 0.8 {
+            showMemoryWarningAlert()
+            return false
+        }
+        
+        return true
+    }
+    
+    private func showMemoryWarningAlert() {
+        let alert = UIAlertController(
+            title: "Memory Warning",
+            message: "System memory usage is high. Close other apps and try again.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    // MARK: - Update Strategy Optimization
+    
+    private struct UpdateStrategy {
+        let timeInterval: TimeInterval
+        let batchSize: Int
+        let updateFrequency: Int
+    }
+    
+    private func getUpdateStrategy(for fileSizeMB: Double) -> UpdateStrategy {
+        if fileSizeMB <= 1 {
+            return UpdateStrategy(timeInterval: 0.03, batchSize: 2, updateFrequency: 1) // 高频更新
+        } else if fileSizeMB <= 10 {
+            return UpdateStrategy(timeInterval: 0.05, batchSize: 3, updateFrequency: 2) // 中等更新
+        } else if fileSizeMB <= 50 {
+            return UpdateStrategy(timeInterval: 0.1, batchSize: 5, updateFrequency: 3) // 低频更新
+        } else {
+            return UpdateStrategy(timeInterval: 0.2, batchSize: 7, updateFrequency: 5) // 极低频更新
+        }
+    }
+    
+    private func shouldUpdateUI(
+        lastUpdateTime: Date,
+        updateCounter: Int,
+        strategy: UpdateStrategy,
+        progressUpdate: HashProgressUpdate
+    ) -> Bool {
+        let now = Date()
+        let timeBasedUpdate = now.timeIntervalSince(lastUpdateTime) >= strategy.timeInterval
+        let counterBasedUpdate = updateCounter % strategy.updateFrequency == 0
+        let isComplete = progressUpdate.currentAlgorithm == "Complete"
+        
+        return timeBasedUpdate || counterBasedUpdate || isComplete
+    }
+    
+    private func shouldReloadUI(newCount: Int, strategy: UpdateStrategy, isComplete: Bool) -> Bool {
+        return newCount % strategy.batchSize == 0 || isComplete
+    }
+    
+    private func getOptimizedStatusMessage(for fileSizeMB: Double) -> String {
+        let fileSizeText = ByteCountFormatter.string(fromByteCount: Int64(fileSizeMB * 1024 * 1024), countStyle: .binary)
+        
+        if fileSizeMB > 100 {
+            return "Processing extra-large file (\(fileSizeText)) with conservative strategy..."
+        } else if fileSizeMB > 10 {
+            return "Processing large file (\(fileSizeText)) with optimized batching..."
+        } else if fileSizeMB > 1 {
+            return "Processing file (\(fileSizeText)) with parallel acceleration..."
+        } else {
+            return "Processing \(fileSizeText) with maximum performance..."
+        }
+    }
+    
     @objc private func clearAll() {
         view.endEditing(true)
         
@@ -386,6 +461,11 @@ class HashViewController: UIViewController {
         hashResults.removeAll()
         currentInputType = .text
         currentFileInfo = nil
+        
+        // Reset duplicate tracking
+        lastProcessedFileName = nil
+        lastProcessingTime = nil
+        
         updateInputPlaceholder()
         dataSourceManager.reloadHashResults()
         
@@ -449,8 +529,14 @@ class HashViewController: UIViewController {
     private func showStopButton() {
         guard isCalculating else { return }
         
-        stopButton.isHidden = false
-        dataSourceManager.reloadCalculateButtonSection()
+        // 使用cell的动画方法来显示Stop按钮
+        if let cell = getCurrentCalculateButtonCell() {
+            cell.showStopButtonWithAnimation()
+        } else {
+            // 如果cell不可用，fallback到直接显示
+            stopButton.isHidden = false
+            dataSourceManager.reloadCalculateButtonSection()
+        }
         
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
         feedbackGenerator.impactOccurred()
@@ -460,13 +546,47 @@ class HashViewController: UIViewController {
         showStopButtonTimer?.invalidate()
         showStopButtonTimer = nil
         
-        stopButton.isHidden = true
-        dataSourceManager.reloadCalculateButtonSection()
+        // 使用cell的动画方法来隐藏Stop按钮
+        if let cell = getCurrentCalculateButtonCell() {
+            cell.hideStopButtonWithAnimation()
+        } else {
+            // 如果cell不可用，fallback到直接隐藏
+            stopButton.isHidden = true
+            dataSourceManager.reloadCalculateButtonSection()
+        }
+    }
+    
+    // 获取当前的CalculateButtonCell
+    private func getCurrentCalculateButtonCell() -> CalculateButtonCell? {
+        // 查找CalculateButtonSection的indexPath
+        let snapshot = dataSourceManager.getCurrentSnapshot()
+        
+        guard let sectionIndex = snapshot.sectionIdentifiers.firstIndex(of: HashCollectionDataSource.SectionType.calculateButton) else {
+            return nil
+        }
+        
+        let indexPath = IndexPath(item: 0, section: sectionIndex)
+        return collectionView.cellForItem(at: indexPath) as? CalculateButtonCell
     }
     
     // MARK: - File Processing
     
     private func processFileInfo(_ fileInfo: FileInfo) {
+        let now = Date()
+        
+        // Check for duplicate processing within threshold
+        if let lastFileName = lastProcessedFileName,
+           let lastTime = lastProcessingTime,
+           lastFileName == fileInfo.fileName,
+           now.timeIntervalSince(lastTime) < duplicateProcessingThreshold {
+            print("Ignoring duplicate file processing: \(fileInfo.fileName)")
+            return
+        }
+        
+        // Update tracking variables
+        lastProcessedFileName = fileInfo.fileName
+        lastProcessingTime = now
+        
         currentInputType = .file
         currentFileInfo = fileInfo
         
@@ -488,6 +608,10 @@ class HashViewController: UIViewController {
         currentInputType = .text
         currentFileInfo = nil
         hashResults.removeAll()
+        
+        // Reset duplicate tracking
+        lastProcessedFileName = nil
+        lastProcessingTime = nil
         
         // Clear text and reset placeholder
         inputTextView.text = ""
@@ -700,7 +824,7 @@ extension HashViewController: HashCollectionDataSourceDelegate {
         let rawHashValue = hashResults[algorithm.algorithmKey]
         let formattedHashValue = rawHashValue != nil ? formattedHash(rawHashValue!) : nil
         
-        cell.configure(with: algorithm, hashValue: formattedHashValue)
+        cell.configure(with: algorithm, hashValue: formattedHashValue, isCalculating: isCalculating)
         cell.onTap = { [weak self] in
             self?.didTapHashCell(algorithm: algorithm)
         }
@@ -830,7 +954,7 @@ extension HashViewController: HashCollectionDataSourceDelegate {
     }
 }
 
-// MARK: - Error Handling for Async Operations
+// MARK: - Enhanced Error Handling for Async Operations
 
 extension HashViewController {
     private func handleCalculationError(_ error: Error) {
@@ -840,20 +964,37 @@ extension HashViewController {
         // 清理可能的内存占用
         hashResults.removeAll()
         
-        // 检查是否是内存相关错误
+        // 精细的错误分类处理
         let errorMessage: String
+        let showRetryOption: Bool
+        
         if let nsError = error as NSError? {
             switch nsError.code {
-            case -999: // 取消错误
+            case NSURLErrorCancelled, -999:
                 errorMessage = "Hash calculation was cancelled."
+                showRetryOption = false
+            case NSURLErrorTimedOut:
+                errorMessage = "Calculation timed out. The file may be too large."
+                showRetryOption = true
             default:
-                errorMessage = "Hash calculation failed: \(error.localizedDescription)"
+                if nsError.domain.contains("memory") || nsError.localizedDescription.lowercased().contains("memory") {
+                    errorMessage = "Insufficient memory to process this file. Try a smaller file or close other apps."
+                    showRetryOption = false
+                } else {
+                    errorMessage = "Hash calculation failed: \(error.localizedDescription)"
+                    showRetryOption = true
+                }
             }
         } else {
             errorMessage = "Hash calculation failed: \(error.localizedDescription)"
+            showRetryOption = true
         }
         
-        Toast.showError(errorMessage)
+        if showRetryOption {
+            showRetryAlert(message: errorMessage)
+        } else {
+            Toast.showError(errorMessage)
+        }
         
         let feedbackGenerator = UINotificationFeedbackGenerator()
         feedbackGenerator.notificationOccurred(.error)
@@ -861,6 +1002,25 @@ extension HashViewController {
         // 刷新UI状态
         dataSourceManager.reloadHashResults()
         updateCalculateButtonState()
+    }
+    
+    private func showRetryAlert(message: String) {
+        let alert = UIAlertController(
+            title: "Calculation Failed",
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Retry", style: .default) { [weak self] _ in
+            // 稍作延迟后重试
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self?.calculateHashes()
+            }
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(alert, animated: true)
     }
     
     private func handleCalculationCancellation() {
@@ -875,5 +1035,36 @@ extension HashViewController {
         // 刷新UI状态
         dataSourceManager.reloadHashResults()
         updateCalculateButtonState()
+    }
+    
+    // MARK: - Performance Monitoring
+    
+    private func logPerformanceMetrics(startTime: Date, resultCount: Int, fileSizeMB: Double) {
+        let elapsedTime = Date().timeIntervalSince(startTime)
+        let throughputMBps = fileSizeMB / elapsedTime
+        
+        print("Hash Performance Metrics:")
+        print("- File size: \(String(format: "%.2f", fileSizeMB)) MB")
+        print("- Time elapsed: \(String(format: "%.2f", elapsedTime)) seconds")
+        print("- Algorithms computed: \(resultCount)")
+        print("- Throughput: \(String(format: "%.2f", throughputMBps)) MB/s")
+        print("- Average time per algorithm: \(String(format: "%.3f", elapsedTime / Double(resultCount))) seconds")
+    }
+}
+
+// MARK: - Memory Monitoring Support
+
+private struct mach_task_basic_info {
+    static func getUsedMemory() -> UInt64 {
+        var info = mach_task_basic_info_data_t()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info_data_t>.size / MemoryLayout<integer_t>.size)
+        
+        let result = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
+            }
+        }
+        
+        return result == KERN_SUCCESS ? UInt64(info.resident_size) : 0
     }
 }

@@ -364,15 +364,17 @@ class CalculateButtonCell: UICollectionViewCell {
         stackView.addArrangedSubview(button)
         button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
         
-        // 如果有停止按钮且不隐藏，则添加到stackView
-        if let stopButton = stopButton, !stopButton.isHidden {
+        // 设置计算按钮约束
+        button.snp.makeConstraints { make in
+            make.height.equalTo(50)
+        }
+        
+        // 如果有停止按钮，预先添加但隐藏
+        if let stopButton = stopButton {
             stackView.addArrangedSubview(stopButton)
             stopButton.addTarget(self, action: #selector(stopButtonTapped), for: .touchUpInside)
             
-            // 设置按钮约束
-            button.snp.makeConstraints { make in
-                make.height.equalTo(50)
-            }
+            // 设置停止按钮约束
             stopButton.snp.makeConstraints { make in
                 make.height.equalTo(50)
             }
@@ -384,11 +386,41 @@ class CalculateButtonCell: UICollectionViewCell {
             
             // 设置stopButton的内容边距以减少额外空间
             stopButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-        } else {
-            // 只有计算按钮时，让其占满整个宽度
-            button.snp.makeConstraints { make in
-                make.height.equalTo(50)
-            }
+            
+            // 初始化为隐藏状态
+            stopButton.isHidden = true
+            stopButton.alpha = 0
+            stopButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        }
+    }
+    
+    // 显示停止按钮的动画方法
+    func showStopButtonWithAnimation() {
+        guard let stopButton = stopButton, stopButton.isHidden else { return }
+        
+        // 先显示按钮但保持透明
+        stopButton.isHidden = false
+        stopButton.alpha = 0
+        stopButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        
+        // 执行出现动画
+        UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 0.5, options: .curveEaseOut) {
+            stopButton.alpha = 1
+            stopButton.transform = .identity
+        }
+    }
+    
+    // 添加停止按钮的隐藏动画方法
+    func hideStopButtonWithAnimation() {
+        guard let stopButton = stopButton, !stopButton.isHidden else { return }
+        
+        UIView.animate(withDuration: 0.25, delay: 0, options: .curveEaseIn) {
+            stopButton.alpha = 0
+            stopButton.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        } completion: { _ in
+            stopButton.isHidden = true
+            stopButton.transform = .identity
+            stopButton.alpha = 1
         }
     }
     
@@ -431,6 +463,14 @@ class HashAlgorithmCell: UICollectionViewCell {
         label.numberOfLines = 0
         label.lineBreakMode = .byCharWrapping
         return label
+    }()
+    
+    private lazy var loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.color = UIColor.secondaryLabel
+        indicator.hidesWhenStopped = true
+        indicator.transform = CGAffineTransform(scaleX: 0.8, y: 0.8) // 稍微小一点
+        return indicator
     }()
     
     private lazy var securityBadge: UIView = {
@@ -530,6 +570,7 @@ class HashAlgorithmCell: UICollectionViewCell {
         contentView.addSubview(algorithmLabel)
         contentView.addSubview(descriptionLabel)
         contentView.addSubview(hashLabel)
+        contentView.addSubview(loadingIndicator)
         contentView.addSubview(securityBadge)
         contentView.addSubview(legacyBadge)
         contentView.addSubview(checksumBadge)
@@ -576,8 +617,15 @@ class HashAlgorithmCell: UICollectionViewCell {
         
         hashLabel.snp.makeConstraints { make in
             make.top.equalTo(descriptionLabel.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.equalToSuperview().inset(16)
+            make.trailing.equalToSuperview().inset(16)
             make.bottom.equalToSuperview().offset(-12)
+        }
+        
+        loadingIndicator.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(18)
+            make.centerY.equalTo(hashLabel)
+            make.width.height.equalTo(14)
         }
     }
     
@@ -593,35 +641,88 @@ class HashAlgorithmCell: UICollectionViewCell {
         }
     }
     
-    func configure(with algorithm: HashAlgorithm, hashValue: String?) {
+    func configure(with algorithm: HashAlgorithm, hashValue: String?, isCalculating: Bool = false) {
         algorithmLabel.text = algorithm.name
         descriptionLabel.text = algorithm.description
         
         if let hashValue = hashValue {
+            // 停止loading indicator
+            loadingIndicator.stopAnimating()
+            
+            // 恢复正常间距
+            hashLabel.snp.updateConstraints { make in
+                make.leading.equalToSuperview().inset(16)
+            }
+            
+            // 直接设置hash值，不使用动画
             hashLabel.text = hashValue
             hashLabel.textColor = UIColor.label
+            hashLabel.alpha = 1
+            hashLabel.transform = .identity
+        } else if isCalculating {
+            // 为loading indicator留出空间
+            hashLabel.snp.updateConstraints { make in
+                make.leading.equalToSuperview().inset(38)
+            }
+            
+            // 设置计算状态
+            hashLabel.text = "Calculating..."
+            hashLabel.textColor = UIColor.secondaryLabel
+            hashLabel.alpha = 1
+            hashLabel.transform = .identity
+            loadingIndicator.startAnimating()
         } else {
+            // 恢复正常间距
+            hashLabel.snp.updateConstraints { make in
+                make.leading.equalToSuperview().inset(16)
+            }
+            
+            // 设置默认状态
             hashLabel.text = "Tap 'Calculate All Hashes' to generate"
             hashLabel.textColor = UIColor.secondaryLabel
+            hashLabel.alpha = 1
+            hashLabel.transform = .identity
+            loadingIndicator.stopAnimating()
         }
         
-        // 隐藏所有标识
-        securityBadge.isHidden = true
-        legacyBadge.isHidden = true
-        checksumBadge.isHidden = true
-        blockchainBadge.isHidden = true
+        // 先隐藏所有标识
+        [securityBadge, legacyBadge, checksumBadge, blockchainBadge].forEach { badge in
+            badge.isHidden = true
+        }
         
         // 根据算法类型显示相应标识
         let algorithmKey = algorithm.algorithmKey
         
+        var targetBadge: UIView?
         if algorithmKey == "Keccak-256" {
-            blockchainBadge.isHidden = false
+            targetBadge = blockchainBadge
         } else if algorithmKey.hasPrefix("CRC") || algorithmKey == "Adler-32" {
-            checksumBadge.isHidden = false
+            targetBadge = checksumBadge
         } else if algorithm.isSecure {
-            securityBadge.isHidden = false
+            targetBadge = securityBadge
         } else {
-            legacyBadge.isHidden = false
+            targetBadge = legacyBadge
+        }
+        
+        // 直接显示badge，不使用动画
+        if let badge = targetBadge {
+            badge.isHidden = false
+            badge.alpha = 1
+            badge.transform = .identity
+        }
+    }
+    
+    // 清除hash值的方法（移除动画）
+    func clearHashWithAnimation() {
+        hashLabel.text = "Tap 'Calculate All Hashes' to generate"
+        hashLabel.textColor = UIColor.secondaryLabel
+        hashLabel.alpha = 1
+        hashLabel.transform = .identity
+        loadingIndicator.stopAnimating()
+        
+        // 恢复正常间距
+        hashLabel.snp.updateConstraints { make in
+            make.leading.equalToSuperview().inset(16)
         }
     }
 }

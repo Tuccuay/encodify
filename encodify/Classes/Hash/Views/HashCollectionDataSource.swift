@@ -250,3 +250,11 @@ protocol HashCollectionDataSourceDelegate: AnyObject {
     func configureFormatSelectorCell(_ cell: FormatSelectorCell)
     func configureHashAlgorithmCell(_ cell: HashAlgorithmCell, sectionIndex: Int, rowIndex: Int)
 }
+
+// MARK: - Public Access Methods
+    
+extension HashCollectionDataSource {
+    func getCurrentSnapshot() -> NSDiffableDataSourceSnapshot<SectionType, Item> {
+        return dataSource.snapshot()
+    }
+}

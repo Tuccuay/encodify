@@ -26,6 +26,11 @@ class FileHashManager: NSObject {
     weak var presentingViewController: UIViewController?
     var onFileSelected: ((FileInfo) -> Void)?
     
+    // Prevent duplicate file selection
+    private var lastSelectedFileName: String?
+    private var lastSelectionTime: Date?
+    private let duplicateSelectionThreshold: TimeInterval = 2.0 // 2 seconds
+    
     // MARK: - Public Methods
     
     func presentFilePicker(for type: FileType = .any) {
@@ -100,6 +105,22 @@ extension FileHashManager: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let url = urls.first else { return }
         
+        let fileName = url.lastPathComponent
+        let now = Date()
+        
+        // Check for duplicate selection within threshold
+        if let lastFileName = lastSelectedFileName,
+           let lastTime = lastSelectionTime,
+           lastFileName == fileName,
+           now.timeIntervalSince(lastTime) < duplicateSelectionThreshold {
+            print("Ignoring duplicate file selection: \(fileName)")
+            return
+        }
+        
+        // Update tracking variables
+        lastSelectedFileName = fileName
+        lastSelectionTime = now
+        
         // Start accessing security-scoped resource
         let accessing = url.startAccessingSecurityScopedResource()
         defer {
@@ -110,7 +131,6 @@ extension FileHashManager: UIDocumentPickerDelegate {
         
         do {
             let data = try Data(contentsOf: url)
-            let fileName = url.lastPathComponent
             
             // Get file attributes
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
