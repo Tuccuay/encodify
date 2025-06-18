@@ -5,13 +5,11 @@ PODS:
     - MarqueeLabel (~> 4.3.0)
     - SnapKit (~> 5.6.0)
   - SnapKit (5.6.0)
-  - XLPagerTabStrip (9.1.0)
 
 DEPENDENCIES:
   - CryptoSwift
   - NotificationBannerSwift
   - SnapKit
-  - XLPagerTabStrip (~> 9.0)
 
 SPEC REPOS:
   trunk:
@@ -19,15 +17,13 @@ SPEC REPOS:
     - MarqueeLabel
     - NotificationBannerSwift
     - SnapKit
-    - XLPagerTabStrip
 
 SPEC CHECKSUMS:
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   MarqueeLabel: 15e524a6762552bb279cb17438b8a94990269fb9
   NotificationBannerSwift: dce54ded532b26e30cd8e7f4d80e124a0f2ba7d1
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
-  XLPagerTabStrip: 27f3bfe23c53b4251c6481b06b1c289458a3fc1d
 
-PODFILE CHECKSUM: 0ad21c45768d0e7e3178ce973cb01c554b7a6b54
+PODFILE CHECKSUM: 799ae5fb18788cd99f5189a4fbb282ff1023e20d
 
 COCOAPODS: 1.16.2

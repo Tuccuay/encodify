@@ -8,7 +8,6 @@ target 'encodify' do
   # Pods for encodify
   pod 'CryptoSwift'  # Replace CocoaSecurity
   pod 'NotificationBannerSwift'  # Replace CWStatusBarNotification
-  pod 'XLPagerTabStrip', '~> 9.0'  # Latest Swift version
   pod 'SnapKit'  # Replace Masonry for Swift
   # FDStackView is not needed in modern iOS
   
